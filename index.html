@@ -598,6 +598,387 @@
             color: #777;
             text-decoration: none;
         }
+
+        /* --- SORA MODERN ADVANCED 2D IDLE RPG STYLES --- */
+        #rpg-toggle-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #ff007f, #7f00ff);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(127, 0, 255, 0.5);
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #rpg-toggle-btn:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 0, 127, 0.6);
+        }
+
+        #rpg-toggle-btn .ping {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            background: var(--success);
+            border-radius: 50%;
+            border: 2px solid var(--bg-dark);
+            animation: rpgPing 2s infinite;
+            display: none;
+        }
+
+        @keyframes rpgPing {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
+
+        #rpg-panel {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            height: 600px;
+            background: rgba(15, 17, 26, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform-origin: bottom right;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.9) translateY(20px);
+        }
+
+        #rpg-panel.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1) translateY(0);
+        }
+
+        .rpg-header {
+            background: linear-gradient(90deg, rgba(26, 29, 45, 0.9), rgba(46, 52, 78, 0.9));
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rpg-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, #00f2ff, #ff007f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rpg-inventory {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            display: flex;
+            gap: 10px;
+        }
+
+        .rpg-content {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .rpg-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .rpg-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .rpg-pet-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rpg-pet-avatar {
+            font-size: 5rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .rpg-pet-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .rpg-pet-level {
+            font-size: 0.9rem;
+            color: var(--accent);
+            background: rgba(0, 242, 255, 0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+            margin-top: 5px;
+        }
+
+        .rpg-bars {
+            width: 100%;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rpg-bar-container {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            height: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rpg-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .rpg-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            animation: shimmer 2s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .rpg-hp-fill { background: linear-gradient(90deg, #ff4444, #ff8888); box-shadow: 0 0 10px rgba(255, 68, 68, 0.5); }
+        .rpg-hunger-fill { background: linear-gradient(90deg, #ffb700, #ffdd55); box-shadow: 0 0 10px rgba(255, 183, 0, 0.5); }
+        .rpg-xp-fill { background: linear-gradient(90deg, #00f2ff, #0088ff); box-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
+
+        .rpg-bar-label {
+            position: absolute;
+            top: -2px;
+            left: 5px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 16px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .rpg-bar-value {
+            position: absolute;
+            top: -2px;
+            right: 5px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 16px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .rpg-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .rpg-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .rpg-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .rpg-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .rpg-btn.level-up {
+            background: linear-gradient(135deg, #00f2ff, #7f00ff);
+            border: none;
+            color: white;
+            animation: pulse-glow 1.5s infinite;
+            display: none;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(0, 242, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 242, 255, 0.8), 0 0 20px rgba(127, 0, 255, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(0, 242, 255, 0.5); }
+        }
+
+        .rpg-roster-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rpg-roster {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .rpg-roster-item {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .rpg-roster-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.05);
+        }
+
+        .rpg-roster-item.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0,242,255,0.3);
+        }
+
+        .rpg-roster-item .lvl-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: var(--bg-dark);
+            color: var(--success);
+            font-size: 0.6rem;
+            padding: 2px 5px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            font-weight: bold;
+        }
+
+        .rpg-logs {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 10px;
+            height: 80px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            color: #aaa;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .rpg-logs::-webkit-scrollbar { width: 4px; }
+        .rpg-logs::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+        .rpg-log-entry { animation: fadeInRight 0.3s ease; }
+        .rpg-log-entry.rare { color: #ffb700; font-weight: bold; }
+        .rpg-log-entry.epic { color: #ff007f; font-weight: bold; text-shadow: 0 0 5px rgba(255,0,127,0.5); }
+        .rpg-log-entry.system { color: var(--accent); }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Modal Overlays for RPG */
+        .rpg-modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+        .rpg-modal-content {
+            background: var(--bg-panel);
+            border: 1px solid var(--accent);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
     </style>
 </head>
 
@@ -847,6 +1228,76 @@
             <p style="margin-top:10px;">© 2026 Advanced Audio Stem Separator.</p>
             <p><a href="https://github.com/vicsanity623">GitHub</a> | <a href="/privacy-policy.html">Privacy</a></p>
         </footer>
+    </div>
+
+    <!-- IDLE RPG GAME UI HTML (Appended without altering above) -->
+    <button id="rpg-toggle-btn" onclick="toggleRpgPanel()">
+        🐾 Idle Pet RPG
+        <div class="ping" id="rpg-ping"></div>
+    </button>
+
+    <div id="rpg-panel">
+        <div class="rpg-header">
+            <h3>Idle Pets</h3>
+            <div class="rpg-inventory">
+                🍖 <span id="rpg-food-count">0</span> | 💎 <span id="rpg-gems-count">0</span>
+            </div>
+        </div>
+        
+        <div class="rpg-content">
+            <div class="rpg-pet-display">
+                <div class="rpg-pet-avatar" id="rpg-active-avatar">🥚</div>
+                <div class="rpg-pet-name" id="rpg-active-name">Basic Egg</div>
+                <div class="rpg-pet-level">Lv. <span id="rpg-active-lvl">1</span></div>
+                
+                <div class="rpg-bars">
+                    <div class="rpg-bar-container" title="Health">
+                        <div class="rpg-bar-fill rpg-hp-fill" id="rpg-bar-hp" style="width: 100%;"></div>
+                        <span class="rpg-bar-label">HP</span>
+                        <span class="rpg-bar-value" id="rpg-val-hp">100/100</span>
+                    </div>
+                    <div class="rpg-bar-container" title="Hunger">
+                        <div class="rpg-bar-fill rpg-hunger-fill" id="rpg-bar-hunger" style="width: 100%;"></div>
+                        <span class="rpg-bar-label">Hunger</span>
+                        <span class="rpg-bar-value" id="rpg-val-hunger">100/100</span>
+                    </div>
+                    <div class="rpg-bar-container" title="Experience">
+                        <div class="rpg-bar-fill rpg-xp-fill" id="rpg-bar-xp" style="width: 0%;"></div>
+                        <span class="rpg-bar-label">XP</span>
+                        <span class="rpg-bar-value" id="rpg-val-xp">0/100</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rpg-actions">
+                <button class="rpg-btn" id="rpg-btn-feed" onclick="rpgGame.feedPet()">🍖 Feed</button>
+                <button class="rpg-btn" id="rpg-btn-heal" onclick="rpgGame.healPet()">💖 Heal</button>
+            </div>
+            <button class="rpg-btn level-up" id="rpg-btn-levelup" onclick="rpgGame.levelUpPet()">🌟 TAP TO LEVEL UP! 🌟</button>
+
+            <div>
+                <div class="rpg-roster-title">
+                    <span>Pet Roster</span>
+                    <button class="rpg-btn" id="rpg-btn-merge" style="display:none; padding: 2px 10px; font-size: 0.8rem;" onclick="rpgGame.mergePets()">🧬 Merge</button>
+                </div>
+                <div class="rpg-roster" id="rpg-roster-grid">
+                    <!-- Roster items injected via JS -->
+                </div>
+            </div>
+
+            <div class="rpg-logs" id="rpg-logs-container">
+                <div class="rpg-log-entry system">Welcome to Idle Pets! Auto-exploring...</div>
+            </div>
+        </div>
+
+        <!-- Offline/Daily Modal -->
+        <div class="rpg-modal-overlay" id="rpg-modal">
+            <div class="rpg-modal-content">
+                <h3 style="margin-top:0; color:var(--accent);" id="rpg-modal-title">Welcome Back!</h3>
+                <p id="rpg-modal-text" style="color:var(--text-dim); margin-bottom: 20px;">Calculating offline progress...</p>
+                <button class="rpg-btn" style="width: 100%; background: var(--success); color: black;" onclick="document.getElementById('rpg-modal').style.display='none'">Claim</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1227,6 +1678,349 @@
                 forceDownload(`${baseUrl}${data.zip}`, "stems.zip", this);
             };
         }
+    </script>
+
+    <!-- NEW RPG LOGIC SCRIPT (Appended perfectly at the end without overriding) -->
+    <script>
+        // SORA Style Advanced Idle Pet RPG Logic
+        function toggleRpgPanel() {
+            const panel = document.getElementById('rpg-panel');
+            panel.classList.toggle('active');
+            document.getElementById('rpg-ping').style.display = 'none'; // clear notification ping
+        }
+
+        class IdleRPG {
+            constructor() {
+                this.saveKey = 'idle_rpg_save_v1';
+                this.tickRate = 1000;
+                
+                this.petDictionary = [
+                    { emoji: '🥚', name: 'Basic Egg' },
+                    { emoji: '🐣', name: 'Hatching Chick' },
+                    { emoji: '🐥', name: 'Baby Bird' },
+                    { emoji: '🐔', name: 'Chicken' },
+                    { emoji: '🦊', name: 'Mystic Fox' },
+                    { emoji: '🐉', name: 'Baby Dragon' },
+                    { emoji: '🦖', name: 'T-Rex' },
+                    { emoji: '🦄', name: 'Unicorn' },
+                    { emoji: '👽', name: 'Alien Pet' }
+                ];
+
+                this.state = this.loadState();
+                this.gameLoop = setInterval(() => this.tick(), this.tickRate);
+                
+                this.initUI();
+                this.processOfflineProgress();
+            }
+
+            getDefaultState() {
+                return {
+                    pets: [this.createNewPet(0, 1)], // Start with 1 egg
+                    activePetIndex: 0,
+                    food: 10,
+                    gems: 0,
+                    lastTick: Date.now(),
+                    lastDaily: 0
+                };
+            }
+
+            createNewPet(typeIndex, level = 1) {
+                const base = this.petDictionary[typeIndex];
+                return {
+                    id: Date.now() + Math.floor(Math.random()*1000),
+                    typeIndex: typeIndex,
+                    emoji: base.emoji,
+                    name: base.name,
+                    level: level,
+                    xp: 0,
+                    maxXp: 100 * Math.pow(1.5, level - 1),
+                    hp: 100 + (level * 10),
+                    maxHp: 100 + (level * 10),
+                    hunger: 100,
+                    maxHunger: 100
+                };
+            }
+
+            loadState() {
+                const saved = localStorage.getItem(this.saveKey);
+                if (saved) {
+                    try { return JSON.parse(saved); } catch(e) { console.error("Corrupted save."); }
+                }
+                return this.getDefaultState();
+            }
+
+            saveState() {
+                this.state.lastTick = Date.now();
+                localStorage.setItem(this.saveKey, JSON.stringify(this.state));
+            }
+
+            processOfflineProgress() {
+                const now = Date.now();
+                const elapsedSeconds = Math.floor((now - this.state.lastTick) / 1000);
+                
+                let offlineMsg = "";
+
+                // Daily Login Check (24 hours)
+                if (now - this.state.lastDaily > 86400000) {
+                    this.state.food += 50;
+                    this.state.gems += 5;
+                    this.state.lastDaily = now;
+                    this.state.pets.push(this.createNewPet(Math.floor(Math.random() * 2), 1)); // Random basic pet
+                    offlineMsg += "🎁 Daily Login Bonus: 50 Food, 5 Gems, and a new Pet!<br><br>";
+                }
+
+                if (elapsedSeconds > 60) {
+                    const cycles = Math.min(elapsedSeconds, 43200); // Cap at 12 hours offline
+                    const activePet = this.state.pets[this.state.activePetIndex];
+                    
+                    if (activePet) {
+                        const hpLost = Math.floor(cycles * 0.05);
+                        const hungerLost = Math.floor(cycles * 0.1);
+                        const xpGain = Math.floor(cycles * 0.5);
+
+                        activePet.hunger = Math.max(0, activePet.hunger - hungerLost);
+                        activePet.hp = Math.max(0, activePet.hp - hpLost);
+                        
+                        if (activePet.hp > 0 && activePet.xp < activePet.maxXp) {
+                            activePet.xp = Math.min(activePet.maxXp, activePet.xp + xpGain);
+                            offlineMsg += `💤 Your active pet earned ${xpGain} XP while you were gone.<br>`;
+                        } else {
+                            offlineMsg += `💤 Your pet got exhausted or leveled up while you were away.<br>`;
+                        }
+                    }
+                    
+                    // Offline drop calculations (1% chance per minute offline, max 20 drops)
+                    const minutesOffline = Math.min(Math.floor(elapsedSeconds / 60), 720);
+                    let foundFood = 0;
+                    for(let i=0; i<minutesOffline; i++) {
+                        if(Math.random() < 0.1) foundFood++;
+                    }
+                    if(foundFood > 0) {
+                        this.state.food += foundFood;
+                        offlineMsg += `🎒 Found ${foundFood} Food passively.<br>`;
+                    }
+                }
+
+                if (offlineMsg !== "") {
+                    document.getElementById('rpg-modal-text').innerHTML = offlineMsg;
+                    document.getElementById('rpg-modal').style.display = 'flex';
+                    document.getElementById('rpg-ping').style.display = 'block'; // notify player
+                }
+                
+                this.updateUI();
+            }
+
+            tick() {
+                const activePet = this.state.pets[this.state.activePetIndex];
+                if (!activePet) return;
+
+                // Mechanics
+                if (activePet.hunger > 0) {
+                    activePet.hunger -= 0.5; // Drain hunger
+                } else {
+                    activePet.hp -= 1; // Drain HP if starving
+                }
+
+                // Passive XP if alive and not pending level up
+                if (activePet.hp > 0 && activePet.xp < activePet.maxXp) {
+                    activePet.xp += (activePet.hunger > 50 ? 2 : 1);
+                    
+                    // Random Drops during active play
+                    const rng = Math.random();
+                    if (rng < 0.05) {
+                        this.state.food += 1;
+                        this.logMsg("Found 1x 🍖 Food!", "system");
+                    } else if (rng < 0.005 && this.state.pets.length < 16) {
+                        this.state.pets.push(this.createNewPet(0, 1));
+                        this.logMsg("✨ Found a wild Basic Egg!", "epic");
+                        this.updateRosterUI();
+                    } else if (rng < 0.02) {
+                        activePet.xp += 10;
+                        this.logMsg("💫 Huge XP Burst (+10 XP)", "rare");
+                    }
+                }
+
+                // Cap values
+                activePet.hunger = Math.max(0, activePet.hunger);
+                activePet.hp = Math.max(0, activePet.hp);
+                activePet.xp = Math.min(activePet.maxXp, activePet.xp);
+
+                if (Math.random() < 0.2) this.saveState(); // Periodic save
+                this.updateUI();
+            }
+
+            feedPet() {
+                const pet = this.state.pets[this.state.activePetIndex];
+                if (this.state.food > 0 && pet.hunger < pet.maxHunger) {
+                    this.state.food--;
+                    pet.hunger = Math.min(pet.maxHunger, pet.hunger + 30);
+                    this.logMsg(`Fed ${pet.name}. +30 Hunger`);
+                    this.updateUI();
+                } else if (this.state.food <= 0) {
+                    this.logMsg("Out of food! Wait for drops.", "system");
+                }
+            }
+
+            healPet() {
+                const pet = this.state.pets[this.state.activePetIndex];
+                if (this.state.food > 2 && pet.hp < pet.maxHp) {
+                    this.state.food -= 3; // Costs 3 food to heal
+                    pet.hp = Math.min(pet.maxHp, pet.hp + 40);
+                    this.logMsg(`Healed ${pet.name}. +40 HP (Cost: 3 Food)`);
+                    this.updateUI();
+                } else if (this.state.food <= 2) {
+                    this.logMsg("Need 3 food to heal!", "system");
+                }
+            }
+
+            levelUpPet() {
+                const pet = this.state.pets[this.state.activePetIndex];
+                if (pet.xp >= pet.maxXp) {
+                    pet.level++;
+                    pet.xp = 0;
+                    pet.maxXp = 100 * Math.pow(1.5, pet.level - 1);
+                    pet.maxHp += 20;
+                    pet.hp = pet.maxHp;
+                    pet.maxHunger += 10;
+                    pet.hunger = pet.maxHunger;
+                    
+                    // Evolution check
+                    if (pet.level % 5 === 0 && pet.typeIndex < this.petDictionary.length - 1) {
+                        pet.typeIndex++;
+                        const newData = this.petDictionary[pet.typeIndex];
+                        pet.emoji = newData.emoji;
+                        pet.name = newData.name;
+                        this.logMsg(`🌟 EVOLUTION! Your pet became a ${pet.name}!`, "epic");
+                    } else {
+                        this.logMsg(`⭐ LEVEL UP! ${pet.name} is now Lv.${pet.level}!`, "rare");
+                    }
+
+                    this.updateUI();
+                    this.updateRosterUI();
+                    this.saveState();
+                }
+            }
+
+            mergePets() {
+                // Find duplicates of same type and level
+                const pet = this.state.pets[this.state.activePetIndex];
+                const duplicates = this.state.pets.filter(p => p.typeIndex === pet.typeIndex && p.level === pet.level && p.id !== pet.id);
+                
+                if (duplicates.length > 0) {
+                    const toConsume = duplicates[0];
+                    // Remove consumed pet
+                    this.state.pets = this.state.pets.filter(p => p.id !== toConsume.id);
+                    
+                    // Boost active pet
+                    pet.level++;
+                    pet.maxHp += 30;
+                    pet.hp = pet.maxHp;
+                    pet.maxXp = 100 * Math.pow(1.5, pet.level - 1);
+                    
+                    this.logMsg(`🧬 MERGE SUCCESS! Consumed a duplicate to reach Lv.${pet.level}!`, "epic");
+                    
+                    // Re-adjust index if array shifted
+                    this.state.activePetIndex = this.state.pets.findIndex(p => p.id === pet.id);
+                    
+                    this.updateRosterUI();
+                    this.updateUI();
+                    this.saveState();
+                }
+            }
+
+            setActivePet(index) {
+                this.state.activePetIndex = index;
+                this.updateRosterUI();
+                this.updateUI();
+            }
+
+            logMsg(msg, cssClass = "") {
+                const logs = document.getElementById('rpg-logs-container');
+                const entry = document.createElement('div');
+                entry.className = `rpg-log-entry ${cssClass}`;
+                entry.innerHTML = msg;
+                logs.prepend(entry);
+                if (logs.children.length > 15) {
+                    logs.removeChild(logs.lastChild);
+                }
+            }
+
+            initUI() {
+                this.updateRosterUI();
+                this.updateUI();
+            }
+
+            updateRosterUI() {
+                const roster = document.getElementById('rpg-roster-grid');
+                roster.innerHTML = '';
+                
+                let hasMergeable = false;
+                const activePet = this.state.pets[this.state.activePetIndex];
+
+                this.state.pets.forEach((pet, index) => {
+                    const div = document.createElement('div');
+                    div.className = `rpg-roster-item ${index === this.state.activePetIndex ? 'active' : ''}`;
+                    div.innerHTML = `${pet.emoji} <div class="lvl-badge">${pet.level}</div>`;
+                    div.onclick = () => this.setActivePet(index);
+                    roster.appendChild(div);
+
+                    if (activePet && pet.id !== activePet.id && pet.typeIndex === activePet.typeIndex && pet.level === activePet.level) {
+                        hasMergeable = true;
+                    }
+                });
+
+                document.getElementById('rpg-btn-merge').style.display = hasMergeable ? 'block' : 'none';
+            }
+
+            updateUI() {
+                document.getElementById('rpg-food-count').innerText = this.state.food;
+                document.getElementById('rpg-gems-count').innerText = this.state.gems;
+
+                const pet = this.state.pets[this.state.activePetIndex];
+                if (!pet) return;
+
+                document.getElementById('rpg-active-avatar').innerText = pet.emoji;
+                document.getElementById('rpg-active-name').innerText = pet.name;
+                document.getElementById('rpg-active-lvl').innerText = pet.level;
+
+                // Bars
+                const hpPct = (pet.hp / pet.maxHp) * 100;
+                const hungerPct = (pet.hunger / pet.maxHunger) * 100;
+                const xpPct = (pet.xp / pet.maxXp) * 100;
+
+                document.getElementById('rpg-bar-hp').style.width = `${hpPct}%`;
+                document.getElementById('rpg-val-hp').innerText = `${Math.floor(pet.hp)}/${pet.maxHp}`;
+                
+                document.getElementById('rpg-bar-hunger').style.width = `${hungerPct}%`;
+                document.getElementById('rpg-val-hunger').innerText = `${Math.floor(pet.hunger)}/${pet.maxHunger}`;
+                
+                document.getElementById('rpg-bar-xp').style.width = `${xpPct}%`;
+                document.getElementById('rpg-val-xp').innerText = `${Math.floor(pet.xp)}/${Math.floor(pet.maxXp)}`;
+
+                // Level up button logic
+                const btnFeed = document.getElementById('rpg-btn-feed');
+                const btnHeal = document.getElementById('rpg-btn-heal');
+                const btnLevelUp = document.getElementById('rpg-btn-levelup');
+
+                if (pet.xp >= pet.maxXp) {
+                    btnLevelUp.style.display = 'block';
+                    btnFeed.style.display = 'none';
+                    btnHeal.style.display = 'none';
+                    document.getElementById('rpg-ping').style.display = 'block'; // ping toggle btn
+                } else {
+                    btnLevelUp.style.display = 'none';
+                    btnFeed.style.display = 'block';
+                    btnHeal.style.display = 'block';
+                }
+            }
+        }
+
+        // Initialize RPG on load
+        let rpgGame;
+        document.addEventListener('DOMContentLoaded', () => {
+            rpgGame = new IdleRPG();
+        });
+
     </script>
 </body>
 
