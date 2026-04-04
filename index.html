@@ -650,8 +650,10 @@
             bottom: 100px;
             right: 30px;
             width: 380px;
+            max-width: calc(100vw - 40px); /* Mobile view fix */
             height: 600px;
-            background: rgba(15, 17, 26, 0.85);
+            max-height: calc(100vh - 130px); /* Guarantee it fits vertically on mobile */
+            background: rgba(15, 17, 26, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -681,6 +683,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .rpg-header h3 {
@@ -704,10 +707,13 @@
         .rpg-content {
             padding: 20px;
             flex-grow: 1;
-            overflow-y: auto;
+            overflow-y: auto; /* Allow scrolling inside */
+            overscroll-behavior: contain; /* Stop page behind from scrolling */
+            min-height: 0; /* Flexbox scroll fix */
             display: flex;
             flex-direction: column;
             gap: 20px;
+            padding-bottom: 30px;
         }
 
         .rpg-content::-webkit-scrollbar {
@@ -727,6 +733,7 @@
             padding: 20px;
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
         }
 
         .rpg-pet-avatar {
@@ -827,6 +834,7 @@
             display: flex;
             gap: 10px;
             justify-content: space-between;
+            flex-shrink: 0;
         }
 
         .rpg-btn {
@@ -859,6 +867,7 @@
             color: white;
             animation: pulse-glow 1.5s infinite;
             display: none;
+            flex-shrink: 0;
         }
 
         @keyframes pulse-glow {
@@ -934,6 +943,7 @@
             flex-direction: column;
             gap: 5px;
             border: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
         }
 
         .rpg-logs::-webkit-scrollbar { width: 4px; }
@@ -977,6 +987,19 @@
         @keyframes popIn {
             0% { transform: scale(0.5); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Mobile specific adjustments to keep it on screen */
+        @media (max-width: 500px) {
+            #rpg-panel {
+                right: 20px;
+                bottom: 90px; /* Above the toggle button */
+                max-width: calc(100vw - 40px);
+            }
+            #rpg-toggle-btn {
+                right: 20px;
+                bottom: 20px;
+            }
         }
 
     </style>
@@ -1230,7 +1253,7 @@
         </footer>
     </div>
 
-    <!-- IDLE RPG GAME UI HTML (Appended without altering above) -->
+    <!-- IDLE RPG GAME UI HTML -->
     <button id="rpg-toggle-btn" onclick="toggleRpgPanel()">
         🐾 Idle Pet RPG
         <div class="ping" id="rpg-ping"></div>
@@ -1680,9 +1703,8 @@
         }
     </script>
 
-    <!-- NEW RPG LOGIC SCRIPT (Appended perfectly at the end without overriding) -->
+    <!-- RPG LOGIC SCRIPT -->
     <script>
-        // SORA Style Advanced Idle Pet RPG Logic
         function toggleRpgPanel() {
             const panel = document.getElementById('rpg-panel');
             panel.classList.toggle('active');
