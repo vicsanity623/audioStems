@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google AdSense Auto-Ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5972331036113330" crossorigin="anonymous"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pro Audio Studio | AI Stem Separator</title>
@@ -8,7 +11,6 @@
     <!-- Scripts & Stylesheets -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/wavesurfer.js@7"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5972331036113330" crossorigin="anonymous"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -19,10 +21,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         
         :root {
-            --netflix-red: #E50914;
-            --spotify-green: #1DB954;
             --bg-black: #080808;
-            --panel-bg: #121212;
             --accent: #00f2ff;
         }
 
@@ -85,7 +84,7 @@
     <!-- NAVBAR -->
     <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center glass border-b-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black italic">V</div>
+            <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black italic text-xl">V</div>
             <h1 class="text-xl font-bold tracking-tighter uppercase">Studio <span class="text-cyan-400">Separation</span></h1>
             <span class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded ml-2">V1.5 LIVE</span>
         </div>
@@ -93,11 +92,10 @@
             <a href="#studio" class="hover:text-white transition">Studio</a>
             <a href="#about" class="hover:text-white transition">AI Technology</a>
             <a href="#deep-dive" class="hover:text-white transition">Deep Dive</a>
-            <a href="https://github.com/vicsanity623" target="_blank" class="hover:text-white transition">GitHub</a>
         </div>
     </nav>
 
-    <!-- HERO SECTION -->
+    <!-- MAIN CONTENT -->
     <main class="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
         
         <div id="studio" class="grid lg:grid-cols-12 gap-12 items-start">
@@ -114,8 +112,8 @@
                     <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
                     <div class="text-5xl mb-4">📂</div>
                     <h3 class="text-xl font-semibold mb-1">Upload Source</h3>
-                    <p class="text-gray-500 text-sm mb-4">Drag audio here or click to browse</p>
-                    <div id="fileNameDisplay" class="text-cyan-400 font-mono text-xs truncate"></div>
+                    <p class="text-gray-500 text-sm mb-4 font-medium">Drag audio here or click to browse</p>
+                    <div id="fileNameDisplay" class="text-cyan-400 font-mono text-xs truncate uppercase tracking-widest"></div>
                 </div>
 
                 <div class="turnstile-wrapper flex justify-center">
@@ -135,107 +133,85 @@
                     <div class="h-1.5 w-full bg-gray-900 rounded-full overflow-hidden">
                         <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
                     </div>
-                    <p class="text-[10px] text-gray-500 italic" id="slowWarning">⚠️ Running on local iMac. Do not close this tab during inference.</p>
+                    <p class="text-[10px] text-gray-500 italic" id="slowWarning">⚠️ Local iMac Server active. Please keep this tab open.</p>
                 </div>
             </div>
 
             <!-- RIGHT COLUMN: Visualizer / Ads -->
             <div class="lg:col-span-7 space-y-8">
-                <!-- Top Ad Slot -->
-                <div class="glass p-4 rounded-3xl min-h-[100px] flex items-center justify-center">
-                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5972331036113330" data-ad-slot="YOUR_NEW_AD_SLOT_ID_HERE" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <!-- Top Ad Slot (Using your MP3Finished ID) -->
+                <div class="glass p-4 rounded-3xl min-h-[280px] flex items-center justify-center overflow-hidden">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-5972331036113330"
+                         data-ad-slot="4287691766"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
                     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
                 </div>
 
                 <div id="results-area" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-700">
                     <div class="flex justify-between items-end mb-6">
-                        <h2 class="text-2xl font-bold tracking-tight">Separated Stems</h2>
-                        <button id="downloadZipBtn" class="text-xs font-bold text-spotify-green border border-spotify-green/30 px-4 py-2 rounded-full hover:bg-spotify-green hover:text-black transition">DOWNLOAD ALL (.ZIP)</button>
+                        <h2 class="text-2xl font-bold tracking-tight uppercase italic text-cyan-400">Stems Ready</h2>
+                        <button id="downloadZipBtn" class="text-xs font-bold text-emerald-400 border border-emerald-400/30 px-4 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest">Download .ZIP</button>
                     </div>
-                    
-                    <div id="tracks-wrapper" class="space-y-4">
-                        <!-- Tracks Injected Here -->
-                    </div>
+                    <div id="tracks-wrapper" class="space-y-4"></div>
                 </div>
 
-                <!-- Place Holder for ads when no results -->
-                <div id="empty-state" class="h-full border border-white/5 rounded-3xl flex items-center justify-center text-gray-700 font-bold uppercase tracking-tighter text-4xl select-none">
-                    Studio Offline
+                <div id="empty-state" class="h-64 border border-white/5 rounded-3xl flex items-center justify-center text-gray-800 font-bold uppercase tracking-tighter text-4xl select-none">
+                    Studio Ready
                 </div>
             </div>
         </div>
 
-        <!-- TECH SPECS SECTION -->
-        <section id="about" class="mt-40 space-y-20">
-            <div class="border-t border-white/10 pt-20">
-                <h3 class="text-3xl font-bold mb-12">Architecture Overview</h3>
+        <!-- DEEP DIVE BLOG CONTENT -->
+        <section id="deep-dive" class="mt-40 glass p-8 md:p-16 rounded-[3rem] border-t-2 border-cyan-500/50">
+            <div class="max-w-4xl mx-auto space-y-12">
+                <h2 class="text-5xl font-black tracking-tighter text-white uppercase leading-none">Democratizing Audio Isolation:<br><span class="text-cyan-400">The Meta Demucs Revolution</span></h2>
                 
-                <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div class="space-y-6 text-gray-400 leading-relaxed">
-                        <p>Unlike traditional EQ-based isolation, <strong class="text-white">Demucs</strong> uses a specialized U-Net topology. The AI spectrogram is progressively downsampled, compressing the complex waveform into high-level features before reconstructing specific stems.</p>
-                        <p>The <strong class="text-white">BiLSTM core</strong> scans the song chronologically—scanning both forwards and backwards simultaneously. This allows the AI to understand musical context, keeping the tempo consistent and distinguishing between a rhythmic drum beat and a random noise artifact.</p>
-                    </div>
-                    <div class="glass p-8 rounded-3xl">
-                        <div class="mermaid">
-                            graph TD
-                            I[Input Mix] --> E[Encoder]
-                            E --> B[BiLSTM Core]
-                            B --> D[Decoder]
-                            D --> O[Stems]
-                            style I fill:#222,stroke:#00f2ff
-                            style B fill:#00f2ff,color:#000
-                            style O fill:#222,stroke:#00f2ff
+                <div class="space-y-8 text-gray-400 leading-relaxed text-lg font-light">
+                    <p>
+                        For decades, audio engineers viewed the separation of a fully mixed track into its original stems—vocals, drums, and bass—as the "holy grail" of signal processing. Traditional methods relied on phase cancellation and aggressive EQ filtering, which inevitably left audio riddled with underwater artifacts.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-8 items-center py-8">
+                        <div class="glass p-6 rounded-2xl">
+                            <h4 class="text-white font-bold mb-4 uppercase tracking-widest text-sm">Inference Path</h4>
+                            <div class="mermaid">
+                                graph LR
+                                Mix[Mix] --> AI{Demucs}
+                                AI --> V[Vocals]
+                                AI --> D[Drums]
+                                style AI fill:#00f2ff,color:#000
+                            </div>
                         </div>
+                        <p class="text-base italic">
+                            By utilizing a specialized <strong class="text-white">U-Net Topology</strong>, Demucs compresses audio into high-level features before reconstruction. The <strong class="text-white">BiLSTM Core</strong> scans the track bidirectionally, ensuring rhythmic consistency that filters alone could never achieve.
+                        </p>
                     </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- DEEP DIVE BLOG SECTION -->
-        <section id="deep-dive" class="mt-20 glass p-8 md:p-12 rounded-3xl border-t-4 border-cyan-500">
-            <div class="max-w-4xl mx-auto space-y-8">
-                <h2 class="text-4xl font-bold tracking-tight text-white mb-6">Democratizing Audio Isolation: The Power of Meta's Demucs</h2>
-                
-                <div class="space-y-6 text-gray-400 leading-relaxed text-lg">
+                    <h3 class="text-2xl font-bold text-white uppercase tracking-tight">The Self-Hosted Philosophy</h3>
                     <p>
-                        For decades, audio engineers considered separating a fully mixed song into its original individual tracks—vocals, drums, bass, and instruments—to be the "holy grail" of digital signal processing. It is famously likened to trying to un-bake a cake. Traditional methods relied on phase cancellation and aggressive equalization (EQing). However, these techniques almost always resulted in heavy audio artifacts, leaving the vocals sounding underwater and the drums severely muffled.
-                    </p>
-
-                    <h3 class="text-2xl font-semibold text-white mt-8 mb-4">Enter Meta Research & Demucs</h3>
-                    <p>
-                        The paradigm shifted with the introduction of deep learning to acoustic processing. Developed by the Meta AI Research team, <strong class="text-cyan-400">Demucs (Deep Extraction for Music Source Separation)</strong> represents the absolute State-of-the-Art (SOTA) in open-source audio modeling. Rather than simply filtering frequencies, Demucs utilizes a complex neural network trained on terabytes of high-fidelity, multitrack studio recordings. By analyzing thousands of songs, the AI learns the distinct sonic textures, harmonics, and transient properties of human vocal cords versus a snare drum or a bass guitar.
+                        While the Demucs algorithm is open-source, its computational demands are high. Most web platforms take this open-source gift and place it behind paywalls, throttling speeds and compressing quality for profit. 
                     </p>
                     <p>
-                        When fed an audio file, Demucs doesn't just cut frequencies out; it mathematically "dreams" and reconstructs the missing parts of the waveform. It achieves this through a hybrid architecture combining a <strong class="text-cyan-400">U-Net Topology</strong> with a <strong class="text-cyan-400">BiLSTM (Bidirectional Long Short-Term Memory)</strong> core. The U-Net efficiently compresses the spectrogram to extract high-level features, while the BiLSTM scans the temporal rhythm of the track—listening both forwards and backwards simultaneously to maintain perfect rhythmic timing and phase alignment.
-                    </p>
-
-                    <h3 class="text-2xl font-semibold text-white mt-8 mb-4">The Purpose of This Self-Hosted Platform</h3>
-                    <p>
-                        Despite the Demucs algorithm being open-source, leveraging its power requires significant computational overhead. As a result, the internet has been flooded with "freemium" SaaS platforms that take this open-source AI, put it behind a paywall, throttle upload speeds, compress the output quality, and severely restrict file sizes. 
-                    </p>
-                    <p>
-                        This platform was built as a direct response to that limitation. By utilizing <strong class="text-white">Tailscale Funnel</strong> and a custom Python Flask backend, this beautiful web interface routes your audio directly into a private, self-hosted Apple Silicon/Intel GPU environment. There are no corporate paywalls, no artificial file size caps, and no compressed outputs. The backend utilizes 32-bit floating-point precision during the inference stage, encoding the final output into pristine, studio-ready WAV files.
-                    </p>
-                    <p>
-                        This project proves that with the right infrastructure, developers can bypass restrictive cloud services and democratize access to high-end, compute-heavy AI tools by serving them directly from local hardware to the global web.
+                        This platform operates differently. By leveraging <strong class="text-cyan-400">Tailscale Funnel</strong> and a private Intel-based iMac server, your audio is processed in a high-precision 32-bit floating-point environment. We bypass the corporate cloud, ensuring your data remains private and your output remains studio-grade WAV. This is not just a tool; it is a demonstration of how local hardware can be securely bridged to the global web to provide world-class AI services without compromise.
                     </p>
                 </div>
             </div>
         </section>
 
         <!-- FOOTER -->
-        <footer class="mt-20 border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
+        <footer class="mt-40 border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="text-gray-500 text-sm">
-                &copy; 2026 Advanced Audio Studio. Educational Use Only.
-                <div class="mt-4 flex gap-4">
-                    <a href="https://github.com/vicsanity623" class="hover:text-white">GitHub</a>
-                    <a href="#" class="hover:text-white">Privacy</a>
-                    <a href="#" class="hover:text-white">API Docs</a>
+                &copy; 2026 Advanced Audio Studio.
+                <div class="mt-4 flex gap-4 font-bold uppercase tracking-widest text-[10px]">
+                    <a href="https://github.com/vicsanity623" target="_blank" class="hover:text-white">GitHub Source</a>
+                    <a href="#" class="hover:text-white">Infrastructure</a>
                 </div>
             </div>
-            
-            <div class="glass px-6 py-3 rounded-xl">
-                <span class="text-[10px] font-bold text-gray-500 uppercase mr-4 tracking-widest">Global Traffic</span>
+            <div class="glass px-6 py-3 rounded-xl border-cyan-500/20">
+                <span class="text-[10px] font-bold text-gray-500 uppercase mr-4 tracking-widest">Global Sessions</span>
                 <span id="visit-count" class="font-mono text-cyan-400 font-bold">00000000</span>
             </div>
         </footer>
@@ -246,21 +222,18 @@
     <script>
         const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
         
-        // Connectivity Fix: Tailscale Funnel URL
         function getBackendUrl() {
             return "https://vics-imac-1.tail37b4f2.ts.net/"; 
         }
 
-        // --- AD BLOCKER LOGIC ---
         async function checkAdBlock() {
             const bait = document.getElementById('ad-detection-bait');
-            const wall = document.getElementById('adblock-wall');
             if (!bait || bait.offsetParent === null || bait.offsetHeight === 0) {
-                wall.style.display = 'flex';
+                document.getElementById('adblock-wall').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }
         }
-        window.onload = () => { setTimeout(checkAdBlock, 1500); };
+        window.onload = () => setTimeout(checkAdBlock, 1500);
 
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
@@ -276,35 +249,28 @@
         const downloadZipBtn = document.getElementById('downloadZipBtn');
 
         let selectedFile = null;
-        let activeWaveSurfers = [];
         let isProcessing = false;
 
         dropZone.onclick = () => { if (!isProcessing) fileInput.click(); };
-        fileInput.onchange = (e) => handleFiles(e.target.files);
-
-        function handleFiles(files) {
-            if (files.length > 0) {
-                selectedFile = files[0];
-                fileNameDisplay.textContent = `SELECTED: ${selectedFile.name.toUpperCase()}`;
+        fileInput.onchange = (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                fileNameDisplay.textContent = selectedFile.name;
                 processBtn.disabled = false;
             }
-        }
+        };
 
-        // --- CORE PROCESS LOGIC ---
         processBtn.addEventListener('click', async () => {
             if (processBtn.innerText === "SEPARATE ANOTHER") { location.reload(); return; }
-
             const cfToken = turnstile.getResponse();
             if (!cfToken) { alert("Please complete the security check."); return; }
 
             isProcessing = true;
-            processBtn.disabled = true;
             processBtn.classList.add('hidden');
             progressArea.classList.remove('hidden');
             
             const formData = new FormData();
             formData.append('audioFile', selectedFile);
-            // Hardcoded to 'fast' so backend app.py still processes it flawlessly without crashing
             formData.append('mode', 'fast'); 
             formData.append('cf-turnstile-response', cfToken);
 
@@ -314,12 +280,11 @@
                     headers: { 'X-API-Key': API_KEY },
                     body: formData
                 });
-                
-                if (!res.ok) throw new Error("Upload Failed");
+                if (!res.ok) throw new Error();
                 const data = await res.json();
                 pollStatus(data.task_id);
             } catch (err) {
-                statusText.innerText = "OFFLINE: Check Backend Connection";
+                statusText.innerText = "BACKEND OFFLINE";
                 statusText.classList.add('text-red-500');
             }
         });
@@ -328,7 +293,6 @@
             const interval = setInterval(async () => {
                 const res = await fetch(`${getBackendUrl()}status/${taskId}`);
                 const data = await res.json();
-
                 if (data.status === 'processing' || data.status === 'queued') {
                     progressBar.style.width = `${data.progress}%`;
                     percentText.innerText = `${data.progress}%`;
@@ -359,13 +323,13 @@
                 const card = document.createElement('div');
                 card.className = "glass p-4 rounded-2xl flex items-center gap-6";
                 card.innerHTML = `
-                    <button id="btn-${i}" class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition">▶</button>
+                    <button id="btn-${i}" class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black">▶</button>
                     <div class="flex-1">
                         <div class="flex justify-between mb-1">
-                            <span class="text-[10px] font-bold uppercase tracking-tighter" style="color: ${stem.color}">${stem.name}</span>
-                            <button id="dl-${i}" class="text-[10px] font-bold text-gray-500 hover:text-white">WAV ↓</button>
+                            <span class="text-[10px] font-bold uppercase tracking-widest" style="color: ${stem.color}">${stem.name}</span>
+                            <button onclick="window.open('${baseUrl}${stem.url}')" class="text-[10px] font-bold text-gray-500 hover:text-white uppercase tracking-widest">WAV ↓</button>
                         </div>
-                        <div id="wave-${i}" class="w-full h-8 opacity-50"></div>
+                        <div id="wave-${i}" class="w-full h-8 opacity-40"></div>
                     </div>
                 `;
                 tracksWrapper.appendChild(card);
@@ -377,19 +341,14 @@
                     height: 32,
                     url: `${baseUrl}${stem.url}`
                 });
-
                 document.getElementById(`btn-${i}`).onclick = () => ws.playPause();
-                document.getElementById(`dl-${i}`).onclick = () => window.open(`${baseUrl}${stem.url}`);
             });
-            
             downloadZipBtn.onclick = () => window.open(`${baseUrl}${data.zip}`);
         }
 
-        // Visitor Counter
         fetch(`https://api.counterapi.dev/v1/audio-stem-separator-vics-unique-id/main_visits/up`)
             .then(res => res.json())
             .then(data => { document.getElementById('visit-count').innerText = data.count.toString().padStart(8, '0'); });
-
     </script>
 </body>
 </html>
