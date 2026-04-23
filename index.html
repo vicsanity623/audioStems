@@ -1,935 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5972331036113330"
-        crossorigin="anonymous"></script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="Professional Audio Stem Separation powered by Demucs. Isolate vocals, drums, and instruments instantly.">
-    <meta name="theme-color" content="#00ff7f">
-
-    <title>Pro Audio Stem Separator - Powered by Demucs</title>
-
-    <link rel="manifest" href="./manifest.json">
-
-    <link rel="apple-touch-icon" href="player-192x192.PNG">
-    <link rel="icon" href="player-192x192.PNG" type="image/png">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4686TXHCHN"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-4686TXHCHN');
-    </script>
-
+    <title>Pro Audio Studio | AI Stem Separator</title>
+    
+    <!-- Scripts & Stylesheets -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/wavesurfer.js@7"></script>
-
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5972331036113330" crossorigin="anonymous"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
         mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
     </script>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
         :root {
-            --bg-dark: #0f111a;
-            --bg-panel: #1a1d2d;
+            --netflix-red: #E50914;
+            --spotify-green: #1DB954;
+            --bg-black: #080808;
+            --panel-bg: #121212;
             --accent: #00f2ff;
-            --accent-glow: rgba(0, 242, 255, 0.15);
-            --text-main: #ffffff;
-            --text-dim: #8f9bb3;
-            --border: #2e344e;
-            --success: #00ff9d;
-            --warning: #ffb700;
-            --danger: #ff4444;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: var(--bg-black);
+            font-family: 'Inter', sans-serif;
+            color: white;
+            scroll-behavior: smooth;
         }
 
-        .ad-banner-header,
-        .adsbox,
-        .doubleclick,
-        .ad-placement {
-            width: 300px;
-            height: 250px;
-            position: absolute;
-            left: -10000px;
-            top: 0;
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .upload-zone {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .upload-zone:hover {
+            background: rgba(0, 242, 255, 0.05);
+            border-color: var(--accent);
+            transform: scale(1.01);
         }
 
         #adblock-wall {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(40, 0, 0, 0.98);
-            z-index: 99999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            backdrop-filter: blur(15px);
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 100;
+            backdrop-filter: blur(20px);
         }
 
-        .wall-content {
-            background: #1a0505;
-            border: 2px solid var(--danger);
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 500px;
-            box-shadow: 0 0 60px rgba(255, 68, 68, 0.3);
-        }
-
-        .wall-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-
-        .wall-title {
-            color: var(--danger);
-            font-size: 2rem;
-            margin-bottom: 15px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .wall-text {
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            font-size: 1rem;
-        }
-
-        .btn-refresh {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4);
-        }
-
-        .btn-refresh:hover {
-            transform: scale(1.05);
-            background: #ff6666;
-        }
-
-        .main-wrapper {
-            width: 100%;
-            max-width: 1000px;
-            padding: 40px 20px;
-            box-sizing: border-box;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        h1 {
-            font-weight: 200;
-            font-size: 3rem;
-            margin: 0;
-            letter-spacing: -1px;
-            text-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
-        }
-
-        h1 span.highlight-text {
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .version-tag {
-            font-size: 1.2rem;
-            color: #ff4444;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            vertical-align: super;
-            margin-left: 10px;
-            text-shadow: none;
-            opacity: 0.9;
-        }
-
-        .subtitle {
-            color: var(--text-dim);
-            margin-top: 10px;
-            font-size: 1.1rem;
-        }
-
-        .welcome-panel {
-            background: linear-gradient(145deg, #1a1d2d, #131520);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--success);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .welcome-panel h2 {
-            color: var(--text-main);
-            font-size: 1.4rem;
-            margin: 0 0 10px 0;
-            font-weight: 600;
-        }
-
-        .welcome-panel p {
-            color: var(--text-dim);
-            margin: 0;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .welcome-panel .highlight {
-            color: var(--success);
-            font-weight: 600;
-            margin-top: 8px;
-            display: block;
-        }
-
-        .quality-selector {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .quality-option {
-            background: var(--bg-panel);
-            border: 1px solid var(--border);
-            padding: 15px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex: 1;
-            max-width: 250px;
-            text-align: center;
-            opacity: 0.7;
-        }
-
-        .quality-option:hover {
-            opacity: 1;
-            border-color: #555;
-        }
-
-        .quality-option input {
-            display: none;
-        }
-
-        .quality-option.selected {
-            border-color: var(--accent);
-            background: rgba(0, 242, 255, 0.05);
-            opacity: 1;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
-        }
-
-        .q-title {
-            display: block;
-            font-weight: bold;
-            color: var(--text-main);
-            margin-bottom: 5px;
-        }
-
-        .q-desc {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-        }
-
-        .upload-zone {
-            background: var(--bg-panel);
-            border: 2px dashed var(--border);
-            border-radius: 16px;
-            padding: 60px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-zone:hover,
-        .upload-zone.dragover {
-            border-color: var(--accent);
-            background: var(--accent-glow);
-        }
-
-        .upload-zone.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-            border-color: #444;
-        }
-
-        .icon-upload {
-            font-size: 3rem;
-            color: var(--text-dim);
-            margin-bottom: 15px;
-        }
-
-        .file-name {
-            color: var(--accent);
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-top: 15px;
-        }
-
-        .turnstile-wrapper {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            min-height: 65px;
-        }
-
-        .btn-process {
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
-            max-width: 400px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-process:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 114, 255, 0.4);
-        }
-
-        .btn-process:disabled {
-            background: #333;
-            color: #666;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .progress-container {
-            display: none;
-            width: 100%;
-            max-width: 500px;
-            margin: 30px auto;
-            text-align: center;
-        }
-
-        .progress-bar-bg {
-            background: #222;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            border: 1px solid #444;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 10px var(--accent);
-        }
-
-        .status-text {
-            color: var(--text-main);
-            font-weight: bold;
-            margin-bottom: 5px;
-            min-height: 1.5rem;
-        }
-
-        .slow-warning {
-            color: var(--warning);
-            font-size: 0.85rem;
-            margin-top: 15px;
-            display: none;
-            background: rgba(255, 183, 0, 0.1);
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 183, 0, 0.3);
-            line-height: 1.4;
-        }
-
-        #results-area {
-            display: none;
-            margin-top: 50px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .track-card {
-            background: var(--bg-panel);
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        .track-control {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 50px;
-            height: 50px;
-            background: #252a40;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-            color: var(--accent);
-            z-index: 10;
-        }
-
-        .track-control:hover {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
-        }
-
-        .track-details {
-            flex-grow: 1;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .track-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-dim);
-            margin-bottom: 5px;
-        }
-
-        .waveform {
-            width: 100%;
-            height: 60px;
-            opacity: 0.8;
-            position: relative;
-        }
-
-        .wave-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.8rem;
-            color: #555;
-            pointer-events: none;
-        }
-
-        .track-download {
-            color: var(--text-dim);
-            font-size: 1.5rem;
-            padding: 10px;
-            transition: color 0.2s;
-            cursor: pointer;
-            background: transparent;
-            border: none;
-            z-index: 10;
-        }
-
-        .track-download:hover {
-            color: var(--success);
-        }
-
-        .track-download:disabled {
-            opacity: 0.5;
-            cursor: wait;
-        }
-
-        .download-all-btn {
-            display: block;
-            text-align: center;
-            background: transparent;
-            border: 2px solid var(--success);
-            color: var(--success);
-            padding: 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-top: 30px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .download-all-btn:hover {
-            background: var(--success);
-            color: #000;
-        }
-
-        .download-all-btn:disabled {
-            border-color: #555;
-            color: #555;
-            cursor: wait;
-            background: transparent;
-        }
-
-        .legal-notice {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px 25px;
-            margin: 60px 0 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .legal-icon {
-            color: var(--accent);
-            flex-shrink: 0;
-        }
-
-        .about-section {
-            background: var(--bg-panel);
-            border-radius: 12px;
-            padding: 40px;
-            margin-top: 20px;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            line-height: 1.8;
-        }
-
-        .about-section h3 {
-            color: var(--text-main);
-            font-weight: 300;
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-        }
-
-        .about-section p {
-            margin-bottom: 20px;
-            font-size: 1rem;
-        }
-
-        .about-section strong {
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .mermaid {
-            margin: 40px 0;
-            text-align: center;
-            background: #131520;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #333;
-        }
-
-        .visitor-counter {
-            margin-top: 20px;
-            display: inline-block;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            padding: 5px 12px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem;
-            color: var(--text-dim);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .visitor-counter span.count {
-            color: var(--accent);
-            font-weight: bold;
-            letter-spacing: 3px;
-            margin-left: 5px;
-            text-shadow: 0 0 5px rgba(0, 242, 255, 0.4);
-        }
-
-        footer {
-            margin-top: 60px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #555;
-            padding-bottom: 20px;
-        }
-
-        footer a {
-            color: #777;
-            text-decoration: none;
+        .status-gradient {
+            background: linear-gradient(90deg, #00f2ff, #0072ff);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
         }
     </style>
 </head>
+<body class="no-scrollbar">
 
-<body>
-
-    <div id="ad-detection-bait" class="adsbox ad-placement doubleclick"></div>
-
-    <div id="adblock-wall">
-        <div class="wall-content">
-            <div class="wall-icon">🚫</div>
-            <div class="wall-title">Access Denied</div>
-            <p class="wall-text">
-                <strong>Ad Blocker or Brave Browser Detected.</strong>
-                <br><br>
-                This tool runs on a private GPU server costing real money.
-                <strong>Hiding ads is considered abuse of this free service.</strong>
-                <br><br>
-                You must disable your Ad Blocker or Brave Shields to proceed.
+    <!-- AD BLOCK WALL -->
+    <div id="adblock-wall" class="flex flex-col items-center justify-center p-6 text-center">
+        <div class="glass p-12 rounded-3xl max-w-lg border-red-500/50">
+            <span class="text-6xl mb-6 block">🚫</span>
+            <h2 class="text-3xl font-bold mb-4">Ad-Blocker Detected</h2>
+            <p class="text-gray-400 mb-8 leading-relaxed">
+                To keep this AI service free and unlimited, we rely on ad revenue to power our private GPU servers. Please disable your ad-blocker or Brave Shields to continue.
             </p>
-            <button class="btn-refresh" onclick="location.reload()">I've Disabled It - Refresh</button>
+            <button onclick="location.reload()" class="bg-white text-black font-bold py-4 px-10 rounded-full hover:bg-gray-200 transition">
+                I've Disabled It - Refresh
+            </button>
         </div>
     </div>
 
-    <div class="main-wrapper">
-        <header>
-            <h1>Audio <span class="highlight-text">Stem</span> Separator <span class="version-tag">V 1.5</span></h1>
-            <p class="subtitle">Drag, Drop, Separate. Professional AI separation.</p>
-        </header>
-
-        <div class="welcome-panel">
-            <h2>Unlimited & 100% Free</h2>
-            <p>This is a custom open-source frontend powered by <strong>Demucs</strong>.</p>
-            <span class="highlight">No Paywalls • No File Limits • Professional Quality</span>
+    <!-- NAVBAR -->
+    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center glass border-b-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black italic">V</div>
+            <h1 class="text-xl font-bold tracking-tighter uppercase">Studio <span class="text-cyan-400">Separation</span></h1>
+            <span class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded ml-2">V1.5 LIVE</span>
         </div>
-
-        <div class="quality-selector">
-            <label class="quality-option selected" id="opt-fast">
-                <input type="radio" name="mode" value="fast" checked onchange="updateMode(this)">
-                <span class="q-title">⚡ Speed Mode</span>
-                <span class="q-desc">Standard Quality (~3m)</span>
-            </label>
-            <label class="quality-option" id="opt-high">
-                <input type="radio" name="mode" value="high" onchange="updateMode(this)">
-                <span class="q-title">💎 Ultra Quality</span>
-                <span class="q-desc">32-bit Float + Fine Tuned (~8m)</span>
-            </label>
+        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
+            <a href="#studio" class="hover:text-white transition">Studio</a>
+            <a href="#about" class="hover:text-white transition">AI Technology</a>
+            <a href="#deep-dive" class="hover:text-white transition">Deep Dive</a>
+            <a href="https://github.com/vicsanity623" target="_blank" class="hover:text-white transition">GitHub</a>
         </div>
+    </nav>
 
-        <div class="upload-zone" id="dropZone">
-            <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
-            <div class="icon-upload">📂</div>
-            <h3>Drag & Drop Audio File</h3>
-            <p style="color:var(--text-dim);">or click here to browse files</p>
-            <div id="fileNameDisplay" class="file-name"></div>
-        </div>
+    <!-- HERO SECTION -->
+    <main class="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+        
+        <div id="studio" class="grid lg:grid-cols-12 gap-12 items-start">
+            
+            <!-- LEFT COLUMN: Controls -->
+            <div class="lg:col-span-5 space-y-8">
+                <div>
+                    <h2 class="text-5xl font-bold mb-4 tracking-tight">Isolate your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Master Track</span></h2>
+                    <p class="text-gray-400 text-lg">Professional 4-stem separation using Meta Research Demucs. Unlimited, free, and secure.</p>
+                </div>
 
-        <div class="turnstile-wrapper">
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
-        </div>
+                <!-- Upload Zone -->
+                <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-3xl p-12 text-center cursor-pointer relative" id="dropZone">
+                    <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
+                    <div class="text-5xl mb-4">📂</div>
+                    <h3 class="text-xl font-semibold mb-1">Upload Source</h3>
+                    <p class="text-gray-500 text-sm mb-4">Drag audio here or click to browse</p>
+                    <div id="fileNameDisplay" class="text-cyan-400 font-mono text-xs truncate"></div>
+                </div>
 
-        <button id="processBtn" class="btn-process" disabled>Separate Stems</button>
+                <div class="turnstile-wrapper flex justify-center">
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
+                </div>
 
-        <div class="progress-container" id="progressArea">
-            <div class="status-text" id="statusText">Preparing...</div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="progressBar"></div>
-            </div>
-            <div class="slow-warning" id="slowWarning">
-                ⚠️ <strong>Note:</strong> Processing time depends on your quality selection.
-                Please keep this tab open until download appears.
-            </div>
-        </div>
+                <button id="processBtn" class="w-full py-5 rounded-full bg-white text-black font-black text-lg tracking-widest hover:bg-cyan-400 transition-all disabled:opacity-20 disabled:grayscale" disabled>
+                    START SEPARATION
+                </button>
 
-        <div id="results-area">
-            <h2 style="font-weight:300; margin-bottom:5px; color:var(--text-main);">Separated Stems</h2>
-
-            <p style="font-weight:300; font-size: 0.9rem; margin-top:0; margin-bottom:20px; color:var(--text-dim);">
-                <span style="color:var(--warning)">⚠️ Note:</span> Please wait 1-2 minutes for waveforms to load before
-                downloading.
-            </p>
-
-            <div id="tracks-wrapper"></div>
-            <button id="downloadZipBtn" class="download-all-btn">Download All Stems (.ZIP)</button>
-        </div>
-
-        <div class="legal-notice">
-            <div class="legal-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-            </div>
-            <div>
-                <strong>EDUCATIONAL USE ONLY:</strong> This tool is provided for research and educational purposes.
-                Users must ensure they own the rights or have explicit permission for any audio content uploaded.
-                We do not support copyright infringement.
-                <br><br>
-                <strong style="color: var(--accent);">TIP:</strong> (Add to Homescreen to install app)
-            </div>
-        </div>
-
-        <div class="about-section">
-            <h3>Behind the Technology</h3>
-
-            <p>
-                The journey to build this tool started out of frustration with existing services. Most free stem
-                separators put limits on file size, force you to pay for high-quality downloads, or throttle your speed.
-                I wanted to democratize access to SOTA (State of the Art) audio separation by leveraging open-source
-                technology and running it on my own hardware—an <strong>Intel iMac</strong> acting as a personal server.
-            </p>
-
-            <p>
-                At the core of this platform is <strong>Demucs</strong>, a deep learning architecture developed by Meta
-                Research. Unlike traditional EQ-based isolation, Demucs doesn't just cut frequencies; it "dreams" the
-                missing parts of the waveform. It uses a <strong>U-Net architecture</strong> combined with BiLSTM
-                (Bidirectional Long Short-Term Memory) layers. The AI has been trained on terabytes of studio-quality
-                stems, allowing it to understand the sonic texture of a voice versus a violin, even when they occupy the
-                same frequency range.
-            </p>
-
-            <div class="mermaid">
-                graph LR
-                A[Input Audio Mix] -->|Encoder| B(Spectral Analysis)
-                B --> C{U-Net Core}
-                C -->|BiLSTM Layers| D[Pattern Recognition]
-                D -->|Decoder| E[Waveform Synthesis]
-                E --> F((Vocals))
-                E --> G((Drums))
-                E --> H((Bass))
-                E --> I((Other))
-                style A fill:#252a40,stroke:#00f2ff,color:#fff
-                style C fill:#0f111a,stroke:#ff0055,color:#fff
-                style F fill:#252a40,stroke:#00ff9d,color:#fff
-                style G fill:#252a40,stroke:#00ff9d,color:#fff
-                style H fill:#252a40,stroke:#00ff9d,color:#fff
-                style I fill:#252a40,stroke:#00ff9d,color:#fff
+                <!-- Status Area -->
+                <div class="progress-container hidden space-y-4" id="progressArea">
+                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest">
+                        <span id="statusText" class="text-cyan-400">Initializing...</span>
+                        <span id="percentText">0%</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-gray-900 rounded-full overflow-hidden">
+                        <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-500 italic" id="slowWarning">⚠️ Running on local iMac. Do not close this tab during inference.</p>
+                </div>
             </div>
 
-            <p>
-                We offer two distinct models. The "Speed Mode" uses the standard <strong>htdemucs</strong> (Hybrid
-                Transformer) model. It balances speed and accuracy by using a transformer attention mechanism to handle
-                long-range dependencies in the music, like a consistent drum beat or a repetitive bassline. However, for
-                the audiophiles, we implemented the <strong>htdemucs_ft</strong> (Fine-Tuned) model.
-            </p>
+            <!-- RIGHT COLUMN: Visualizer / Ads -->
+            <div class="lg:col-span-7 space-y-8">
+                <!-- Top Ad Slot -->
+                <div class="glass p-4 rounded-3xl min-h-[100px] flex items-center justify-center">
+                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5972331036113330" data-ad-slot="YOUR_NEW_AD_SLOT_ID_HERE" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                </div>
 
-            <p>
-                The <strong>Fine-Tuned</strong> model is significantly heavier computationally. It takes the base
-                knowledge of the standard model and refines it with an extended training dataset focused on minimizing
-                "bleed" (e.g., hearing the hi-hats in the vocal track). When you select "Ultra Quality," the backend
-                switches to this heavier neural network, utilizing <strong>32-bit floating point</strong> precision
-                internally before encoding down to CD-quality 16-bit WAV files for your download.
-            </p>
+                <div id="results-area" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-700">
+                    <div class="flex justify-between items-end mb-6">
+                        <h2 class="text-2xl font-bold tracking-tight">Separated Stems</h2>
+                        <button id="downloadZipBtn" class="text-xs font-bold text-spotify-green border border-spotify-green/30 px-4 py-2 rounded-full hover:bg-spotify-green hover:text-black transition">DOWNLOAD ALL (.ZIP)</button>
+                    </div>
+                    
+                    <div id="tracks-wrapper" class="space-y-4">
+                        <!-- Tracks Injected Here -->
+                    </div>
+                </div>
 
-            <p>
-                To make this available securely over the public internet without expensive cloud GPU costs, I utilized
-                <strong>Tailscale Funnel</strong>. This creates an encrypted tunnel from your device directly to my
-                local Python Flask server. Your audio travels through this secure pipeline, gets processed in RAM to
-                protect your privacy (no files are permanently stored), and the separated stems are zipped and sent back
-                to you instantly.
-            </p>
-
-            <div class="mermaid">
-                sequenceDiagram
-                participant User as User Device
-                participant Cloud as Tailscale Tunnel
-                participant Server as iMac Backend
-                participant AI as Demucs Engine
-
-                User->>Cloud: Upload Audio (Encrypted)
-                Cloud->>Server: Route to Flask
-                Server->>AI: Load Audio to RAM
-                AI->>AI: Inference (htdemucs_ft)
-                AI-->>Server: 4 Raw Stem Streams
-                Server->>Server: Encode WAV & Zip
-                Server-->>User: Download Final Zip
-            </div>
-
-            <h3 style="margin-top: 50px;">Deep Learning Architecture: The U-Net & BiLSTM</h3>
-
-            <p>
-                To achieve such clean separation, Demucs employs a specialized <strong>U-Net topology</strong>. Imagine
-                a "U" shape: on the left side (the Encoder), the audio spectrogram is progressively downsampled,
-                compressing the complex waveform into high-level features. On the right side (the Decoder), it attempts
-                to reconstruct the specific stems from those features. The magic lies in the <strong>Skip
-                    Connections</strong> (represented by dotted lines below). These connections pass high-resolution
-                details from the start of the process directly to the end, bypassing the compression bottleneck. This
-                ensures that the output vocals remain crisp and the drums retain their transient punch, rather than
-                sounding "muddy" or over-processed.
-            </p>
-
-            <p>
-                Sandwiched between the encoder and decoder is the <strong>BiLSTM (Bidirectional Long Short-Term
-                    Memory)</strong> core. While standard convolutional layers are great at analyzing sound textures
-                (like the timbre of a guitar), they struggle with time and rhythm. The BiLSTM analyzes the song
-                chronologically—scanning both forwards and backwards simultaneously. This allows the AI to understand
-                musical context, keeping the tempo consistent and distinguishing between a rhythmic drum beat and a
-                random noise artifact, effectively "listening" to the song structure before making separation decisions.
-                To use this service phrase disable ad-blockers, future updates will restrict use for any browsers using
-                ad blockers.
-            </p>
-
-            <div class="mermaid">
-                graph TD
-                subgraph Encoder ["📉 Encoder (Compression)"]
-                I[Input Mix] --> C1[Conv Layer 1]
-                C1 --> C2[Conv Layer 2]
-                C2 --> C3[Conv Layer 3]
-                C3 --> C4[Conv Layer 4]
-                end
-
-                subgraph Bottleneck ["🧠 BiLSTM Core (Time Context)"]
-                C4 --> B[Forward/Backward Analysis]
-                end
-
-                subgraph Decoder ["📈 Decoder (Reconstruction)"]
-                B --> U4[UpSample 4]
-                U4 --> U3[UpSample 3]
-                U3 --> U2[UpSample 2]
-                U2 --> U1[Output Stems]
-                end
-
-                %% Skip Connections (The Secret Sauce)
-                C1 -.->|Skip Connection| U1
-                C2 -.->|Skip Connection| U2
-                C3 -.->|Skip Connection| U3
-                C4 -.->|Skip Connection| U4
-
-                style Encoder fill:#1a1d2d,stroke:#ff0055,stroke-width:2px
-                style Decoder fill:#1a1d2d,stroke:#00f2ff,stroke-width:2px
-                style Bottleneck fill:#252a40,stroke:#ffb700,stroke-width:2px
-                style I fill:#fff,color:#000
-                style U1 fill:#fff,color:#000
+                <!-- Place Holder for ads when no results -->
+                <div id="empty-state" class="h-full border border-white/5 rounded-3xl flex items-center justify-center text-gray-700 font-bold uppercase tracking-tighter text-4xl select-none">
+                    Studio Offline
+                </div>
             </div>
         </div>
 
-        <div style="margin: 40px 0; text-align: center;">
-            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5972331036113330"
-                data-ad-slot="YOUR_NEW_AD_SLOT_ID_HERE" data-ad-format="auto" data-full-width-responsive="true"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
-
-        <footer>
-            <div class="visitor-counter">
-                Visits: <span id="visit-count" class="count">00000000</span>
+        <!-- TECH SPECS SECTION -->
+        <section id="about" class="mt-40 space-y-20">
+            <div class="border-t border-white/10 pt-20">
+                <h3 class="text-3xl font-bold mb-12">Architecture Overview</h3>
+                
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6 text-gray-400 leading-relaxed">
+                        <p>Unlike traditional EQ-based isolation, <strong class="text-white">Demucs</strong> uses a specialized U-Net topology. The AI spectrogram is progressively downsampled, compressing the complex waveform into high-level features before reconstructing specific stems.</p>
+                        <p>The <strong class="text-white">BiLSTM core</strong> scans the song chronologically—scanning both forwards and backwards simultaneously. This allows the AI to understand musical context, keeping the tempo consistent and distinguishing between a rhythmic drum beat and a random noise artifact.</p>
+                    </div>
+                    <div class="glass p-8 rounded-3xl">
+                        <div class="mermaid">
+                            graph TD
+                            I[Input Mix] --> E[Encoder]
+                            E --> B[BiLSTM Core]
+                            B --> D[Decoder]
+                            D --> O[Stems]
+                            style I fill:#222,stroke:#00f2ff
+                            style B fill:#00f2ff,color:#000
+                            style O fill:#222,stroke:#00f2ff
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p style="margin-top:10px;">© 2026 Advanced Audio Stem Separator.</p>
-            <p><a href="https://github.com/vicsanity623">GitHub</a> | <a href="/privacy-policy.html">Privacy</a></p>
+        </section>
+
+        <!-- DEEP DIVE BLOG SECTION -->
+        <section id="deep-dive" class="mt-20 glass p-8 md:p-12 rounded-3xl border-t-4 border-cyan-500">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <h2 class="text-4xl font-bold tracking-tight text-white mb-6">Democratizing Audio Isolation: The Power of Meta's Demucs</h2>
+                
+                <div class="space-y-6 text-gray-400 leading-relaxed text-lg">
+                    <p>
+                        For decades, audio engineers considered separating a fully mixed song into its original individual tracks—vocals, drums, bass, and instruments—to be the "holy grail" of digital signal processing. It is famously likened to trying to un-bake a cake. Traditional methods relied on phase cancellation and aggressive equalization (EQing). However, these techniques almost always resulted in heavy audio artifacts, leaving the vocals sounding underwater and the drums severely muffled.
+                    </p>
+
+                    <h3 class="text-2xl font-semibold text-white mt-8 mb-4">Enter Meta Research & Demucs</h3>
+                    <p>
+                        The paradigm shifted with the introduction of deep learning to acoustic processing. Developed by the Meta AI Research team, <strong class="text-cyan-400">Demucs (Deep Extraction for Music Source Separation)</strong> represents the absolute State-of-the-Art (SOTA) in open-source audio modeling. Rather than simply filtering frequencies, Demucs utilizes a complex neural network trained on terabytes of high-fidelity, multitrack studio recordings. By analyzing thousands of songs, the AI learns the distinct sonic textures, harmonics, and transient properties of human vocal cords versus a snare drum or a bass guitar.
+                    </p>
+                    <p>
+                        When fed an audio file, Demucs doesn't just cut frequencies out; it mathematically "dreams" and reconstructs the missing parts of the waveform. It achieves this through a hybrid architecture combining a <strong class="text-cyan-400">U-Net Topology</strong> with a <strong class="text-cyan-400">BiLSTM (Bidirectional Long Short-Term Memory)</strong> core. The U-Net efficiently compresses the spectrogram to extract high-level features, while the BiLSTM scans the temporal rhythm of the track—listening both forwards and backwards simultaneously to maintain perfect rhythmic timing and phase alignment.
+                    </p>
+
+                    <h3 class="text-2xl font-semibold text-white mt-8 mb-4">The Purpose of This Self-Hosted Platform</h3>
+                    <p>
+                        Despite the Demucs algorithm being open-source, leveraging its power requires significant computational overhead. As a result, the internet has been flooded with "freemium" SaaS platforms that take this open-source AI, put it behind a paywall, throttle upload speeds, compress the output quality, and severely restrict file sizes. 
+                    </p>
+                    <p>
+                        This platform was built as a direct response to that limitation. By utilizing <strong class="text-white">Tailscale Funnel</strong> and a custom Python Flask backend, this beautiful web interface routes your audio directly into a private, self-hosted Apple Silicon/Intel GPU environment. There are no corporate paywalls, no artificial file size caps, and no compressed outputs. The backend utilizes 32-bit floating-point precision during the inference stage, encoding the final output into pristine, studio-ready WAV files.
+                    </p>
+                    <p>
+                        This project proves that with the right infrastructure, developers can bypass restrictive cloud services and democratize access to high-end, compute-heavy AI tools by serving them directly from local hardware to the global web.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="mt-20 border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-gray-500 text-sm">
+                &copy; 2026 Advanced Audio Studio. Educational Use Only.
+                <div class="mt-4 flex gap-4">
+                    <a href="https://github.com/vicsanity623" class="hover:text-white">GitHub</a>
+                    <a href="#" class="hover:text-white">Privacy</a>
+                    <a href="#" class="hover:text-white">API Docs</a>
+                </div>
+            </div>
+            
+            <div class="glass px-6 py-3 rounded-xl">
+                <span class="text-[10px] font-bold text-gray-500 uppercase mr-4 tracking-widest">Global Traffic</span>
+                <span id="visit-count" class="font-mono text-cyan-400 font-bold">00000000</span>
+            </div>
         </footer>
-    </div>
+    </main>
+
+    <div id="ad-detection-bait" class="adsbox ad-placement doubleclick" style="position: absolute; left: -9999px;">&nbsp;</div>
 
     <script>
         const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
-        const _0x4d2a = "aHR0cHM6Ly92aWNzLWltYWMudGFpbDM3YjRmMi50cy5uZXQv";
-        fetch(getBackendUrl() + 'hit')
-            .catch(err => console.log("Backend offline or connection blocked."));
-
-        async function checkAdBlock() {
-            let adBlockEnabled = false;
-            const bait = document.getElementById('ad-detection-bait');
-
-            if (!bait) {
-                adBlockEnabled = true;
-            } else {
-                if (bait.offsetParent === null || bait.offsetHeight === 0 || bait.offsetLeft === 0) {
-                    adBlockEnabled = true;
-                }
-                const style = window.getComputedStyle(bait);
-                if (style.display === 'none' || style.visibility === 'hidden') {
-                    adBlockEnabled = true;
-                }
-            }
-
-            if (adBlockEnabled) {
-                const wall = document.getElementById('adblock-wall');
-                const mainWrapper = document.querySelector('.main-wrapper');
-
-                wall.style.display = 'flex';
-
-                if (mainWrapper) mainWrapper.style.display = 'none';
-
-                const uploadZone = document.getElementById('dropZone');
-                const processBtn = document.getElementById('processBtn');
-                if (uploadZone) uploadZone.style.pointerEvents = 'none';
-                if (processBtn) processBtn.disabled = true;
-            }
-        }
-
-        window.onload = function () {
-            checkAdBlock();
-            setTimeout(checkAdBlock, 2000);
-        };
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
-
-        const counterElement = document.getElementById('visit-count');
-
-        const counterNamespace = 'audio-stem-separator-vics-unique-id';
-        const counterKey = 'main_visits';
-
-        fetch(`https://api.counterapi.dev/v1/${counterNamespace}/${counterKey}/up`)
-            .then(res => res.json())
-            .then(data => {
-
-                if (data.count !== undefined) {
-                    counterElement.innerText = data.count.toString().padStart(8, '0');
-                } else {
-                    console.log('Counter response invalid', data);
-                }
-            })
-            .catch(err => {
-                console.log('Counter API unavailable or blocked by browser privacy settings');
-            });
-
+        
+        // Connectivity Fix: Tailscale Funnel URL
         function getBackendUrl() {
             return "https://vics-imac-1.tail37b4f2.ts.net/"; 
         }
 
-        function updateMode(radio) {
-            document.querySelectorAll('.quality-option').forEach(el => el.classList.remove('selected'));
-            radio.parentElement.classList.add('selected');
+        // --- AD BLOCKER LOGIC ---
+        async function checkAdBlock() {
+            const bait = document.getElementById('ad-detection-bait');
+            const wall = document.getElementById('adblock-wall');
+            if (!bait || bait.offsetParent === null || bait.offsetHeight === 0) {
+                wall.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
         }
+        window.onload = () => { setTimeout(checkAdBlock, 1500); };
 
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
@@ -937,8 +268,9 @@
         const progressArea = document.getElementById('progressArea');
         const progressBar = document.getElementById('progressBar');
         const statusText = document.getElementById('statusText');
-        const slowWarning = document.getElementById('slowWarning');
+        const percentText = document.getElementById('percentText');
         const resultsArea = document.getElementById('results-area');
+        const emptyState = document.getElementById('empty-state');
         const tracksWrapper = document.getElementById('tracks-wrapper');
         const fileNameDisplay = document.getElementById('fileNameDisplay');
         const downloadZipBtn = document.getElementById('downloadZipBtn');
@@ -947,285 +279,117 @@
         let activeWaveSurfers = [];
         let isProcessing = false;
 
-        dropZone.addEventListener('click', () => {
-            if (!isProcessing) fileInput.click();
-        });
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
-        });
-
-        dropZone.addEventListener('dragenter', () => { if (!isProcessing) dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragover', () => { if (!isProcessing) dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-
-        dropZone.addEventListener('drop', (e) => {
-            dropZone.classList.remove('dragover');
-            if (!isProcessing) handleFiles(e.dataTransfer.files);
-        });
-
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        dropZone.onclick = () => { if (!isProcessing) fileInput.click(); };
+        fileInput.onchange = (e) => handleFiles(e.target.files);
 
         function handleFiles(files) {
-            if (isProcessing) return;
             if (files.length > 0) {
                 selectedFile = files[0];
-                fileNameDisplay.textContent = selectedFile.name;
+                fileNameDisplay.textContent = `SELECTED: ${selectedFile.name.toUpperCase()}`;
                 processBtn.disabled = false;
-                processBtn.innerText = "Separate Stems";
-                resultsArea.style.display = 'none';
-                progressArea.style.display = 'none';
             }
         }
 
-        function resetUI() {
-            selectedFile = null;
-            fileNameDisplay.textContent = "";
-            resultsArea.style.display = 'none';
-            progressArea.style.display = 'none';
-            tracksWrapper.innerHTML = "";
-
-            processBtn.disabled = true;
-            processBtn.style.display = 'block';
-            processBtn.innerText = "Separate Stems";
-
-            dropZone.classList.remove('disabled');
-            isProcessing = false;
-
-            activeWaveSurfers.forEach(ws => ws.destroy());
-            activeWaveSurfers = [];
-
-            fileInput.value = "";
-        }
-
+        // --- CORE PROCESS LOGIC ---
         processBtn.addEventListener('click', async () => {
-            if (processBtn.innerText === "SEPARATE ANOTHER") {
-                resetUI();
-                return;
-            }
+            if (processBtn.innerText === "SEPARATE ANOTHER") { location.reload(); return; }
 
-            let cfToken = "";
-            try {
-                if (typeof turnstile !== 'undefined') {
-                    cfToken = turnstile.getResponse();
-                }
-            } catch (e) { console.log("Turnstile not ready"); }
-
-            if (!cfToken) {
-                alert("Please verify you are human (complete the captcha) above the button.");
-                return;
-            }
-
-            if (!selectedFile) return;
-            const baseUrl = getBackendUrl();
-            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const cfToken = turnstile.getResponse();
+            if (!cfToken) { alert("Please complete the security check."); return; }
 
             isProcessing = true;
             processBtn.disabled = true;
-            processBtn.style.display = 'none';
-            dropZone.classList.add('disabled');
-
-            progressArea.style.display = 'block';
-            slowWarning.style.display = 'block';
-            progressBar.style.width = '0%';
-            statusText.textContent = "Uploading file (0%)...";
-            statusText.style.color = "var(--text-main)";
-
-            activeWaveSurfers.forEach(ws => ws.destroy());
-            activeWaveSurfers = [];
-            tracksWrapper.innerHTML = '';
-
+            processBtn.classList.add('hidden');
+            progressArea.classList.remove('hidden');
+            
             const formData = new FormData();
             formData.append('audioFile', selectedFile);
-            formData.append('mode', mode);
+            // Hardcoded to 'fast' so backend app.py still processes it flawlessly without crashing
+            formData.append('mode', 'fast'); 
             formData.append('cf-turnstile-response', cfToken);
 
             try {
-                const startResponse = await fetch(`${baseUrl}/separate`, {
+                const res = await fetch(`${getBackendUrl()}separate`, {
                     method: 'POST',
-                    headers: {
-                        'X-API-Key': API_KEY
-                    },
+                    headers: { 'X-API-Key': API_KEY },
                     body: formData
                 });
-
-                if (startResponse.status === 429) {
-                    throw new Error("LIMIT_REACHED");
-                }
-
-                if (startResponse.status === 503) {
-                    throw new Error("SERVER_BUSY");
-                }
-
-                if (startResponse.status === 401) {
-                    throw new Error("UNAUTHORIZED");
-                }
-
-                if (startResponse.status === 403) {
-                    throw new Error("CAPTCHA_FAILED");
-                }
-
-                if (!startResponse.ok) {
-                    const errData = await startResponse.json();
-                    throw new Error(errData.error || "Upload Failed: " + startResponse.status);
-                }
-
-                const startData = await startResponse.json();
-                pollStatus(baseUrl, startData.task_id);
-
-            } catch (error) {
-                console.error(error);
-                let displayError = error.message;
-
-                if (displayError === "LIMIT_REACHED") {
-                    displayError = "✋ Please wait for your current audio to finish before starting a new one.";
-                } else if (displayError === "SERVER_BUSY") {
-                    displayError = "⚠️ Server is at full capacity. Please try again in 5 minutes.";
-                } else if (displayError === "UNAUTHORIZED") {
-                    displayError = "🔒 Authentication Failed. Please check API Key.";
-                } else if (displayError === "CAPTCHA_FAILED") {
-                    displayError = "🤖 Human Verification Failed. Please refresh and try again.";
-                }
-
-                statusText.textContent = displayError;
-                statusText.style.color = "#ff4444";
-
-                processBtn.disabled = false;
-                processBtn.style.display = 'block';
-                dropZone.classList.remove('disabled');
-                isProcessing = false;
-
-                if (typeof turnstile !== 'undefined') turnstile.reset();
+                
+                if (!res.ok) throw new Error("Upload Failed");
+                const data = await res.json();
+                pollStatus(data.task_id);
+            } catch (err) {
+                statusText.innerText = "OFFLINE: Check Backend Connection";
+                statusText.classList.add('text-red-500');
             }
         });
 
-        async function pollStatus(baseUrl, taskId) {
+        async function pollStatus(taskId) {
             const interval = setInterval(async () => {
-                try {
-                    const res = await fetch(`${baseUrl}/status/${taskId}`);
+                const res = await fetch(`${getBackendUrl()}status/${taskId}`);
+                const data = await res.json();
 
-                    if (res.status !== 200) return;
-                    const data = await res.json();
-
-                    if (data.status === 'processing' || data.status === 'queued') {
-                        progressBar.style.width = `${data.progress}%`;
-                        statusText.textContent = data.message || `Processing... ${data.progress}%`;
-                        statusText.style.color = "#ffffff";
-                    } else if (data.status === 'complete') {
-                        clearInterval(interval);
-                        progressBar.style.width = '100%';
-                        statusText.textContent = "Finalizing...";
-                        setTimeout(() => {
-                            progressArea.style.display = 'none';
-                            processBtn.style.display = 'block';
-                            processBtn.innerText = "SEPARATE ANOTHER";
-                            processBtn.disabled = false;
-
-                            if (typeof turnstile !== 'undefined') turnstile.reset();
-
-                            renderPlayer(data.data, baseUrl);
-                        }, 1000);
-                    } else if (data.status === 'error') {
-                        clearInterval(interval);
-                        throw new Error(data.message);
-                    }
-                } catch (e) {
-                    console.error("Polling Error:", e);
-                    statusText.textContent = "Error: " + e.message;
-                    statusText.style.color = "#ff4444";
+                if (data.status === 'processing' || data.status === 'queued') {
+                    progressBar.style.width = `${data.progress}%`;
+                    percentText.innerText = `${data.progress}%`;
+                    statusText.innerText = data.message.toUpperCase();
+                } else if (data.status === 'complete') {
+                    clearInterval(interval);
+                    renderPlayer(data.data, getBackendUrl());
                 }
             }, 1000);
         }
 
-        async function forceDownload(url, filename, btnElement) {
-            const originalContent = btnElement.innerHTML;
-            btnElement.innerHTML = "⏳";
-            btnElement.disabled = true;
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("Network error");
-
-                const blob = await response.blob();
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (e) {
-                alert("Download failed. Please check your connection.");
-            } finally {
-                btnElement.innerHTML = originalContent;
-                btnElement.disabled = false;
-            }
-        }
-
         function renderPlayer(data, baseUrl) {
-            resultsArea.style.display = 'block';
+            progressArea.classList.add('hidden');
+            resultsArea.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            processBtn.innerText = "SEPARATE ANOTHER";
+            processBtn.classList.remove('hidden');
+            processBtn.disabled = false;
+
             const stems = [
                 { id: 'vocals', name: 'Vocals', color: '#ff0055', url: data.vocals },
                 { id: 'drums', name: 'Drums', color: '#00f2ff', url: data.drums },
-                { id: 'bass', name: 'Bass', color: '#ffcc00', url: data.bass },
+                { id: 'bass', name: 'Bass', color: '#1DB954', url: data.bass },
                 { id: 'other', name: 'Other', color: '#aa00ff', url: data.other },
             ];
 
-            stems.forEach((stem, index) => {
-                const audioUrl = `${baseUrl}${stem.url}`;
+            stems.forEach((stem, i) => {
                 const card = document.createElement('div');
-                card.className = 'track-card';
+                card.className = "glass p-4 rounded-2xl flex items-center gap-6";
                 card.innerHTML = `
-                    <div class="track-control" id="btn-${index}">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                    </div>
-                    <div class="track-details">
-                        <div class="track-title" style="color:${stem.color}">${stem.name}</div>
-                        <div id="wave-${index}" class="waveform">
-                            <div class="wave-loading">Loading Visuals...</div>
+                    <button id="btn-${i}" class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition">▶</button>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-tighter" style="color: ${stem.color}">${stem.name}</span>
+                            <button id="dl-${i}" class="text-[10px] font-bold text-gray-500 hover:text-white">WAV ↓</button>
                         </div>
+                        <div id="wave-${i}" class="w-full h-8 opacity-50"></div>
                     </div>
-                    <button class="track-download" id="dl-${index}" title="Download ${stem.name}">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    </button>
                 `;
                 tracksWrapper.appendChild(card);
 
                 const ws = WaveSurfer.create({
-                    container: `#wave-${index}`,
-                    waveColor: '#4a4a4a',
+                    container: `#wave-${i}`,
+                    waveColor: '#333',
                     progressColor: stem.color,
-                    cursorColor: '#ffffff',
-                    barWidth: 2,
-                    barGap: 3,
-                    barRadius: 3,
-                    height: 60,
-                    url: audioUrl
+                    height: 32,
+                    url: `${baseUrl}${stem.url}`
                 });
 
-                ws.on('ready', () => {
-                    const loader = document.querySelector(`#wave-${index} .wave-loading`);
-                    if (loader) loader.style.display = 'none';
-                });
-
-                const btn = document.getElementById(`btn-${index}`);
-                btn.addEventListener('click', () => ws.playPause());
-                ws.on('play', () => {
-                    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
-                    activeWaveSurfers.forEach((otherWs, otherIdx) => { if (otherIdx !== index) otherWs.pause(); });
-                });
-                ws.on('pause', () => btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`);
-                activeWaveSurfers.push(ws);
-
-                document.getElementById(`dl-${index}`).addEventListener('click', function () {
-                    forceDownload(audioUrl, `${stem.name}.wav`, this);
-                });
+                document.getElementById(`btn-${i}`).onclick = () => ws.playPause();
+                document.getElementById(`dl-${i}`).onclick = () => window.open(`${baseUrl}${stem.url}`);
             });
-
-            downloadZipBtn.onclick = function () {
-                forceDownload(`${baseUrl}${data.zip}`, "stems.zip", this);
-            };
+            
+            downloadZipBtn.onclick = () => window.open(`${baseUrl}${data.zip}`);
         }
+
+        // Visitor Counter
+        fetch(`https://api.counterapi.dev/v1/audio-stem-separator-vics-unique-id/main_visits/up`)
+            .then(res => res.json())
+            .then(data => { document.getElementById('visit-count').innerText = data.count.toString().padStart(8, '0'); });
+
     </script>
 </body>
-
 </html>
