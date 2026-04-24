@@ -40,7 +40,7 @@
 </head>
 <body class="no-scrollbar">
 
-    <!-- LOGIN OVERLAY (Anti-Bot & User Data) -->
+    <!-- LOGIN OVERLAY -->
     <div id="login-overlay" class="flex flex-col items-center justify-center p-6 text-center">
         <div class="glass p-12 rounded-[3.5rem] max-w-md w-full border-cyan-500/30 shadow-[0_0_100px_rgba(0,242,255,0.1)]">
             <div class="w-24 h-24 bg-cyan-500 rounded-[2rem] flex items-center justify-center font-black text-black italic text-5xl mx-auto mb-10 shadow-[0_0_50px_rgba(0,242,255,0.4)]">V</div>
@@ -115,7 +115,7 @@
                         <span id="percentText" class="text-white">0%</span>
                     </div>
                     <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                        <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-700"></div>
+                        <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
                     </div>
                     <p class="text-[9px] text-gray-600 italic leading-relaxed" id="slowWarning">⚠️ Running on local Intel iMac GPU. Process is private and secure. Do not close browser.</p>
                 </div>
@@ -123,7 +123,7 @@
 
             <!-- RIGHT: RESULTS & ADS -->
             <div class="lg:col-span-7 space-y-8">
-                <div class="glass p-4 rounded-[2.5rem] min-h-[300px] flex items-center justify-center overflow-hidden border-white/5">
+                <div class="glass p-4 rounded-[2.5rem] min-h-[320px] w-full flex items-center justify-center overflow-hidden border-white/5">
                     <ins class="adsbygoogle"
                          style="display:block"
                          data-ad-client="ca-pub-5972331036113330"
@@ -147,14 +147,12 @@
             </div>
         </div>
 
-        <!-- DEEP DIVE BLOG CONTENT -->
+        <!-- DEEP DIVE BLOG -->
         <section id="deep-dive" class="mt-40 glass p-8 md:p-20 rounded-[4rem] border-t-2 border-cyan-500/30">
             <div class="max-w-4xl mx-auto space-y-12">
-                <h2 class="text-6xl font-black tracking-tighter text-white uppercase leading-[0.8]">Democratizing Audio Isolation:<br><span class="text-cyan-400" style="-webkit-text-stroke: 1px transparent;">The Meta Demucs Revolution</span></h2>
-                
+                <h2 class="text-6xl font-black tracking-tighter text-white uppercase leading-[0.8]">Democratizing Audio Isolation:<br><span class="text-cyan-400">The Meta Demucs Revolution</span></h2>
                 <div class="space-y-8 text-gray-400 leading-relaxed text-lg font-light">
                     <p>For decades, audio engineers viewed the separation of a fully mixed track into its original stems—vocals, drums, and bass—as the "holy grail" of signal processing. Traditional methods relied on phase cancellation and aggressive EQ filtering, which inevitably left audio riddled with underwater artifacts.</p>
-
                     <div class="grid md:grid-cols-2 gap-12 items-center py-10">
                         <div class="glass p-8 rounded-[2rem] border-white/5 shadow-2xl">
                             <h4 class="text-cyan-400 font-black mb-6 uppercase tracking-[0.2em] text-[10px]">Processing Topology</h4>
@@ -168,13 +166,11 @@
                             </div>
                         </div>
                         <p class="text-base italic leading-relaxed">
-                            By utilizing a specialized <strong class="text-white">U-Net Topology</strong>, Demucs compresses audio into high-level features before reconstruction. The <strong class="text-white">BiLSTM Core</strong> scans the track bidirectionally, ensuring rhythmic consistency that filters alone could never achieve.
+                            By utilizing a specialized <strong class="text-white">U-Net Topology</strong>, Demucs compresses audio into high-level features before reconstruction. The <strong class="text-white">BiLSTM Core</strong> scans the track bidirectionally, ensuring rhythmic consistency.
                         </p>
                     </div>
-
                     <h3 class="text-2xl font-bold text-white uppercase tracking-tighter italic">The Self-Hosted Philosophy</h3>
-                    <p>While the Demucs algorithm is open-source, its computational demands are high. Most web platforms take this open-source gift and place it behind paywalls, throttling speeds and compressing quality for profit. </p>
-                    <p>This platform operates differently. By leveraging <strong class="text-cyan-400">Tailscale Funnel</strong> and a private Intel-based iMac server, your audio is processed in a high-precision 32-bit floating-point environment. We bypass the corporate cloud, ensuring your data remains private and your output remains studio-grade WAV. This is not just a tool; it is a demonstration of how local hardware can be securely bridged to the global web to provide world-class AI services without compromise.</p>
+                    <p>While the Demucs algorithm is open-source, its computational demands are high. This platform leverages <strong class="text-cyan-400">Tailscale Funnel</strong> and a private Intel-based iMac server to ensure your data remains private and your output remains studio-grade WAV.</p>
                 </div>
             </div>
         </section>
@@ -200,10 +196,9 @@
     <!-- CORE LOGIC: FIREBASE & STUDIO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        // --- PASTE YOUR FIREBASE CONFIG HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyCkOPw2UYG7u38ppZu4lwU-zSWJwNUd3mg",
             authDomain: "stemsstats.firebaseapp.com",
@@ -218,10 +213,13 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        window.login = () => signInWithPopup(auth, provider).catch(e => console.error(e));
+        window.login = () => signInWithRedirect(auth, provider);
         window.logout = () => signOut(auth);
 
         let currentUser = null;
+
+        // Catch Redirect Result
+        getRedirectResult(auth).catch(e => console.error("Redirect Error:", e));
 
         onAuthStateChanged(auth, (user) => {
             const overlay = document.getElementById('login-overlay');
@@ -246,10 +244,8 @@
             }
         });
 
-        // Backend Connectivity
         const getBackendUrl = () => "https://vics-imac-1.tail37b4f2.ts.net/";
         const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
-
         const processBtn = document.getElementById('processBtn');
         const fileInput = document.getElementById('fileInput');
 
@@ -276,37 +272,29 @@
             try {
                 const res = await fetch(`${getBackendUrl()}separate`, {
                     method: 'POST',
-                    headers: { 
-                        'X-API-Key': API_KEY,
-                        'X-User-ID': currentUser.uid // Identify user to iMac
-                    },
+                    headers: { 'X-API-Key': API_KEY, 'X-User-ID': currentUser.uid },
                     body: fd
                 });
-                if (!res.ok) throw new Error();
                 const data = await res.json();
                 pollStatus(data.task_id);
             } catch (err) {
                 document.getElementById('statusText').innerText = "NODE OFFLINE";
-                document.getElementById('statusText').style.color = "#ff4444";
             }
         };
 
         async function pollStatus(tid) {
             const interval = setInterval(async () => {
-                try {
-                    const res = await fetch(`${getBackendUrl()}status/${tid}`);
-                    const d = await res.json();
-                    if (d.status === 'processing') {
-                        document.getElementById('progressBar').style.width = d.progress + '%';
-                        document.getElementById('percentText').innerText = d.progress + '%';
-                        document.getElementById('statusText').innerText = d.message;
-                    } else if (d.status === 'complete') {
-                        clearInterval(interval);
-                        // Update User Lifetime Stats
-                        await updateDoc(doc(db, "users", currentUser.uid), { stemsCount: increment(1) });
-                        renderPlayer(d.data);
-                    }
-                } catch (e) { clearInterval(interval); }
+                const res = await fetch(`${getBackendUrl()}status/${tid}`);
+                const d = await res.json();
+                if (d.status === 'processing') {
+                    document.getElementById('progressBar').style.width = d.progress + '%';
+                    document.getElementById('percentText').innerText = d.progress + '%';
+                    document.getElementById('statusText').innerText = d.message;
+                } else if (d.status === 'complete') {
+                    clearInterval(interval);
+                    await updateDoc(doc(db, "users", currentUser.uid), { stemsCount: increment(1) });
+                    renderPlayer(d.data);
+                }
             }, 2000);
         }
 
@@ -318,59 +306,28 @@
             processBtn.classList.remove('hidden');
             processBtn.disabled = false;
 
-            const stems = [
-                { name: 'Vocals', color: '#ff0055', url: data.vocals },
-                { name: 'Drums', color: '#00f2ff', url: data.drums },
-                { name: 'Bass', color: '#1DB954', url: data.bass },
-                { name: 'Other', color: '#aa00ff', url: data.other },
-            ];
-
+            const stems = [{ name: 'Vocals', color: '#ff0055', url: data.vocals }, { name: 'Drums', color: '#00f2ff', url: data.drums }, { name: 'Bass', color: '#1DB954', url: data.bass }, { name: 'Other', color: '#aa00ff', url: data.other }];
             stems.forEach((s, i) => {
                 const card = document.createElement('div');
                 card.className = "glass p-6 rounded-[2rem] flex items-center gap-8 border-white/5";
-                card.innerHTML = `
-                    <button id="b-${i}" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all">▶</button>
-                    <div class="flex-1">
-                        <div class="flex justify-between mb-2 px-1">
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em]" style="color:${s.color}">${s.name}</span>
-                            <a href="${getBackendUrl()}${s.url}" target="_blank" class="text-[9px] font-bold text-gray-500 hover:text-white transition-colors">WAV 32-BIT ↓</a>
-                        </div>
-                        <div id="w-${i}" class="opacity-40"></div>
-                    </div>
-                `;
+                card.innerHTML = `<button id="b-${i}" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white">▶</button><div class="flex-1"><div class="flex justify-between mb-2 px-1"><span class="text-[10px] font-black uppercase" style="color:${s.color}">${s.name}</span><a href="${getBackendUrl()}${s.url}" target="_blank" class="text-[9px] font-bold text-gray-500">WAV ↓</a></div><div id="w-${i}" class="opacity-40"></div></div>`;
                 document.getElementById('tracks-wrapper').appendChild(card);
-                const ws = WaveSurfer.create({ 
-                    container: `#w-${i}`, 
-                    waveColor: '#222', 
-                    progressColor: s.color, 
-                    height: 35, 
-                    url: getBackendUrl() + s.url,
-                    barWidth: 2,
-                    barGap: 3,
-                    cursorWidth: 0
-                });
+                const ws = WaveSurfer.create({ container: `#w-${i}`, waveColor: '#222', progressColor: s.color, height: 35, url: getBackendUrl() + s.url, barWidth: 2, barGap: 3, cursorWidth: 0 });
                 document.getElementById(`b-${i}`).onclick = () => ws.playPause();
             });
             document.getElementById('downloadZipBtn').onclick = () => window.open(getBackendUrl() + data.zip);
         }
 
         // PWA Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
-        }
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
 
-        // Self-Hosted Reliable Counter
-        fetch(getBackendUrl() + "counter", { method: 'POST' })
-            .then(r => r.json())
-            .then(d => { if(d.count) document.getElementById('visit-count').innerText = d.count.toString().padStart(8, '0'); });
+        // Counter
+        fetch(getBackendUrl() + "counter", { method: 'POST' }).then(r => r.json()).then(d => { if(d.count) document.getElementById('visit-count').innerText = d.count.toString().padStart(8, '0'); });
             
         // AdBlock Detection
         setTimeout(() => {
             const bait = document.getElementById('ad-detection-bait');
-            if (!bait || bait.offsetParent === null || bait.offsetHeight === 0) {
-                document.getElementById('adblock-wall').style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            }
+            if (!bait || bait.offsetParent === null || bait.offsetHeight === 0) { document.getElementById('adblock-wall').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
         }, 2000);
     </script>
 </body>
