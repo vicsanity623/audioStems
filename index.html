@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demucs Stem Separator</title>
+    <title>Pro Audio Studio | AI Stem Separator</title>
     
     <!-- Scripts & Stylesheets -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -82,7 +82,7 @@
         <div class="glass p-10 rounded-[3rem] max-w-md w-full border-cyan-500/30">
             <div class="w-20 h-20 bg-cyan-500 rounded-3xl flex items-center justify-center font-black text-black italic text-4xl mx-auto mb-8">V</div>
             <h2 class="text-3xl font-black uppercase tracking-tighter mb-4">Studio <span class="text-cyan-400">Access</span></h2>
-            <p class="text-gray-400 mb-8 text-sm leading-relaxed">Sign in with Google to unlock GPU-accelerated separation and save to cloud.</p>
+            <p class="text-gray-400 mb-8 text-sm leading-relaxed">Sign in with Google to unlock GPU-accelerated separation and track your stats.</p>
             <button id="loginBtn" class="w-full bg-white text-black font-black py-4 rounded-full flex items-center justify-center gap-3 hover:bg-cyan-400 transition-all uppercase text-xs tracking-widest">
                 Continue with Google
             </button>
@@ -121,7 +121,7 @@
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black italic text-xl">V</div>
             <h1 class="text-xl font-bold tracking-tighter uppercase hidden sm:block">Studio <span class="text-cyan-400">Separation</span></h1>
-            <span class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded ml-2">V1.6 LIVE</span>
+            <span class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded ml-2">V1.5 LIVE</span>
         </div>
         <div class="flex items-center gap-6">
             <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
@@ -274,7 +274,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, setDoc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
         // Firebase Setup
         const firebaseConfig = {
@@ -288,7 +287,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
         const provider = new GoogleAuthProvider();
 
         const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
@@ -352,7 +350,6 @@
                     const d = docSnap.data();
                     const ageHours = (new Date().getTime() - d.timestamp) / 3600000;
                     const isExpiredLocally = ageHours > 24;
-                    const isPlayable = d.isSavedToCloud || !isExpiredLocally;
 
                     const item = document.createElement('div');
                     item.className = "glass p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between border-white/5 hover:border-cyan-500/30 transition group gap-4";
@@ -361,12 +358,11 @@
                             <h4 class="text-sm font-bold text-white truncate">${d.filename}</h4>
                             <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
                                 ${new Date(d.timestamp).toLocaleDateString()} • 
-                                ${d.isSavedToCloud ? '<span class="text-cyan-400">Cloud Storage</span>' : (isExpiredLocally ? '<span class="text-red-500">Node Wiped</span>' : '<span class="text-emerald-500">iMac Node Active</span>')}
+                                ${isExpiredLocally ? '<span class="text-red-500">Node Wiped</span>' : '<span class="text-emerald-500">iMac Node Active</span>'}
                             </p>
                         </div>
                         <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-                            ${!d.isSavedToCloud && !isExpiredLocally ? `<button onclick="saveToCloud('${d.taskId}')" id="save-btn-${d.taskId}" class="text-[9px] font-bold px-3 py-1.5 rounded-full border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-black uppercase tracking-widest transition">Save to Cloud</button>` : ''}
-                            ${isPlayable ? `<button onclick="loadFromLibrary('${d.taskId}')" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-cyan-400 transition font-black text-xs">→</button>` : `<div class="text-[9px] text-red-500 uppercase font-black px-3 py-1 border border-red-500/30 rounded-full">Expired</div>`}
+                            ${!isExpiredLocally ? `<button onclick="loadFromLibrary('${d.taskId}')" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-cyan-400 transition font-black text-xs">→</button>` : `<div class="text-[9px] text-red-500 uppercase font-black px-3 py-1 border border-red-500/30 rounded-full">Expired</div>`}
                         </div>
                     `;
                     list.appendChild(item);
@@ -389,54 +385,8 @@
             closeLibrary();
             window.scrollTo({ top: document.getElementById('studio').offsetTop - 100, behavior: 'smooth' });
             
-            const baseUrl = d.isSavedToCloud ? "" : getBackendUrl();
+            const baseUrl = getBackendUrl();
             renderPlayer({ zip: d.zip, vocals: d.vocals, drums: d.drums, bass: d.bass, other: d.other }, baseUrl);
-        };
-
-        window.saveToCloud = async (taskId) => {
-            const btn = document.getElementById(`save-btn-${taskId}`);
-            if(!btn) return;
-            btn.innerText = "UPLOADING...";
-            btn.disabled = true;
-            btn.classList.add('opacity-50', 'animate-pulse');
-
-            try {
-                const docRef = doc(db, "users", currentUser.uid, "separations", taskId);
-                const docSnap = await getDoc(docRef);
-                if(!docSnap.exists()) throw new Error("Doc missing");
-                const d = docSnap.data();
-
-                const uploadFile = async (localPath, storagePath) => {
-                    const resp = await fetch(getBackendUrl() + localPath);
-                    if(!resp.ok) throw new Error("Failed to fetch " + localPath);
-                    const blob = await resp.blob();
-                    const sRef = ref(storage, storagePath);
-                    await uploadBytes(sRef, blob);
-                    return await getDownloadURL(sRef);
-                };
-
-                const [zipUrl, vocalsUrl, drumsUrl, bassUrl, otherUrl] = await Promise.all([
-                    uploadFile(d.zip, `users/${currentUser.uid}/${taskId}/stems.zip`),
-                    uploadFile(d.vocals, `users/${currentUser.uid}/${taskId}/vocals.wav`),
-                    uploadFile(d.drums, `users/${currentUser.uid}/${taskId}/drums.wav`),
-                    uploadFile(d.bass, `users/${currentUser.uid}/${taskId}/bass.wav`),
-                    uploadFile(d.other, `users/${currentUser.uid}/${taskId}/other.wav`)
-                ]);
-
-                await updateDoc(docRef, {
-                    isSavedToCloud: true,
-                    zip: zipUrl, vocals: vocalsUrl, drums: drumsUrl, bass: bassUrl, other: otherUrl
-                });
-
-                btn.innerText = "SAVED";
-                btn.classList.remove('animate-pulse', 'border-cyan-500/30', 'text-cyan-400');
-                btn.classList.add('bg-emerald-500', 'text-black', 'border-emerald-500');
-            } catch(e) {
-                console.error(e);
-                btn.innerText = "FAILED";
-                btn.classList.remove('animate-pulse');
-                btn.classList.add('text-red-500', 'border-red-500/30');
-            }
         };
 
         // AdBlock Check
@@ -519,13 +469,12 @@
                         
                         // Increment Global Date Count & Save to Library
                         const today = new Date().toISOString().split('T')[0];
-                        await setDoc(doc(db, "stats", `daily_${today}`), { date: today, count: increment(1) }, { merge: true }).catch(()=>{});
+                        await setDoc(doc(db, "daily_stats", today), { date: today, count: increment(1) }, { merge: true }).catch(()=>{});
 
                         const sepData = {
                             taskId: taskId,
                             filename: selectedFile.name,
                             timestamp: new Date().getTime(),
-                            isSavedToCloud: false,
                             zip: data.data.zip, vocals: data.data.vocals, drums: data.data.drums, bass: data.data.bass, other: data.data.other
                         };
                         await setDoc(doc(db, "users", currentUser.uid, "separations", taskId), sepData).catch(()=>{});
@@ -589,7 +538,7 @@
                 if (snap.exists()) document.getElementById('visit-count').innerText = snap.data().count.toString().padStart(8, '0');
 
                 // 2. Usage Graph
-                const q = query(collection(db, "stats"), orderBy("date", "asc"), limit(30));
+                const q = query(collection(db, "daily_stats"), orderBy("date", "asc"), limit(30));
                 const graphSnap = await getDocs(q);
                 const labels = [];
                 const graphData = [];
