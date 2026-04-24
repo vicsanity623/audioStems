@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.2.2'; 
+const CACHE_VERSION = 'v2.2.3'; 
 const CACHE_NAME = `demucsstems-${CACHE_VERSION}`;
 
 const FILES_TO_CACHE = [
@@ -6,7 +6,8 @@ const FILES_TO_CACHE = [
   './index.html',
   './manifest.json',
   './player-192x192.PNG',
-  './player-512x512.PNG'
+  './player-512x512.PNG',
+  './player-maskable-512x512.PNG'
 ];
 
 self.addEventListener('install', (event) => {
@@ -37,10 +38,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  
-  const url = new URL(event.request.url);
+  if (event.request.method !== 'GET') {
+      return; 
+  }
 
-  if (url.hostname.endsWith('.ts.net') || event.request.method === 'POST') {
+  const url = new URL(event.request.url);
+  if (url.hostname.endsWith('.ts.net')) {
       return; 
   }
 
