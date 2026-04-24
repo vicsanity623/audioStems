@@ -346,9 +346,19 @@
             downloadZipBtn.onclick = () => window.open(`${baseUrl}${data.zip}`);
         }
 
-        fetch(`https://api.counterapi.dev/v1/audio-stem-separator-vics-unique-id/main_visits/up`)
+        const counterUrl = getBackendUrl() + "counter";
+
+        fetch(counterUrl, { method: 'POST' })
             .then(res => res.json())
-            .then(data => { document.getElementById('visit-count').innerText = data.count.toString().padStart(8, '0'); });
+            .then(data => {
+                if (data.count !== undefined) {
+                    document.getElementById('visit-count').innerText = data.count.toString().padStart(8, '0');
+                }
+            })
+            .catch(err => {
+                // If backend is offline, just show a fallback number or zeros
+                console.log("Counter offline");
+            });
     </script>
 </body>
 </html>
