@@ -1,34 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google AdSense -->
+    <!-- Google AdSense Auto-Ads -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5972331036113330" crossorigin="anonymous"></script>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pro Audio Studio | AI Stem Separator</title>
     
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="player-192x192.PNG">
-    <link rel="icon" href="player-192x192.PNG" type="image/png">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#080808">
-
+    <!-- Scripts & Stylesheets -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/wavesurfer.js@7"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+    </script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
-        :root { --bg-black: #080808; --accent: #00f2ff; }
-        body { background-color: var(--bg-black); font-family: 'Inter', sans-serif; color: white; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --bg-black: #080808;
+            --accent: #00f2ff;
+        }
+
+        body {
+            background-color: var(--bg-black);
+            font-family: 'Inter', sans-serif;
+            color: white;
+            scroll-behavior: smooth;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .status-gradient { background: linear-gradient(90deg, #00f2ff, #0072ff); box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
-        #login-overlay, #adblock-wall { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; backdrop-filter: blur(20px); }
-        .upload-zone:hover { background: rgba(0, 242, 255, 0.05); border-color: var(--accent); transform: scale(1.01); transition: 0.3s; }
+        
+        .upload-zone {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .upload-zone:hover {
+            background: rgba(0, 242, 255, 0.05);
+            border-color: var(--accent);
+            transform: scale(1.01);
+        }
+
+        #adblock-wall {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        #login-overlay { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.98); 
+            z-index: 1000; 
+            backdrop-filter: blur(20px); 
+        }
+
+        .status-gradient {
+            background: linear-gradient(90deg, #00f2ff, #0072ff);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        }
     </style>
 </head>
 <body class="no-scrollbar">
@@ -48,75 +91,155 @@
     <!-- AD BLOCK WALL -->
     <div id="adblock-wall" class="flex flex-col items-center justify-center p-6 text-center">
         <div class="glass p-12 rounded-3xl max-w-lg border-red-500/50">
-            <h2 class="text-2xl font-bold mb-4 uppercase">Ad-Blocker Detected</h2>
-            <p class="text-gray-400 mb-8 text-sm">Please disable blockers to support our private iMac hardware cluster.</p>
-            <button onclick="location.reload()" class="bg-white text-black font-bold py-4 px-10 rounded-full text-xs uppercase">Refresh</button>
+            <span class="text-6xl mb-6 block">🚫</span>
+            <h2 class="text-3xl font-bold mb-4">Ad-Blocker Detected</h2>
+            <p class="text-gray-400 mb-8 leading-relaxed">
+                To keep this AI service free and unlimited, we rely on ad revenue to power our private GPU servers. Please disable your ad-blocker or Brave Shields to continue.
+            </p>
+            <button onclick="location.reload()" class="bg-white text-black font-bold py-4 px-10 rounded-full hover:bg-gray-200 transition">
+                I've Disabled It - Refresh
+            </button>
         </div>
     </div>
 
     <!-- NAVBAR -->
-    <nav class="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center glass border-b-0">
+    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center glass border-b-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black italic text-xl">V</div>
-            <h1 class="text-lg font-black tracking-tighter uppercase">Studio <span class="text-cyan-400">Separation</span></h1>
+            <h1 class="text-xl font-bold tracking-tighter uppercase hidden sm:block">Studio <span class="text-cyan-400">Separation</span></h1>
+            <span class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded ml-2">V1.5 LIVE</span>
         </div>
-        <div class="flex items-center gap-4">
-            <div id="user-pill" class="hidden glass px-3 py-1.5 rounded-full flex items-center gap-2 border-cyan-500/20">
-                <img id="user-img" src="" class="w-5 h-5 rounded-full">
-                <span id="stems-stat" class="text-[9px] font-black text-cyan-400 uppercase">0 Tracks</span>
+        <div class="flex items-center gap-6">
+            <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
+                <a href="#studio" class="hover:text-white transition">Studio</a>
+                <a href="#deep-dive" class="hover:text-white transition">Deep Dive</a>
             </div>
-            <button onclick="window.logout()" class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Sign Out</button>
+            
+            <div id="user-pill" class="hidden glass px-3 py-1.5 rounded-full flex items-center gap-2 border-cyan-500/20">
+                <img id="user-img" src="" class="w-6 h-6 rounded-full">
+                <span id="stems-stat" class="text-[10px] font-black text-cyan-400 uppercase">0 Tracks</span>
+                <button onclick="window.logout()" class="text-[9px] font-bold text-gray-500 hover:text-white uppercase tracking-widest ml-2">Sign Out</button>
+            </div>
         </div>
     </nav>
 
-    <main class="pt-28 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
-        <div class="grid lg:grid-cols-12 gap-8 items-start">
+    <!-- MAIN CONTENT -->
+    <main class="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+        
+        <div id="studio" class="grid lg:grid-cols-12 gap-12 items-start">
             
-            <!-- LEFT: UPLOAD -->
-            <div class="lg:col-span-5 space-y-6">
-                <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer" id="dropZone">
-                    <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
-                    <div class="text-5xl mb-4">📂</div>
-                    <h3 class="text-lg font-bold uppercase tracking-tighter">Select Audio</h3>
-                    <div id="fileNameDisplay" class="text-cyan-400 font-mono text-[10px] mt-4 truncate uppercase"></div>
+            <!-- LEFT COLUMN: Controls -->
+            <div class="lg:col-span-5 space-y-8">
+                <div>
+                    <h2 class="text-5xl font-bold mb-4 tracking-tight">Isolate your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Master Track</span></h2>
+                    <p class="text-gray-400 text-lg">Professional 4-stem separation using Meta Research Demucs. Unlimited, free, and secure.</p>
                 </div>
 
-                <div class="flex justify-center py-2">
+                <!-- Upload Zone -->
+                <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-3xl p-12 text-center cursor-pointer relative" id="dropZone">
+                    <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
+                    <div class="text-5xl mb-4">📂</div>
+                    <h3 class="text-xl font-semibold mb-1">Upload Source</h3>
+                    <p class="text-gray-500 text-sm mb-4 font-medium">Drag audio here or click to browse</p>
+                    <div id="fileNameDisplay" class="text-cyan-400 font-mono text-xs truncate uppercase tracking-widest"></div>
+                </div>
+
+                <div class="turnstile-wrapper flex justify-center">
                     <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
                 </div>
 
-                <button id="processBtn" class="w-full py-5 rounded-full bg-white text-black font-black text-[10px] tracking-[0.2em] uppercase hover:bg-cyan-400 disabled:opacity-10" disabled>Start AI Separation</button>
+                <button id="processBtn" class="w-full py-5 rounded-full bg-white text-black font-black text-lg tracking-widest hover:bg-cyan-400 transition-all disabled:opacity-20 disabled:grayscale" disabled>
+                    START SEPARATION
+                </button>
 
-                <div id="progressArea" class="hidden space-y-3">
-                    <div class="flex justify-between text-[9px] font-black uppercase">
-                        <span id="statusText" class="text-cyan-400 italic">Processing...</span>
+                <!-- Status Area -->
+                <div class="progress-container hidden space-y-4" id="progressArea">
+                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest">
+                        <span id="statusText" class="text-cyan-400">Initializing...</span>
                         <span id="percentText">0%</span>
                     </div>
-                    <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-1.5 w-full bg-gray-900 rounded-full overflow-hidden">
                         <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
                     </div>
+                    <p class="text-[10px] text-gray-500 italic" id="slowWarning">⚠️ Local iMac Server active. Please keep this tab open.</p>
                 </div>
             </div>
 
-            <!-- RIGHT: RESULTS -->
-            <div class="lg:col-span-7 space-y-6">
-                <div class="glass rounded-[2rem] min-h-[320px] flex items-center justify-center overflow-hidden border-white/5">
-                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5972331036113330" data-ad-slot="4287691766" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <!-- RIGHT COLUMN: Visualizer / Ads -->
+            <div class="lg:col-span-7 space-y-8">
+                <!-- Top Ad Slot -->
+                <div class="glass p-4 rounded-3xl min-h-[280px] flex items-center justify-center overflow-hidden w-full">
+                    <ins class="adsbygoogle w-full"
+                         style="display:block; min-width: 250px;"
+                         data-ad-client="ca-pub-5972331036113330"
+                         data-ad-slot="4287691766"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
                     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
                 </div>
-                <div id="results-area" class="hidden space-y-4">
-                    <div id="tracks-wrapper" class="space-y-3"></div>
-                    <button id="downloadZipBtn" class="w-full py-4 border border-emerald-500/30 text-emerald-500 rounded-2xl font-black uppercase text-[9px] tracking-widest hover:bg-emerald-500 hover:text-black transition">Download .ZIP</button>
+
+                <div id="results-area" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-700">
+                    <div class="flex justify-between items-end mb-6">
+                        <h2 class="text-2xl font-bold tracking-tight uppercase italic text-cyan-400">Stems Ready</h2>
+                        <button id="downloadZipBtn" class="text-xs font-bold text-emerald-400 border border-emerald-400/30 px-4 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest">Download .ZIP</button>
+                    </div>
+                    <div id="tracks-wrapper" class="space-y-4"></div>
                 </div>
-                <div id="empty-state" class="h-48 border border-white/5 rounded-[2rem] flex items-center justify-center text-gray-800 font-black uppercase tracking-tighter text-4xl select-none opacity-20 italic">Studio Ready</div>
+
+                <div id="empty-state" class="h-64 border border-white/5 rounded-3xl flex items-center justify-center text-gray-800 font-bold uppercase tracking-tighter text-4xl select-none">
+                    Studio Ready
+                </div>
             </div>
         </div>
 
+        <!-- DEEP DIVE BLOG CONTENT -->
+        <section id="deep-dive" class="mt-40 glass p-8 md:p-16 rounded-[3rem] border-t-2 border-cyan-500/50">
+            <div class="max-w-4xl mx-auto space-y-12">
+                <h2 class="text-5xl font-black tracking-tighter text-white uppercase leading-none">Democratizing Audio Isolation:<br><span class="text-cyan-400">The Meta Demucs Revolution</span></h2>
+                
+                <div class="space-y-8 text-gray-400 leading-relaxed text-lg font-light">
+                    <p>
+                        For decades, audio engineers viewed the separation of a fully mixed track into its original stems—vocals, drums, and bass—as the "holy grail" of signal processing. Traditional methods relied on phase cancellation and aggressive EQ filtering, which inevitably left audio riddled with underwater artifacts.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-8 items-center py-8">
+                        <div class="glass p-6 rounded-2xl">
+                            <h4 class="text-white font-bold mb-4 uppercase tracking-widest text-sm">Inference Path</h4>
+                            <div class="mermaid">
+                                graph LR
+                                Mix[Mix] --> AI{Demucs}
+                                AI --> V[Vocals]
+                                AI --> D[Drums]
+                                style AI fill:#00f2ff,color:#000
+                            </div>
+                        </div>
+                        <p class="text-base italic">
+                            By utilizing a specialized <strong class="text-white">U-Net Topology</strong>, Demucs compresses audio into high-level features before reconstruction. The <strong class="text-white">BiLSTM Core</strong> scans the track bidirectionally, ensuring rhythmic consistency that filters alone could never achieve.
+                        </p>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-white uppercase tracking-tight">The Self-Hosted Philosophy</h3>
+                    <p>
+                        While the Demucs algorithm is open-source, its computational demands are high. Most web platforms take this open-source gift and place it behind paywalls, throttling speeds and compressing quality for profit. 
+                    </p>
+                    <p>
+                        This platform operates differently. By leveraging <strong class="text-cyan-400">Tailscale Funnel</strong> and a private Intel-based iMac server, your audio is processed in a high-precision 32-bit floating-point environment. We bypass the corporate cloud, ensuring your data remains private and your output remains studio-grade WAV. This is not just a tool; it is a demonstration of how local hardware can be securely bridged to the global web to provide world-class AI services without compromise.
+                    </p>
+                </div>
+            </div>
+        </section>
+
         <!-- FOOTER -->
-        <footer class="mt-32 border-t border-white/5 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="text-gray-600 text-[9px] font-black uppercase tracking-widest">© 2026 Advanced Audio Studio // iMac Node</div>
-            <div class="glass px-6 py-3 rounded-xl border-cyan-500/10 flex items-center gap-4">
-                <span class="text-[9px] font-black text-gray-500 uppercase">Global Traffic</span>
+        <footer class="mt-40 border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-gray-500 text-sm">
+                &copy; 2026 Advanced Audio Studio.
+                <div class="mt-4 flex gap-4 font-bold uppercase tracking-widest text-[10px]">
+                    <a href="https://github.com/vicsanity623" target="_blank" class="hover:text-white">GitHub Source</a>
+                    <a href="#" class="hover:text-white">Infrastructure</a>
+                </div>
+            </div>
+            <div class="glass px-6 py-3 rounded-xl border-cyan-500/20">
+                <span class="text-[10px] font-bold text-gray-500 uppercase mr-4 tracking-widest">Global Sessions</span>
                 <span id="visit-count" class="font-mono text-cyan-400 font-bold">00000000</span>
             </div>
         </footer>
@@ -124,12 +247,13 @@
 
     <div id="ad-detection-bait" class="adsbox ad-placement doubleclick" style="position: absolute; left: -9999px;">&nbsp;</div>
 
-    <!-- SCRIPT MODULE -->
+    <!-- SCRIPT MODULE WITH FIREBASE & APP LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+        // Firebase Setup
         const firebaseConfig = {
             apiKey: "AIzaSyCkOPw2UYG7u38ppZu4lwU-zSWJwNUd3mg",
             authDomain: "stemsstats.firebaseapp.com",
@@ -138,24 +262,23 @@
             messagingSenderId: "711924778312",
             appId: "1:711924778312:web:7bb48d3331fa528d97df7d"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        const getBackendUrl = () => "https://vics-imac-1.tail37b4f2.ts.net/";
         const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
+        const getBackendUrl = () => "https://vics-imac-1.tail37b4f2.ts.net/";
 
-        // Global functions for buttons
-        window.login = () => signInWithPopup(auth, provider).catch(err => console.error("Login logic failed", err));
+        // Global Window Functions
+        window.login = () => signInWithPopup(auth, provider).catch(err => console.error("Login failed", err));
         window.logout = () => signOut(auth).then(() => location.reload());
 
         document.getElementById('loginBtn').onclick = window.login;
 
         let currentUser = null;
 
-        // 2. Monitor Login State
+        // Auth State Listener
         onAuthStateChanged(auth, (user) => {
             const overlay = document.getElementById('login-overlay');
             if (user) {
@@ -179,120 +302,134 @@
             }
         });
 
-        // 3. Studio Logic
-        const processBtn = document.getElementById('processBtn');
-        const fileInput = document.getElementById('fileInput');
-
-        document.getElementById('dropZone').onclick = () => fileInput.click();
-        fileInput.onchange = (e) => {
-            if (e.target.files.length > 0) {
-                document.getElementById('fileNameDisplay').innerText = e.target.files[0].name;
-                processBtn.disabled = false;
-            }
-        };
-
-        processBtn.onclick = async () => {
-            if (processBtn.innerText === "SEPARATE ANOTHER") { location.reload(); return; }
-            const cfToken = turnstile.getResponse();
-            if (!cfToken || !currentUser) return;
-
-            processBtn.classList.add('hidden');
-            document.getElementById('progressArea').classList.remove('hidden');
-
-            const fd = new FormData();
-            fd.append('audioFile', fileInput.files[0]);
-            fd.append('cf-turnstile-response', cfToken);
-
-            try {
-                const res = await fetch(`${getBackendUrl()}separate`, {
-                    method: 'POST',
-                    headers: { 'X-API-Key': API_KEY, 'X-User-ID': currentUser.uid },
-                    body: fd
-                });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                pollStatus(data.task_id);
-            } catch (err) {
-                document.getElementById('statusText').innerText = "NODE OFFLINE / TLS ERROR";
-                document.getElementById('statusText').style.color = "#ff4444";
-            }
-        };
-
-        async function pollStatus(tid) {
-            const interval = setInterval(async () => {
-                try {
-                    const res = await fetch(`${getBackendUrl()}status/${tid}`);
-                    const d = await res.json();
-                    if (d.status === 'processing') {
-                        document.getElementById('progressBar').style.width = d.progress + '%';
-                        document.getElementById('percentText').innerText = d.progress + '%';
-                        document.getElementById('statusText').innerText = d.message;
-                    } else if (d.status === 'complete') {
-                        clearInterval(interval);
-                        await updateDoc(doc(db, "users", currentUser.uid), { stemsCount: increment(1) });
-                        renderPlayer(d.data);
-                    }
-                } catch (e) { clearInterval(interval); }
-            }, 2000);
-        }
-
-        function renderPlayer(data) {
-            document.getElementById('progressArea').classList.add('hidden');
-            document.getElementById('results-area').classList.remove('hidden');
-            document.getElementById('empty-state').classList.add('hidden');
-            processBtn.innerText = "SEPARATE ANOTHER";
-            processBtn.classList.remove('hidden');
-            processBtn.disabled = false;
-
-            const stems = [
-                { name: 'Vocals', color: '#ff0055', url: data.vocals },
-                { name: 'Drums', color: '#00f2ff', url: data.drums },
-                { name: 'Bass', color: '#1DB954', url: data.bass },
-                { name: 'Other', color: '#aa00ff', url: data.other }
-            ];
-
-            stems.forEach((s, i) => {
-                const card = document.createElement('div');
-                card.className = "glass p-4 rounded-2xl flex items-center gap-4 border-white/5";
-                card.innerHTML = `
-                    <button id="b-${i}" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white">▶</button>
-                    <div class="flex-1">
-                        <div class="flex justify-between mb-1">
-                            <span class="text-[9px] font-black uppercase tracking-widest" style="color:${s.color}">${s.name}</span>
-                            <a href="${getBackendUrl()}${s.url}" target="_blank" class="text-[8px] font-bold text-gray-500">WAV ↓</a>
-                        </div>
-                        <div id="w-${i}" class="opacity-30"></div>
-                    </div>`;
-                document.getElementById('tracks-wrapper').appendChild(card);
-                const ws = WaveSurfer.create({ 
-                    container: `#w-${i}`, waveColor: '#333', progressColor: s.color, height: 25, 
-                    url: getBackendUrl() + s.url, barWidth: 2, cursorWidth: 0 
-                });
-                document.getElementById(`b-${i}`).onclick = () => ws.playPause();
-            });
-            document.getElementById('downloadZipBtn').onclick = () => window.open(getBackendUrl() + data.zip);
-        }
-
-        // 4. Misc Features
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
-        }
-
-        // Counter (Wrapped in try/catch to prevent TLS crash)
-        try {
-            fetch(getBackendUrl() + "counter", { method: 'POST' })
-                .then(r => r.json())
-                .then(d => { if(d.count) document.getElementById('visit-count').innerText = d.count.toString().padStart(8, '0'); })
-                .catch(() => console.log("Counter TLS Error"));
-        } catch(e) {}
-
         // AdBlock Check
         setTimeout(() => {
             const bait = document.getElementById('ad-detection-bait');
             if (!bait || bait.offsetParent === null || bait.offsetHeight === 0) {
                 document.getElementById('adblock-wall').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
             }
         }, 3000);
+
+        // Core App Logic
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const processBtn = document.getElementById('processBtn');
+        const progressArea = document.getElementById('progressArea');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        const percentText = document.getElementById('percentText');
+        const resultsArea = document.getElementById('results-area');
+        const emptyState = document.getElementById('empty-state');
+        const tracksWrapper = document.getElementById('tracks-wrapper');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const downloadZipBtn = document.getElementById('downloadZipBtn');
+
+        let selectedFile = null;
+        let isProcessing = false;
+
+        dropZone.onclick = () => { if (!isProcessing) fileInput.click(); };
+        fileInput.onchange = (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                fileNameDisplay.textContent = selectedFile.name;
+                processBtn.disabled = false;
+            }
+        };
+
+        processBtn.addEventListener('click', async () => {
+            if (processBtn.innerText === "SEPARATE ANOTHER") { location.reload(); return; }
+            const cfToken = turnstile.getResponse();
+            if (!cfToken || !currentUser) { alert("Please complete the security check and ensure you are logged in."); return; }
+
+            isProcessing = true;
+            processBtn.classList.add('hidden');
+            progressArea.classList.remove('hidden');
+            
+            const formData = new FormData();
+            formData.append('audioFile', selectedFile);
+            formData.append('cf-turnstile-response', cfToken);
+
+            try {
+                const res = await fetch(`${getBackendUrl()}separate`, {
+                    method: 'POST',
+                    headers: { 'X-API-Key': API_KEY, 'X-User-ID': currentUser.uid },
+                    body: formData
+                });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                pollStatus(data.task_id);
+            } catch (err) {
+                statusText.innerText = "NODE OFFLINE / TLS ERROR";
+                statusText.classList.add('text-red-500');
+            }
+        });
+
+        async function pollStatus(taskId) {
+            const interval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${getBackendUrl()}status/${taskId}`);
+                    const data = await res.json();
+                    if (data.status === 'processing' || data.status === 'queued') {
+                        progressBar.style.width = `${data.progress}%`;
+                        percentText.innerText = `${data.progress}%`;
+                        statusText.innerText = data.message.toUpperCase();
+                    } else if (data.status === 'complete') {
+                        clearInterval(interval);
+                        await updateDoc(doc(db, "users", currentUser.uid), { stemsCount: increment(1) });
+                        renderPlayer(data.data, getBackendUrl());
+                    }
+                } catch(e) { clearInterval(interval); }
+            }, 2000);
+        }
+
+        function renderPlayer(data, baseUrl) {
+            progressArea.classList.add('hidden');
+            resultsArea.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            processBtn.innerText = "SEPARATE ANOTHER";
+            processBtn.classList.remove('hidden');
+            processBtn.disabled = false;
+
+            const stems = [
+                { id: 'vocals', name: 'Vocals', color: '#ff0055', url: data.vocals },
+                { id: 'drums', name: 'Drums', color: '#00f2ff', url: data.drums },
+                { id: 'bass', name: 'Bass', color: '#1DB954', url: data.bass },
+                { id: 'other', name: 'Other', color: '#aa00ff', url: data.other },
+            ];
+
+            stems.forEach((stem, i) => {
+                const card = document.createElement('div');
+                card.className = "glass p-4 rounded-2xl flex items-center gap-6";
+                card.innerHTML = `
+                    <button id="btn-${i}" class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black">▶</button>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-widest" style="color: ${stem.color}">${stem.name}</span>
+                            <button onclick="window.open('${baseUrl}${stem.url}')" class="text-[10px] font-bold text-gray-500 hover:text-white uppercase tracking-widest">WAV ↓</button>
+                        </div>
+                        <div id="wave-${i}" class="w-full h-8 opacity-40"></div>
+                    </div>
+                `;
+                tracksWrapper.appendChild(card);
+
+                const ws = WaveSurfer.create({
+                    container: `#wave-${i}`,
+                    waveColor: '#333',
+                    progressColor: stem.color,
+                    height: 32,
+                    url: `${baseUrl}${stem.url}`
+                });
+                document.getElementById(`btn-${i}`).onclick = () => ws.playPause();
+            });
+            downloadZipBtn.onclick = () => window.open(`${baseUrl}${data.zip}`);
+        }
+
+        // External Counter API
+        fetch(`https://api.counterapi.dev/v1/audio-stem-separator-vics-unique-id/main_visits/up`)
+            .then(res => res.json())
+            .then(data => { document.getElementById('visit-count').innerText = data.count.toString().padStart(8, '0'); })
+            .catch(() => {});
     </script>
 </body>
 </html>
