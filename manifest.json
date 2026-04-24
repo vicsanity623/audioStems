@@ -2,7 +2,7 @@
   "name": "Stemz",
   "short_name": "Stemz",
   "description": "Demucs Stem Separation.",
-  "start_url": ".",
+  "start_url": "/audioStems/",
   "display": "standalone",
   "background_color": "#1a1a1a",
   "theme_color": "#00ff7f",
