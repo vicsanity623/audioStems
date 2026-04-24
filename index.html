@@ -7,7 +7,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pro Audio Studio | AI Stem Separator</title>
+    <link rel="manifest" href="./manifest.json">
     
+    <link rel="apple-touch-icon" href="player-192x192.PNG">
+    <link rel="icon" href="player-192x192.PNG" type="image/png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Studio">
+    <meta name="theme-color" content="#080808">
     <!-- Scripts & Stylesheets -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/wavesurfer.js@7"></script>
@@ -344,6 +351,18 @@
                 document.getElementById(`btn-${i}`).onclick = () => ws.playPause();
             });
             downloadZipBtn.onclick = () => window.open(`${baseUrl}${data.zip}`);
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
         }
 
         const counterUrl = getBackendUrl() + "counter";
