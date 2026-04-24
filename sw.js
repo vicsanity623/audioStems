@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.1.6'; 
+const CACHE_VERSION = 'v2.1.7'; 
 const CACHE_NAME = `demucsstems-${CACHE_VERSION}`;
 
 const FILES_TO_CACHE = [
