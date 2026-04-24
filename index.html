@@ -386,7 +386,10 @@
             window.scrollTo({ top: document.getElementById('studio').offsetTop - 100, behavior: 'smooth' });
             
             const baseUrl = getBackendUrl();
-            renderPlayer({ zip: d.zip, vocals: d.vocals, drums: d.drums, bass: d.bass, other: d.other }, baseUrl);
+            renderPlayer({ 
+                zip: d.zip, vocals: d.vocals, drums: d.drums, bass: d.bass, other: d.other,
+                vocals_mp3: d.vocals_mp3, drums_mp3: d.drums_mp3, bass_mp3: d.bass_mp3, other_mp3: d.other_mp3
+            }, baseUrl);
         };
 
         // AdBlock Check
@@ -475,7 +478,8 @@
                             taskId: taskId,
                             filename: selectedFile.name,
                             timestamp: new Date().getTime(),
-                            zip: data.data.zip, vocals: data.data.vocals, drums: data.data.drums, bass: data.data.bass, other: data.data.other
+                            zip: data.data.zip, vocals: data.data.vocals, drums: data.data.drums, bass: data.data.bass, other: data.data.other,
+                            vocals_mp3: data.data.vocals_mp3, drums_mp3: data.data.drums_mp3, bass_mp3: data.data.bass_mp3, other_mp3: data.data.other_mp3
                         };
                         await setDoc(doc(db, "users", currentUser.uid, "separations", taskId), sepData).catch(()=>{});
 
@@ -495,10 +499,10 @@
             tracksWrapper.innerHTML = ''; // Clear prev
 
             const stems = [
-                { id: 'vocals', name: 'Vocals', color: '#ff0055', url: data.vocals },
-                { id: 'drums', name: 'Drums', color: '#00f2ff', url: data.drums },
-                { id: 'bass', name: 'Bass', color: '#1DB954', url: data.bass },
-                { id: 'other', name: 'Other', color: '#aa00ff', url: data.other },
+                { id: 'vocals', name: 'Vocals', color: '#ff0055', url: data.vocals, mp3_url: data.vocals_mp3 },
+                { id: 'drums', name: 'Drums', color: '#00f2ff', url: data.drums, mp3_url: data.drums_mp3 },
+                { id: 'bass', name: 'Bass', color: '#1DB954', url: data.bass, mp3_url: data.bass_mp3 },
+                { id: 'other', name: 'Other', color: '#aa00ff', url: data.other, mp3_url: data.other_mp3 },
             ];
 
             stems.forEach((stem, i) => {
@@ -521,7 +525,7 @@
                     waveColor: '#333',
                     progressColor: stem.color,
                     height: 32,
-                    url: `${baseUrl}${stem.url}`
+                    url: `${baseUrl}${stem.mp3_url || stem.url}`
                 });
                 document.getElementById(`btn-${i}`).onclick = () => ws.playPause();
             });
