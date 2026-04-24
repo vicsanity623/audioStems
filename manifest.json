@@ -2,24 +2,27 @@
   "name": "Stemz",
   "short_name": "Stemz",
   "description": "Demucs Stem Separation.",
-  "start_url": "./index.html",
+  "start_url": ".",
+  "id": ".",
   "display": "standalone",
-  "background_color": "#1a1a1a",
-  "theme_color": "#00ff7f",
+  "background_color": "#080808",
+  "theme_color": "#080808",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "player-192x192.PNG",
+      "src": "./player-192x192.PNG",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
-      "src": "player-512x512.PNG",
+      "src": "./player-512x512.PNG",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     },
     {
-      "src": "player-maskable-512x512.PNG",
+      "src": "./player-maskable-512x512.PNG",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"
