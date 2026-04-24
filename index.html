@@ -127,7 +127,7 @@
     <!-- SCRIPT MODULE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -148,15 +148,12 @@
         const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
 
         // Global functions for buttons
-        window.login = () => signInWithRedirect(auth, provider);
+        window.login = () => signInWithPopup(auth, provider).catch(err => console.error("Login logic failed", err));
         window.logout = () => signOut(auth).then(() => location.reload());
 
         document.getElementById('loginBtn').onclick = window.login;
 
         let currentUser = null;
-
-        // 1. Handle returning from Google Redirect
-        getRedirectResult(auth).catch(err => console.error("Redirect logic failed", err));
 
         // 2. Monitor Login State
         onAuthStateChanged(auth, (user) => {
