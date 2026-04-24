@@ -11,6 +11,7 @@
     <!-- Scripts & Stylesheets -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/wavesurfer.js@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -88,6 +89,19 @@
         </div>
     </div>
 
+    <!-- LIBRARY MODAL -->
+    <div id="library-modal" class="hidden fixed inset-0 bg-black/90 z-[1000] backdrop-blur-md flex items-center justify-center p-6 opacity-0 transition-opacity duration-300">
+        <div class="glass p-8 rounded-[2rem] w-full max-w-3xl border-cyan-500/30 max-h-[85vh] flex flex-col scale-95 transition-transform duration-300" id="library-modal-content">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <h2 class="text-2xl font-black uppercase tracking-tighter text-white">Studio <span class="text-cyan-400">Library</span></h2>
+                <button onclick="closeLibrary()" class="text-gray-500 hover:text-white font-bold text-xl">✕</button>
+            </div>
+            <div id="library-list" class="flex-1 overflow-y-auto space-y-4 no-scrollbar pr-2">
+                <div class="text-center text-gray-500 text-sm mt-10">Loading library...</div>
+            </div>
+        </div>
+    </div>
+
     <!-- AD BLOCK WALL -->
     <div id="adblock-wall" class="flex flex-col items-center justify-center p-6 text-center">
         <div class="glass p-12 rounded-3xl max-w-lg border-red-500/50">
@@ -115,10 +129,10 @@
                 <a href="#deep-dive" class="hover:text-white transition">Deep Dive</a>
             </div>
             
-            <div id="user-pill" class="hidden glass px-3 py-1.5 rounded-full flex items-center gap-2 border-cyan-500/20">
-                <img id="user-img" src="" class="w-6 h-6 rounded-full">
-                <span id="stems-stat" class="text-[10px] font-black text-cyan-400 uppercase">0 Tracks</span>
-                <button onclick="window.logout()" class="text-[9px] font-bold text-gray-500 hover:text-white uppercase tracking-widest ml-2">Sign Out</button>
+            <div id="user-pill" onclick="window.openLibrary()" class="hidden glass px-3 py-1.5 rounded-full flex items-center gap-2 border-cyan-500/20 cursor-pointer hover:border-cyan-400 transition-colors">
+                <img id="user-img" src="" class="w-6 h-6 rounded-full pointer-events-none">
+                <span id="stems-stat" class="text-[10px] font-black text-cyan-400 uppercase pointer-events-none">0 Tracks</span>
+                <button onclick="event.stopPropagation(); window.logout()" class="text-[9px] font-bold text-gray-500 hover:text-red-400 uppercase tracking-widest ml-2 border-l border-white/10 pl-2">Sign Out</button>
             </div>
         </div>
     </nav>
@@ -230,17 +244,25 @@
         </section>
 
         <!-- FOOTER -->
-        <footer class="mt-40 border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
-            <div class="text-gray-500 text-sm">
+        <footer class="mt-40 border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center gap-8 relative">
+            <div class="text-gray-500 text-sm w-full md:w-auto text-center md:text-left">
                 &copy; 2026 Advanced Audio Studio.
-                <div class="mt-4 flex gap-4 font-bold uppercase tracking-widest text-[10px]">
+                <div class="mt-4 flex gap-4 font-bold uppercase tracking-widest text-[10px] justify-center md:justify-start">
                     <a href="https://github.com/vicsanity623" target="_blank" class="hover:text-white">GitHub Source</a>
                     <a href="#" class="hover:text-white">Infrastructure</a>
                 </div>
             </div>
-            <div class="glass px-6 py-3 rounded-xl border-cyan-500/20">
-                <span class="text-[10px] font-bold text-gray-500 uppercase mr-4 tracking-widest">Global Sessions</span>
-                <span id="visit-count" class="font-mono text-cyan-400 font-bold">00000000</span>
+            
+            <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                <!-- Usage Graph -->
+                <div class="w-full sm:w-48 h-16 relative glass rounded-xl border-cyan-500/10 p-1">
+                    <canvas id="usageChart"></canvas>
+                </div>
+                <!-- Visit Counter -->
+                <div class="glass px-6 py-3 rounded-xl border-cyan-500/20 flex items-center justify-between w-full sm:w-auto min-h-[64px]">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase mr-4 tracking-widest">Global Sessions</span>
+                    <span id="visit-count" class="font-mono text-cyan-400 font-bold">00000000</span>
+                </div>
             </div>
         </footer>
     </main>
@@ -251,7 +273,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, increment, setDoc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         // Firebase Setup
         const firebaseConfig = {
@@ -301,6 +323,71 @@
                 overlay.style.display = 'flex';
             }
         });
+
+        // Library Modal Logic
+        window.openLibrary = async () => {
+            const modal = document.getElementById('library-modal');
+            const content = document.getElementById('library-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+            
+            const list = document.getElementById('library-list');
+            list.innerHTML = '<div class="text-center text-gray-500 text-sm mt-10 animate-pulse">Scanning Cloud...</div>';
+            
+            if(!currentUser) { list.innerHTML = '<div class="text-center text-red-500 mt-10">Please log in.</div>'; return; }
+
+            try {
+                const q = query(collection(db, "users", currentUser.uid, "separations"), orderBy("timestamp", "desc"), limit(20));
+                const snap = await getDocs(q);
+                list.innerHTML = '';
+                
+                if (snap.empty) {
+                    list.innerHTML = '<div class="text-center text-gray-500 mt-10 italic">No previous tracks found.</div>';
+                    return;
+                }
+
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const ageHours = (new Date().getTime() - d.timestamp) / 3600000;
+                    const isExpiredLocally = ageHours > 24;
+
+                    const item = document.createElement('div');
+                    item.className = "glass p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between border-white/5 hover:border-cyan-500/30 transition group gap-4";
+                    item.innerHTML = `
+                        <div class="flex-1 min-w-0 w-full">
+                            <h4 class="text-sm font-bold text-white truncate">${d.filename}</h4>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
+                                ${new Date(d.timestamp).toLocaleDateString()} • 
+                                ${isExpiredLocally ? '<span class="text-red-500">Node Wiped</span>' : '<span class="text-emerald-500">iMac Node Active</span>'}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                            ${!isExpiredLocally ? `<button onclick="loadFromLibrary('${d.taskId}')" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-cyan-400 transition font-black text-xs">→</button>` : `<div class="text-[9px] text-red-500 uppercase font-black px-3 py-1 border border-red-500/30 rounded-full">Expired</div>`}
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            } catch(e) { console.error(e); list.innerHTML = '<div class="text-center text-red-500 mt-10">Error loading library. Ensure Firebase Rules are open.</div>'; }
+        };
+
+        window.closeLibrary = () => {
+            const modal = document.getElementById('library-modal');
+            const content = document.getElementById('library-modal-content');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        window.loadFromLibrary = async (taskId) => {
+            const docSnap = await getDoc(doc(db, "users", currentUser.uid, "separations", taskId));
+            if(!docSnap.exists()) return;
+            const d = docSnap.data();
+            
+            closeLibrary();
+            window.scrollTo({ top: document.getElementById('studio').offsetTop - 100, behavior: 'smooth' });
+            
+            const baseUrl = getBackendUrl();
+            renderPlayer({ zip: d.zip, vocals: d.vocals, drums: d.drums, bass: d.bass, other: d.other }, baseUrl);
+        };
 
         // AdBlock Check
         setTimeout(() => {
@@ -376,7 +463,22 @@
                         statusText.innerText = data.message.toUpperCase();
                     } else if (data.status === 'complete') {
                         clearInterval(interval);
-                        await updateDoc(doc(db, "users", currentUser.uid), { stemsCount: increment(1) });
+                        
+                        // Increment User Count
+                        await updateDoc(doc(db, "users", currentUser.uid), { stemsCount: increment(1) }).catch(()=>{});
+                        
+                        // Increment Global Date Count & Save to Library
+                        const today = new Date().toISOString().split('T')[0];
+                        await setDoc(doc(db, "stats", `daily_${today}`), { date: today, count: increment(1) }, { merge: true }).catch(console.error);
+
+                        const sepData = {
+                            taskId: taskId,
+                            filename: selectedFile.name,
+                            timestamp: new Date().getTime(),
+                            zip: data.data.zip, vocals: data.data.vocals, drums: data.data.drums, bass: data.data.bass, other: data.data.other
+                        };
+                        await setDoc(doc(db, "users", currentUser.uid, "separations", taskId), sepData).catch(()=>{});
+
                         renderPlayer(data.data, getBackendUrl());
                     }
                 } catch(e) { clearInterval(interval); }
@@ -390,6 +492,7 @@
             processBtn.innerText = "SEPARATE ANOTHER";
             processBtn.classList.remove('hidden');
             processBtn.disabled = false;
+            tracksWrapper.innerHTML = ''; // Clear prev
 
             const stems = [
                 { id: 'vocals', name: 'Vocals', color: '#ff0055', url: data.vocals },
@@ -425,11 +528,68 @@
             downloadZipBtn.onclick = () => window.open(`${baseUrl}${data.zip}`);
         }
 
-        // External Counter API
-        fetch(`https://api.counterapi.dev/v1/audio-stem-separator-vics-unique-id/main_visits/up`)
-            .then(res => res.json())
-            .then(data => { document.getElementById('visit-count').innerText = data.count.toString().padStart(8, '0'); })
-            .catch(() => {});
+        // Firebase Visit Counter & Usage Graph
+        async function loadStats() {
+            try {
+                // 1. Visit Counter
+                const counterRef = doc(db, "stats", "global_visits");
+                await updateDoc(counterRef, { count: increment(1) }).catch(e => setDoc(counterRef, { count: 1 }));
+                const snap = await getDoc(counterRef);
+                if (snap.exists()) document.getElementById('visit-count').innerText = snap.data().count.toString().padStart(8, '0');
+
+                // 2. Usage Graph
+                let labels = [];
+                let graphData = [];
+                try {
+                    const q = query(collection(db, "stats"), orderBy("date", "asc"), limit(30));
+                    const graphSnap = await getDocs(q);
+                    graphSnap.forEach(d => { 
+                        if(d.id.startsWith("daily_") && d.data().date) { 
+                            labels.push(d.data().date.substring(5)); 
+                            graphData.push(d.data().count); 
+                        }
+                    });
+                } catch(e) { console.error("Graph query error", e); }
+
+                if (graphData.length === 0) { 
+                    labels.push('Yesterday', 'Today'); 
+                    graphData.push(0, 0); 
+                } else if (graphData.length === 1) { 
+                    labels.unshift('Yesterday'); 
+                    graphData.unshift(0); // Anchor point to draw the line
+                }
+
+                const ctx = document.getElementById('usageChart').getContext('2d');
+                let gradient = ctx.createLinearGradient(0, 0, 0, 64);
+                gradient.addColorStop(0, 'rgba(0, 242, 255, 0.4)');
+                gradient.addColorStop(1, 'rgba(0, 242, 255, 0.0)');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: graphData,
+                            borderColor: '#00f2ff',
+                            borderWidth: 2,
+                            backgroundColor: gradient,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                        scales: { x: { display: false }, y: { display: false, min: 0 } },
+                        layout: { padding: 0 }
+                    }
+                });
+            } catch(e) { console.error("Stats error", e); }
+        }
+        loadStats();
+
     </script>
 </body>
 </html>
