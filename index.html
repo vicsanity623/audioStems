@@ -193,12 +193,26 @@
 
     <div id="ad-detection-bait" class="adsbox ad-placement doubleclick" style="position: absolute; left: -9999px;">&nbsp;</div>
 
-    <!-- CORE LOGIC: FIREBASE & STUDIO -->
     <script type="module">
+        // 1. Single set of clean imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
+        import { 
+            getAuth, 
+            GoogleAuthProvider, 
+            signInWithRedirect, 
+            getRedirectResult, 
+            onAuthStateChanged, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            onSnapshot, 
+            updateDoc, 
+            increment, 
+            setDoc 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    
         const firebaseConfig = {
             apiKey: "AIzaSyCkOPw2UYG7u38ppZu4lwU-zSWJwNUd3mg",
             authDomain: "stemsstats.firebaseapp.com",
@@ -207,26 +221,40 @@
             messagingSenderId: "711924778312",
             appId: "1:711924778312:web:7bb48d3331fa528d97df7d"
         };
-
+    
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
-
-        window.login = () => signInWithRedirect(auth, provider);
-        window.logout = () => signOut(auth);
-
+    
+        window.login = () => {
+            console.log("Login button clicked...");
+            signInWithRedirect(auth, provider);
+        };
+    
+        window.logout = () => signOut(auth).then(() => location.reload());
+    
+        getRedirectResult(auth)
+            .then((result) => {
+                if (result?.user) {
+                    console.log("User returned from redirect:", result.user.displayName);
+                }
+            })
+            .catch((error) => {
+                console.error("Auth Redirect Error:", error);
+                alert("Login Error: " + error.message);
+            });
+    
         let currentUser = null;
-
-        // Catch Redirect Result
-        getRedirectResult(auth).catch(e => console.error("Redirect Error:", e));
-
+    
         onAuthStateChanged(auth, (user) => {
             const overlay = document.getElementById('login-overlay');
+            const userPill = document.getElementById('user-pill');
+            
             if (user) {
                 currentUser = user;
                 overlay.style.display = 'none';
-                document.getElementById('user-pill').classList.remove('hidden');
+                userPill.classList.remove('hidden');
                 document.getElementById('user-img').src = user.photoURL;
                 
                 const userRef = doc(db, "users", user.uid);
@@ -240,35 +268,37 @@
             } else {
                 currentUser = null;
                 overlay.style.display = 'flex';
-                document.getElementById('user-pill').classList.add('hidden');
+                userPill.classList.add('hidden');
             }
         });
-
+    
+        // --- CORE STUDIO LOGIC ---
         const getBackendUrl = () => "https://vics-imac-1.tail37b4f2.ts.net/";
         const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
         const processBtn = document.getElementById('processBtn');
         const fileInput = document.getElementById('fileInput');
-
+    
         document.getElementById('dropZone').onclick = () => { if(!currentUser) return; fileInput.click(); };
+        
         fileInput.onchange = (e) => {
             if (e.target.files.length > 0) {
                 document.getElementById('fileNameDisplay').innerText = `Source: ${e.target.files[0].name.toUpperCase()}`;
                 processBtn.disabled = false;
             }
         };
-
+    
         processBtn.onclick = async () => {
             if (processBtn.innerText === "SEPARATE ANOTHER") { location.reload(); return; }
             const cfToken = turnstile.getResponse();
-            if (!cfToken || !currentUser) { alert("Security check or login required."); return; }
-
+            if (!cfToken || !currentUser) { alert("Check or Login missing."); return; }
+    
             processBtn.classList.add('hidden');
             document.getElementById('progressArea').classList.remove('hidden');
-
+    
             const fd = new FormData();
             fd.append('audioFile', fileInput.files[0]);
             fd.append('cf-turnstile-response', cfToken);
-
+    
             try {
                 const res = await fetch(`${getBackendUrl()}separate`, {
                     method: 'POST',
@@ -279,25 +309,28 @@
                 pollStatus(data.task_id);
             } catch (err) {
                 document.getElementById('statusText').innerText = "NODE OFFLINE";
+                document.getElementById('statusText').style.color = "#ff4444";
             }
         };
-
+    
         async function pollStatus(tid) {
             const interval = setInterval(async () => {
-                const res = await fetch(`${getBackendUrl()}status/${tid}`);
-                const d = await res.json();
-                if (d.status === 'processing') {
-                    document.getElementById('progressBar').style.width = d.progress + '%';
-                    document.getElementById('percentText').innerText = d.progress + '%';
-                    document.getElementById('statusText').innerText = d.message;
-                } else if (d.status === 'complete') {
-                    clearInterval(interval);
-                    await updateDoc(doc(db, "users", currentUser.uid), { stemsCount: increment(1) });
-                    renderPlayer(d.data);
-                }
+                try {
+                    const res = await fetch(`${getBackendUrl()}status/${tid}`);
+                    const d = await res.json();
+                    if (d.status === 'processing') {
+                        document.getElementById('progressBar').style.width = d.progress + '%';
+                        document.getElementById('percentText').innerText = d.progress + '%';
+                        document.getElementById('statusText').innerText = d.message;
+                    } else if (d.status === 'complete') {
+                        clearInterval(interval);
+                        await updateDoc(doc(db, "users", currentUser.uid), { stemsCount: increment(1) });
+                        renderPlayer(d.data);
+                    }
+                } catch (e) { clearInterval(interval); }
             }, 2000);
         }
-
+    
         function renderPlayer(data) {
             document.getElementById('progressArea').classList.add('hidden');
             document.getElementById('results-area').classList.remove('hidden');
@@ -305,30 +338,55 @@
             processBtn.innerText = "SEPARATE ANOTHER";
             processBtn.classList.remove('hidden');
             processBtn.disabled = false;
-
-            const stems = [{ name: 'Vocals', color: '#ff0055', url: data.vocals }, { name: 'Drums', color: '#00f2ff', url: data.drums }, { name: 'Bass', color: '#1DB954', url: data.bass }, { name: 'Other', color: '#aa00ff', url: data.other }];
+    
+            const stems = [
+                { name: 'Vocals', color: '#ff0055', url: data.vocals },
+                { name: 'Drums', color: '#00f2ff', url: data.drums },
+                { name: 'Bass', color: '#1DB954', url: data.bass },
+                { name: 'Other', color: '#aa00ff', url: data.other }
+            ];
+    
             stems.forEach((s, i) => {
                 const card = document.createElement('div');
                 card.className = "glass p-6 rounded-[2rem] flex items-center gap-8 border-white/5";
-                card.innerHTML = `<button id="b-${i}" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white">▶</button><div class="flex-1"><div class="flex justify-between mb-2 px-1"><span class="text-[10px] font-black uppercase" style="color:${s.color}">${s.name}</span><a href="${getBackendUrl()}${s.url}" target="_blank" class="text-[9px] font-bold text-gray-500">WAV ↓</a></div><div id="w-${i}" class="opacity-40"></div></div>`;
+                card.innerHTML = `
+                    <button id="b-${i}" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white">▶</button>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-2 px-1">
+                            <span class="text-[10px] font-black uppercase tracking-widest" style="color:${s.color}">${s.name}</span>
+                            <a href="${getBackendUrl()}${s.url}" target="_blank" class="text-[9px] font-bold text-gray-500 hover:text-white">WAV ↓</a>
+                        </div>
+                        <div id="w-${i}" class="opacity-40"></div>
+                    </div>`;
                 document.getElementById('tracks-wrapper').appendChild(card);
-                const ws = WaveSurfer.create({ container: `#w-${i}`, waveColor: '#222', progressColor: s.color, height: 35, url: getBackendUrl() + s.url, barWidth: 2, barGap: 3, cursorWidth: 0 });
+                const ws = WaveSurfer.create({ 
+                    container: `#w-${i}`, waveColor: '#222', progressColor: s.color, height: 35, 
+                    url: getBackendUrl() + s.url, barWidth: 2, barGap: 3, cursorWidth: 0 
+                });
                 document.getElementById(`b-${i}`).onclick = () => ws.playPause();
             });
             document.getElementById('downloadZipBtn').onclick = () => window.open(getBackendUrl() + data.zip);
         }
-
-        // PWA Registration
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
-
+    
+        // PWA & Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
+        }
+    
         // Counter
-        fetch(getBackendUrl() + "counter", { method: 'POST' }).then(r => r.json()).then(d => { if(d.count) document.getElementById('visit-count').innerText = d.count.toString().padStart(8, '0'); });
-            
+        fetch(getBackendUrl() + "counter", { method: 'POST' })
+            .then(r => r.json())
+            .then(d => { if(d.count) document.getElementById('visit-count').innerText = d.count.toString().padStart(8, '0'); });
+    
         // AdBlock Detection
         setTimeout(() => {
             const bait = document.getElementById('ad-detection-bait');
-            if (!bait || bait.offsetParent === null || bait.offsetHeight === 0) { document.getElementById('adblock-wall').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-        }, 2000);
+            if (!bait || bait.offsetParent === null || bait.offsetHeight === 0) {
+                document.getElementById('adblock-wall').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }, 2500);
+    
     </script>
 </body>
 </html>
