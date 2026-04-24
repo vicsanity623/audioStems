@@ -545,9 +545,13 @@
                 graphSnap.forEach(d => { 
                     if(d.data().date) { labels.push(d.data().date.substring(5)); graphData.push(d.data().count); }
                 });
-                
-                if(graphData.length === 0) { labels.push('Today'); graphData.push(0); }
-
+                if (graphData.length === 0) { 
+                    labels.push('Yesterday', 'Today'); 
+                    graphData.push(0, 0); 
+                } else if (graphData.length === 1) { 
+                    labels.unshift('Yesterday'); 
+                    graphData.unshift(0); // Anchor point to draw the line
+                }
                 const ctx = document.getElementById('usageChart').getContext('2d');
                 let gradient = ctx.createLinearGradient(0, 0, 0, 64);
                 gradient.addColorStop(0, 'rgba(0, 242, 255, 0.4)');
