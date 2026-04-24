@@ -4,91 +4,135 @@
 [![PWA](https://img.shields.io/badge/PWA-Installable-blue)](https://vicsanity623.github.io)
 [![Powered By](https://img.shields.io/badge/Powered%20By-Demucs%20AI-ff0055)](https://github.com/facebookresearch/demucs)
 
-## If browser: 
-**Firefox** FIXED! This was due to Firefox's legacy handling of certain browser features and networking protocols, which triggered false positives and connection errors during development.
+A professional, **100% free**, web-based application that isolates audio tracks into individual stems (**Vocals, Drums, Bass, Other**) utilizing the state-of-the-art **Meta Demucs** AI engine. 
 
-While the site is fully functional on Firefox, its architecture is more prone to these networking "false flags" compared to modern Chromium-based browsers. If you experience connection issues, please check your local network settings, otherwise, the tool works as intended! (there is no future support for firefox browsers as more modern chromium-based browsers are preferred here)
-
-A professional, **100% free**, web-based tool that separates audio tracks into individual stems (**Vocals, Drums, Bass, Other**) using the state-of-the-art **Demucs** AI engine.
-
-This project was built to provide a high-quality alternative to paywalled services like Lala.ai or Splitter.ai, running entirely on volunteer hardware with **no file limits**.
+Designed to bypass the corporate paywalls of services like Lala.ai or Splitter.ai, this platform operates entirely on volunteer, self-hosted hardware with **no file-length restrictions** and **no pay-per-minute** costs.
 
 🔗 **Try it now:** https://vicsanity623.github.io
 
 ---
 
-## ✨ Features
+## ✨ Core Features
 
-- **🚫 No Paywalls & No Limits**: Upload long tracks (FLAC, WAV, MP3) without "pay-per-minute" restrictions.
-- **💎 Dual AI Models**:
-  - **⚡ Speed Mode:** Uses standard `htdemucs` for fast results (~2 mins).
-  - **💎 Ultra Quality:** Uses `htdemucs_ft` (Fine-Tuned) for audiophile-grade separation with minimized bleed.
-- **📱 PWA Ready**: Installable as a native app on iOS and Android.
-- **🌊 Interactive Player**: Real-time waveform visualization using **WaveSurfer.js** with "Solo Mode" playback.
-- **🔒 Privacy First**: Files are processed in RAM on a secure backend and deleted immediately after download generation.
-
----
-
-## 🧠 Under the Hood
-
-This is a **headless implementation** of Meta's Demucs, orchestrated via a custom Python backend and served securely over the public internet.
-
-### The Architecture
-1. **Frontend:** Hosted on GitHub Pages (Static HTML/JS).
-2. **Tunneling:** Uses **Tailscale Funnel** to create an encrypted pipeline from the user to the local server.
-3. **Backend:** A Python Flask API running locally on an **Intel iMac**.
-4. **Queue System:** Implements a FIFO (First-In-First-Out) queue to manage multiple users on a single GPU/CPU resource.
-
-### The Models
-| Mode | Model ID | Description |
-| :--- | :--- | :--- |
-| **Speed Mode** | `htdemucs` | Hybrid Transformer. Great balance of speed and quality. Best for sketching ideas. |
-| **Ultra Quality** | `htdemucs_ft` | Fine-Tuned. Heavier neural network trained on a larger dataset. Focuses on cleaner high-end frequencies and vocal isolation. |
+- **🚫 No Paywalls & Unlimited Length**: Upload full-length tracks (FLAC, WAV, MP3) without artificial pay-per-minute throttles.
+- **🔐 Google Authentication**: Secure sign-in to track your lifetime processing statistics and keep bad actors out.
+- **📚 Studio Library**: A beautiful glassmorphism browser tracking your most recent AI separations.
+- **📈 Global Analytics**: Cyberpunk-themed, live-updating line graphs (via Chart.js) showing the global processing heartbeat.
+- **🛡️ Enterprise Security**: Integrated **Cloudflare Turnstile** bot-protection to prevent network abuse.
+- **🌊 Interactive Player**: Real-time waveform visualization using **WaveSurfer.js** with targeted "Solo Mode" playback and 1-click `.ZIP` downloads.
 
 ---
 
-## ⚠️ Performance & Server Status
+## 🏗️ Architecture & Infrastructure
 
-**Please Read Carefully**
+This platform is a **headless web application** bridging a static frontend to a private machine-learning pipeline via zero-trust networking.
 
-This service runs on **personal hardware**, not a cloud farm.
+### Infrastructure Topology
 
-- **Queueing:** If multiple users upload simultaneously, you will see a *"Waiting in queue"* message. Please be patient.
-- **Processing Time:**
-  - *Speed Mode:* ~2–3 minutes per song.
-  - *Ultra Mode:* ~5–8 minutes per song (due to heavy computation).
-- **Availability:** If the site hangs or fails to connect, the host machine may be offline for maintenance.
+```mermaid
+flowchart TB
+    subgraph Frontend [GitHub Pages]
+        UI[Glassmorphism UI]
+        Auth[Firebase Google Sign-In]
+        Player[WaveSurfer.js]
+    end
+
+    subgraph Security [Edge Security]
+        CF[Cloudflare Turnstile]
+    end
+
+    subgraph Tunnel [Networking]
+        TS((Tailscale Funnel))
+    end
+
+    subgraph Backend [Local iMac Server]
+        API[Python Flask API]
+        Demucs{Meta Demucs Model}
+        GPU[Apple Metal / MPS]
+    end
+
+    subgraph Database [Firebase Cloud]
+        FS[(Firestore Stats & Library)]
+    end
+
+    UI --> CF
+    CF -- Secure Token --> TS
+    TS -- Proxy --> API
+    API --> Demucs
+    Demucs -- Hardware Acceleration --> GPU
+    API -- Success Sync --> FS
+    Auth <--> FS
+    API -- WAV/ZIP Payload --> Player
+```
+
+### The Inference Pipeline
+When an audio file is submitted, it enters a rigorous, hardware-accelerated processing pipeline:
+
+```mermaid
+sequenceDiagram
+    participant User as Web Browser
+    participant FB as Firebase
+    participant API as Flask Backend
+    participant Demucs as AI Model
+
+    User->>FB: Authenticate & Retrieve UID
+    User->>API: POST /separate (Audio + Cloudflare Token + UID)
+    API-->>User: 200 OK (Task Queued)
+    
+    API->>API: Validate Turnstile & UID Headers
+    API->>Demucs: Trigger HTDemucs Inference
+    
+    Note over Demucs: Utilizing BiLSTM Core & U-Net
+    Demucs-->>API: 4 Isolated WAV Stems Generated
+    
+    API->>API: Compress Stems to .ZIP
+    API->>FB: Log Separation to User Library & Global Stats
+    API-->>User: Delivery of Audio URLs
+```
 
 ---
 
-## 📜 Strict Usage Policy
+## 🧠 The Self-Hosted Philosophy
 
-⚠️ **EDUCATIONAL USE ONLY**
+While the Demucs algorithm is open-source, its computational demands are incredibly high. Most web platforms take this open-source gift and immediately place it behind paywalls—throttling processing speeds and compressing the audio output quality purely for profit.
 
-This tool is intended for **educational, research, forensic, and production use** on content you own or have permission to modify.
+**This platform operates differently.** 
+By leveraging a secure **Tailscale Funnel** tunnel, your audio request is securely routed from GitHub Pages directly to a private, Intel-based iMac. 
+- The audio is processed locally in a high-precision 32-bit floating-point environment.
+- The output is kept in pristine, studio-grade `WAV` format.
+- Output files are automatically wiped every 24 hours to ensure 100% data privacy.
 
-1. ✅ You **must own** the rights to uploaded audio.
-2. ❌ Do **not upload copyrighted music** without explicit permission.
-3. ✅ You are **fully responsible** for the usage of the separated stems.
-
-> **Legal Notice**
-> We do not store user content. All files are transient and wiped after processing. Using this tool to infringe on copyright is strictly prohibited.
-
----
-
-## 🛠️ Technical Stack
-
-- **Frontend:** HTML5, CSS3, JavaScript
-- **Visualization:** [WaveSurfer.js](https://wavesurfer-js.org/)
-- **Backend API:** Python Flask
-- **Secure Tunnel:** [Tailscale Funnel](https://tailscale.com/)
-- **AI Engine:** [Demucs (Meta Research)](https://github.com/facebookresearch/demucs)
+This is a demonstration of how consumer hardware can be securely bridged to the global web to provide world-class, GPU-accelerated AI services without corporate compromise.
 
 ---
 
-## 🙏 Acknowledgments
+## ⚠️ Performance & Usage Limitations
 
-This project relies on the incredible work by the Meta Research team:
+This service runs on **personal hardware**, not an autoscaling AWS server farm.
+
+- **Queueing:** The backend utilizes a strict First-In-First-Out (FIFO) queue. If multiple users hit the server simultaneously, your track will be queued.
+- **Hardware Profile:** Inference is automatically optimized for the host hardware (Apple Metal `mps`, Nvidia `cuda`, or fallback `cpu`). Average processing time is ~2–3 minutes per track.
+- **Uptime:** Because this relies on a physical iMac and a residential network tunnel, uptime is strictly **best-effort**.
+
+---
+
+## 📜 Legal & Usage Policy
+
+⚠️ **EDUCATIONAL AND PROFESSIONAL USE ONLY**
+
+This tool is strictly intended for **educational, research, forensic, and professional production use** on content you own or have explicit permission to modify.
+
+1. ✅ You **must own** the rights to the uploaded audio.
+2. ❌ Do **not upload copyrighted material** without explicit permission from the rights holder.
+3. ✅ You are **fully responsible** for how the separated stems are utilized post-download.
+
+> **Privacy Notice:** We do not permanently store user audio. All raw files and generated stems are transient and are wiped from the server every 24 hours. Your Firebase profile simply stores a history string of your separated file names.
+
+---
+
+## 🙏 Acknowledgments & Dependencies
+
+This project stands on the shoulders of giants. A massive thank you to the Meta Research team for open-sourcing the Demucs engine:
 
 ```bibtex
 @article{defossez2021hybrid,
@@ -97,3 +141,12 @@ This project relies on the incredible work by the Meta Research team:
   journal={arXiv preprint arXiv:2111.03600},
   year={2021}
 }
+```
+
+**Tech Stack:**
+- [Tailscale Funnel](https://tailscale.com) (Reverse Proxy)
+- [Firebase Auth & Firestore](https://firebase.google.com) (Database & Security)
+- [Cloudflare Turnstile](https://cloudflare.com) (Bot Mitigation)
+- [Chart.js](https://chartjs.org) (Data Visualization)
+- [WaveSurfer.js](https://wavesurfer-js.org) (Audio Player)
+- [TailwindCSS](https://tailwindcss.com) (UI Styling)
