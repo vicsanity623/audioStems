@@ -469,7 +469,7 @@
                         
                         // Increment Global Date Count & Save to Library
                         const today = new Date().toISOString().split('T')[0];
-                        await setDoc(doc(db, "daily_stats", today), { date: today, count: increment(1) }, { merge: true }).catch(()=>{});
+                        await setDoc(doc(db, "stats", `daily_${today}`), { date: today, count: increment(1) }, { merge: true }).catch(console.error);
 
                         const sepData = {
                             taskId: taskId,
@@ -538,13 +538,19 @@
                 if (snap.exists()) document.getElementById('visit-count').innerText = snap.data().count.toString().padStart(8, '0');
 
                 // 2. Usage Graph
-                const q = query(collection(db, "daily_stats"), orderBy("date", "asc"), limit(30));
-                const graphSnap = await getDocs(q);
-                const labels = [];
-                const graphData = [];
-                graphSnap.forEach(d => { 
-                    if(d.data().date) { labels.push(d.data().date.substring(5)); graphData.push(d.data().count); }
-                });
+                let labels = [];
+                let graphData = [];
+                try {
+                    const q = query(collection(db, "stats"), orderBy("date", "asc"), limit(30));
+                    const graphSnap = await getDocs(q);
+                    graphSnap.forEach(d => { 
+                        if(d.id.startsWith("daily_") && d.data().date) { 
+                            labels.push(d.data().date.substring(5)); 
+                            graphData.push(d.data().count); 
+                        }
+                    });
+                } catch(e) { console.error("Graph query error", e); }
+
                 if (graphData.length === 0) { 
                     labels.push('Yesterday', 'Today'); 
                     graphData.push(0, 0); 
@@ -552,6 +558,7 @@
                     labels.unshift('Yesterday'); 
                     graphData.unshift(0); // Anchor point to draw the line
                 }
+
                 const ctx = document.getElementById('usageChart').getContext('2d');
                 let gradient = ctx.createLinearGradient(0, 0, 0, 64);
                 gradient.addColorStop(0, 'rgba(0, 242, 255, 0.4)');
