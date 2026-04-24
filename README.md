@@ -8,7 +8,7 @@ A professional, **100% free**, web-based application that isolates audio tracks 
 
 Designed to bypass the corporate paywalls of services like Lala.ai or Splitter.ai, this platform operates entirely on volunteer, self-hosted hardware with **no file-length restrictions** and **no pay-per-minute** costs.
 
-🔗 **Try it now:** https://vicsanity623.github.io
+🔗 **Try it now:** https://vicsanity623.github.io/audioStems
 
 ---
 
