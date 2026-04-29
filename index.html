@@ -566,98 +566,94 @@ index.html
 
         // Stats Graph Loader
         async function loadStats() {
+            // 1. Visit Counter (iMac Backend - Reliable)
             try {
-                // 1. Visit Counter (Same logic as before)
-                const counterRef = doc(db, "stats", "global_visits");
-                await updateDoc(counterRef, { count: increment(1) }).catch(() => setDoc(counterRef, { count: 1 }));
-                const snap = await getDoc(counterRef);
-                if (snap.exists()) document.getElementById('visit-count').innerText = snap.data().count.toString().padStart(8, '0');
+                const res = await fetch(getBackendUrl() + "counter", { method: 'POST' });
+                const d = await res.json();
+                if (d.count) {
+                    document.getElementById('visit-count').innerText = d.count.toString().padStart(8, '0');
+                }
+            } catch (e) { 
+                console.log("iMac Counter Offline or Blocked"); 
+            }
         
-                // 2. Fetch Data for Graph
+            // 2. Fetch Data for Graph (Firebase)
+            try {
                 let labels = [], graphData = [];
-                const q = query(collection(db, "stats"), orderBy("date", "asc"), limit(14)); // Show last 14 days
+                const q = query(collection(db, "stats"), orderBy("date", "asc"), limit(14));
                 const gSnap = await getDocs(q);
                 
                 gSnap.forEach(d => { 
-                    if(d.id.startsWith("daily_")) { 
-                        // Format date to look like "Apr 27"
-                        const dateParts = d.data().date.split('-');
-                        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                        const formattedDate = monthNames[parseInt(dateParts[1]) - 1] + " " + dateParts[2];
-                        
-                        labels.push(formattedDate); 
-                        graphData.push(d.data().count); 
+                    const data = d.data();
+                    // SAFETY: Only try to format if 'date' actually exists in Firebase
+                    if(d.id.startsWith("daily_") && data.date) { 
+                        try {
+                            const dateParts = data.date.split('-');
+                            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                            const month = monthNames[parseInt(dateParts[1]) - 1] || "???";
+                            const day = dateParts[2] || "??";
+                            labels.push(`${month} ${day}`); 
+                            graphData.push(data.count || 0); 
+                        } catch(err) { console.log("Skipping messy data point"); }
                     } 
                 });
         
-                // Anchor Logic for new charts
+                // Anchor Logic: If only 1 day exists, draw a slope from 0 to 1
                 if (graphData.length === 1) { labels.unshift('Start'); graphData.unshift(0); }
-                if (graphData.length === 0) { labels = ['N/A','N/A']; graphData = [0, 0]; }
+                if (graphData.length === 0) { labels = ['N/A', 'N/A']; graphData = [0, 0]; }
         
                 const ctx = document.getElementById('usageChart').getContext('2d');
                 let gradient = ctx.createLinearGradient(0, 0, 0, 80);
-                gradient.addColorStop(0, 'rgba(0, 242, 255, 0.5)');
+                gradient.addColorStop(0, 'rgba(0, 242, 255, 0.4)');
                 gradient.addColorStop(1, 'rgba(0, 242, 255, 0.0)');
         
-                // 3. Create the "Market Style" Chart
+                // 3. Create the "Market Trend" Chart
                 new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Tracks',
                             data: graphData,
                             borderColor: '#00f2ff',
                             borderWidth: 2,
                             backgroundColor: gradient,
                             fill: true,
-                            tension: 0, // <--- THIS MAKES THE LINE STRAIGHT (Market style)
-                            pointRadius: 4, // Shows the dots
+                            tension: 0, // Straight lines
+                            pointRadius: 4,
                             pointBackgroundColor: '#00f2ff',
                             pointBorderColor: '#080808',
-                            pointBorderWidth: 2,
-                            pointHoverRadius: 6,
-                            pointHoverBackgroundColor: '#fff'
+                            pointBorderWidth: 1,
+                            pointHoverRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        interaction: {
-                            intersect: false,
-                            mode: 'index',
-                        },
+                        interaction: { intersect: false, mode: 'index' },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
                                 enabled: true,
-                                backgroundColor: 'rgba(18, 18, 18, 0.9)',
-                                titleFont: { size: 10, weight: 'bold', family: 'Inter' },
-                                bodyFont: { size: 12, family: 'Inter' },
+                                backgroundColor: '#121212',
+                                titleColor: '#00f2ff',
                                 padding: 10,
                                 displayColors: false,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.parsed.y + " Tracks Processed";
-                                    }
-                                }
+                                callbacks: { label: (c) => ` ${c.parsed.y} Tracks Processed` }
                             }
                         },
                         scales: {
                             x: { 
-                                display: true, // Show the days at the bottom
+                                display: true, 
                                 grid: { display: false },
-                                ticks: { color: '#444', font: { size: 8, weight: 'bold' } }
+                                ticks: { color: '#555', font: { size: 9, weight: 'bold' } }
                             },
-                            y: { 
-                                display: false, // Keep the side clean
-                                min: 0,
-                                beginAtZero: true
-                            }
+                            y: { display: false, min: 0 }
                         }
                     }
                 });
-            } catch(e) { console.log("Stats error:", e); }
+            } catch(e) { 
+                console.error("Graph Data Error:", e); 
+            }
         }
         loadStats();
 
