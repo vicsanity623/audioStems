@@ -1,4 +1,3 @@
-index.html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,7 +8,7 @@ index.html
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro Audio Studio | AI Stem Separator</title>
+    <title>AI Media Server | 4-Model Studio</title>
 
     <!-- PWA / iOS Assets -->
     <link rel="manifest" href="manifest.json">
@@ -19,7 +18,7 @@ index.html
     <!-- iOS Specific PWA Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Stemz">
+    <meta name="apple-mobile-web-app-title" content="AI Studio">
     <meta name="theme-color" content="#080808">
 
     <!-- Scripts & Stylesheets -->
@@ -87,6 +86,54 @@ index.html
             background: linear-gradient(90deg, #00f2ff, #0072ff);
             box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
         }
+
+        /* Tab Navigation */
+        .tab-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn.active::after {
+            width: 60%;
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            background: rgba(0, 242, 255, 0.08);
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-image {
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 1.5rem;
+        }
     </style>
 </head>
 
@@ -102,7 +149,7 @@ index.html
             <h2 class="text-3xl font-black uppercase tracking-tighter mb-4 text-white">Studio <span
                     class="text-cyan-400">Access</span></h2>
             <p class="text-gray-400 mb-8 text-sm leading-relaxed">Sign in with Google to unlock GPU-accelerated
-                separation and track your processing stats.</p>
+                AI processing across all 4 model engines.</p>
             <button id="loginBtn"
                 class="w-full bg-white text-black font-black py-5 rounded-full flex items-center justify-center gap-3 hover:bg-cyan-400 transition-all uppercase tracking-widest text-[10px]">
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -159,9 +206,9 @@ index.html
             <div
                 class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center font-bold text-black italic text-xl shadow-lg shadow-cyan-500/20">
                 V</div>
-            <h1 class="text-xl font-black tracking-tighter uppercase hidden sm:block">Studio <span
-                    class="text-cyan-400">Separation</span></h1>
-            <span class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded ml-2">V1.6 LIVE</span>
+            <h1 class="text-xl font-black tracking-tighter uppercase hidden sm:block">AI Media <span
+                    class="text-cyan-400">Server</span></h1>
+            <span class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded ml-2">V2.0 LIVE</span>
         </div>
         <div class="flex items-center gap-6">
             <div id="user-pill" onclick="window.openLibrary()"
@@ -181,74 +228,245 @@ index.html
 
         <div id="studio" class="grid lg:grid-cols-12 gap-12 items-start">
 
-            <!-- LEFT COLUMN: Controls -->
+            <!-- LEFT COLUMN: Tab Navigation + Controls -->
             <div class="lg:col-span-5 space-y-8">
                 <div>
                     <h2 class="text-5xl font-black mb-4 tracking-tighter uppercase leading-[0.9] italic text-white">
-                        Isolate your <br><span class="text-transparent" style="-webkit-text-stroke: 1px white;">Master
-                            Track</span></h2>
-                    <p class="text-gray-400 text-lg font-light leading-relaxed">Professional 4-stem separation using
-                        Meta Research Demucs. GPU-Accelerated on private iMac hardware.</p>
+                        AI-Powered <br><span class="text-cyan-400">Media Studio</span></h2>
+                    <p class="text-gray-400 text-lg font-light leading-relaxed">Background removal, upscaling, stem separation, and image generation — all running locally on private iMac hardware via Tailscale.</p>
                 </div>
 
-                <!-- Upload Zone -->
-                <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-16 text-center cursor-pointer relative shadow-2xl"
-                    id="dropZone">
-                    <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
-                    <div class="text-6xl mb-6">📂</div>
-                    <h3 class="text-xl font-bold mb-1 uppercase tracking-tighter">Drag Audio Source</h3>
-                    <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">or click to browse local
-                        files</p>
-                    <div id="fileNameDisplay"
-                        class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-6"></div>
+                <!-- Tab Navigation -->
+                <div class="flex gap-1 glass p-1.5 rounded-2xl overflow-x-auto no-scrollbar" id="tabBar">
+                    <button class="tab-btn active flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]" data-tab="bg" onclick="switchTab('bg')">🪄 BG Removal</button>
+                    <button class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]" data-tab="upscale" onclick="switchTab('upscale')">🔍 Upscaler</button>
+                    <button class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]" data-tab="demucs" onclick="switchTab('demucs')">🎧 Demucs</button>
+                    <button class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]" data-tab="generate" onclick="switchTab('generate')">🎨 AI Gen</button>
                 </div>
 
-                <div class="turnstile-wrapper flex justify-center py-2">
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
-                </div>
-
-                <button id="processBtn"
-                    class="w-full py-6 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5"
-                    disabled>
-                    START AI SEPARATION
-                </button>
-
-                <!-- Status Area -->
-                <div class="progress-container hidden space-y-4" id="progressArea">
-                    <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
-                        <span id="statusText" class="text-cyan-400 italic">Initializing Cluster...</span>
-                        <span id="percentText" class="text-white">0%</span>
+                <!-- TAB 1: Background Removal -->
+                <div class="tab-panel active" id="panel-bg">
+                    <div class="space-y-4">
+                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer relative shadow-2xl" id="bgDropZone">
+                            <input type="file" id="bgFileInput" hidden accept="image/*,video/mp4,video/quicktime">
+                            <div class="text-5xl mb-4">🪄</div>
+                            <h3 class="text-lg font-bold mb-1 uppercase tracking-tighter">Upload Image or Video</h3>
+                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">PNG, JPG, WEBP, MP4, MOV</p>
+                            <div id="bgFileName" class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-4"></div>
+                        </div>
+                        <div class="glass p-5 rounded-2xl space-y-4">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" id="bgFast" class="w-4 h-4 accent-cyan-500">
+                                <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Fast Mode (Lower GPU load)</span>
+                            </label>
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Alpha Threshold</label>
+                                <input type="range" id="bgThreshold" min="0" max="100" value="50" class="w-full accent-cyan-500">
+                                <span id="bgThresholdVal" class="text-[10px] text-cyan-400 font-mono">0.50</span>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Output Type</label>
+                                <select id="bgType" class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                                    <option value="rgba">Transparent (Highest Quality)</option>
+                                    <option value="green">Green Screen</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="bgBtn" disabled class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
+                            REMOVE BACKGROUND
+                        </button>
+                        <div id="bgProgress" class="hidden space-y-2">
+                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
+                                <span class="text-cyan-400" id="bgStatus">Processing...</span>
+                            </div>
+                            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div id="bgBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                        <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
-                    </div>
-                    <p class="text-[9px] text-gray-600 italic leading-relaxed" id="slowWarning">⚠️ Running on local
-                        Intel iMac GPU. Process is private and secure. Do not close browser.</p>
                 </div>
+
+                <!-- TAB 2: Upscaler -->
+                <div class="tab-panel" id="panel-upscale">
+                    <div class="space-y-4">
+                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer relative shadow-2xl" id="upDropZone">
+                            <input type="file" id="upFileInput" hidden accept="image/*,video/mp4,video/quicktime">
+                            <div class="text-5xl mb-4">🔍</div>
+                            <h3 class="text-lg font-bold mb-1 uppercase tracking-tighter">Upload Image or Video</h3>
+                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">PNG, JPG, WEBP, MP4, MOV</p>
+                            <div id="upFileName" class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-4"></div>
+                        </div>
+                        <div class="glass p-5 rounded-2xl space-y-4">
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Upscale Multiplier</label>
+                                <div class="flex gap-2">
+                                    <button class="up-scale-btn flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10 hover:border-cyan-400 transition" data-value="2" onclick="selectUpscaleScale('2')">2x</button>
+                                    <button class="up-scale-btn flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-cyan-400 text-cyan-400 transition" data-value="4" onclick="selectUpscaleScale('4')">4x</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">AI Model</label>
+                                <select id="upModel" class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                                    <option value="realesrgan-x4plus">RealESRGAN x4plus (General)</option>
+                                    <option value="realesrgan-x4plus-anime">RealESRGAN x4plus Anime</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="upBtn" disabled class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
+                            UPSCALE MEDIA
+                        </button>
+                        <div id="upProgress" class="hidden space-y-2">
+                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
+                                <span class="text-cyan-400" id="upStatus">Processing...</span>
+                            </div>
+                            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div id="upBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: Demucs Audio (existing logic) -->
+                <div class="tab-panel" id="panel-demucs">
+                    <div class="space-y-4">
+                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-16 text-center cursor-pointer relative shadow-2xl" id="dropZone">
+                            <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
+                            <div class="text-6xl mb-6">📂</div>
+                            <h3 class="text-xl font-bold mb-1 uppercase tracking-tighter">Drag Audio Source</h3>
+                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">or click to browse local files</p>
+                            <div id="fileNameDisplay" class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-6"></div>
+                        </div>
+                        <div class="turnstile-wrapper flex justify-center py-2">
+                            <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
+                        </div>
+                        <button id="processBtn" disabled class="w-full py-6 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
+                            START AI SEPARATION
+                        </button>
+                        <div id="progressArea" class="hidden space-y-4">
+                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
+                                <span id="statusText" class="text-cyan-400 italic">Initializing Cluster...</span>
+                                <span id="percentText" class="text-white">0%</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                            </div>
+                            <p class="text-[9px] text-gray-600 italic leading-relaxed" id="slowWarning">⚠️ Running on local Intel iMac GPU. Process is private and secure. Do not close browser.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: AI Generator -->
+                <div class="tab-panel" id="panel-generate">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">AI Model</label>
+                            <select id="genModel" class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                                <option value="stabilityai/sd-turbo">SD-Turbo (Fast, Low Quality)</option>
+                                <option value="Lykon/dreamshaper-8">Dreamshaper 8 (Good Quality)</option>
+                                <option value="stabilityai/sdxl-turbo">SDXL Turbo (Best Quality)</option>
+                                <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL Base 1.0 (Highest Quality, Slow)</option>
+                            </select>
+                        </div>
+                        <div class="glass p-5 rounded-2xl">
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Prompt</label>
+                            <textarea id="genPrompt" rows="3" class="w-full glass text-white text-sm rounded-xl p-4 border-white/10 outline-none resize-none" placeholder="An astronaut riding a horse on Mars, highly detailed, photorealistic..."></textarea>
+                        </div>
+                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-8 text-center cursor-pointer relative shadow-2xl" id="genDropZone">
+                            <input type="file" id="genFileInput" hidden accept="image/*">
+                            <div class="text-3xl mb-2">🖼️</div>
+                            <h3 class="text-sm font-bold mb-1 uppercase tracking-tighter">Optional Reference Image</h3>
+                            <p class="text-gray-500 text-[10px] font-medium uppercase tracking-widest">Upload for Image-to-Image remixing</p>
+                            <div id="genFileName" class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-3"></div>
+                        </div>
+                        <div id="genStrengthWrap" class="hidden">
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Remixing Strength</label>
+                            <input type="range" id="genStrength" min="5" max="95" value="50" class="w-full accent-cyan-500">
+                            <span id="genStrengthVal" class="text-[10px] text-cyan-400 font-mono">0.50</span>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Generation Steps</label>
+                            <input type="range" id="genSteps" min="1" max="50" value="4" class="w-full accent-cyan-500">
+                            <span id="genStepsVal" class="text-[10px] text-cyan-400 font-mono">4</span>
+                        </div>
+                        <div class="glass p-4 rounded-2xl">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" id="genRefine" class="w-4 h-4 accent-cyan-500">
+                                <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Refine prompt via Ollama</span>
+                            </label>
+                            <input type="text" id="genOllamaModel" value="qwen3.5:0.8b" placeholder="ollama model name" class="mt-3 w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                        </div>
+                        <button id="genBtn" disabled class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
+                            GENERATE MEDIA
+                        </button>
+                        <div id="genProgress" class="hidden space-y-2">
+                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
+                                <span class="text-cyan-400" id="genStatus">Generating...</span>
+                            </div>
+                            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div id="genBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- RIGHT COLUMN: Visualizer / Ads -->
+            <!-- RIGHT COLUMN: Ad + Results / Visualizer -->
             <div class="lg:col-span-7 space-y-8">
                 <!-- Top Ad Slot -->
-                <div
-                    class="glass p-4 rounded-[2.5rem] min-h-[300px] w-full flex items-center justify-center overflow-hidden border-white/5">
+                <div class="glass p-4 rounded-[2.5rem] min-h-[300px] w-full flex items-center justify-center overflow-hidden border-white/5">
                     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5972331036113330"
                         data-ad-slot="4287691766" data-ad-format="auto" data-full-width-responsive="true"></ins>
                     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
                 </div>
 
+                <!-- BG Results -->
+                <div id="bgResults" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                    <div class="flex justify-between items-end mb-4 px-2">
+                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Background Removed</h2>
+                        <a id="bgDownloadLink" download class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
+                    </div>
+                    <div class="glass p-4 rounded-[2rem] flex items-center justify-center border-white/5">
+                        <img id="bgResultImg" class="result-image max-w-full" src="" alt="Result">
+                    </div>
+                </div>
+
+                <!-- Upscale Results -->
+                <div id="upResults" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                    <div class="flex justify-between items-end mb-4 px-2">
+                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Upscaled Result</h2>
+                        <a id="upDownloadLink" download class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
+                    </div>
+                    <div class="glass p-4 rounded-[2rem] flex items-center justify-center border-white/5">
+                        <img id="upResultImg" class="result-image max-w-full" src="" alt="Result">
+                    </div>
+                </div>
+
+                <!-- Demucs Results -->
                 <div id="results-area" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
                     <div class="flex justify-between items-end mb-6 px-2">
                         <h2 class="text-2xl font-black tracking-tighter uppercase italic text-cyan-400">Stems Ready</h2>
-                        <button id="downloadZipBtn"
-                            class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10">Download
-                            All (.ZIP)</button>
+                        <button id="downloadZipBtn" class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10">Download All (.ZIP)</button>
                     </div>
                     <div id="tracks-wrapper" class="space-y-4"></div>
                 </div>
 
-                <div id="empty-state"
-                    class="h-64 border border-white/5 rounded-[2.5rem] flex items-center justify-center text-gray-900 font-black uppercase tracking-tighter text-5xl select-none opacity-20 italic">
+                <!-- AI Gen Results -->
+                <div id="genResults" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                    <div class="flex justify-between items-end mb-4 px-2">
+                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Generated Image</h2>
+                        <a id="genDownloadLink" download class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
+                    </div>
+                    <div class="glass p-4 rounded-[2rem] flex items-center justify-center border-white/5">
+                        <img id="genResultImg" class="result-image max-w-full" src="" alt="Result">
+                    </div>
+                    <button id="genNewBtn" class="mt-3 w-full py-4 rounded-full border border-cyan-500/30 text-cyan-400 font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-500/10 transition-all">
+                        GENERATE NEW
+                    </button>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="h-64 border border-white/5 rounded-[2.5rem] flex items-center justify-center text-gray-900 font-black uppercase tracking-tighter text-5xl select-none opacity-20 italic">
                     Studio Ready
                 </div>
             </div>
@@ -257,54 +475,45 @@ index.html
         <!-- DEEP DIVE BLOG CONTENT -->
         <section id="deep-dive" class="mt-40 glass p-8 md:p-20 rounded-[4rem] border-t-2 border-cyan-500/30 shadow-2xl">
             <div class="max-w-4xl mx-auto space-y-12">
-                <h2 class="text-6xl font-black tracking-tighter text-white uppercase leading-[0.8]">Democratizing Audio
-                    Isolation:<br><span class="text-cyan-400">The Meta Demucs Revolution</span></h2>
+                <h2 class="text-6xl font-black tracking-tighter text-white uppercase leading-[0.8]">The Self-Hosted AI<br><span class="text-cyan-400">Media Server Revolution</span></h2>
 
                 <div class="space-y-8 text-gray-400 leading-relaxed text-lg font-light">
-                    <p>For decades, audio engineers viewed the separation of a fully mixed track into its original stems
-                        as the "holy grail" of signal processing. Traditional methods relied on phase cancellation and
-                        aggressive EQ filtering, which inevitably left audio riddled with underwater artifacts.</p>
+                    <p>Four powerful AI models running directly on private hardware — no cloud subscriptions, no data leaving your network. Background removal via InSPyReNet, upscaling through RealESRGAN, audio stem separation with Meta Demucs, and image generation via Stable Diffusion, all orchestrated through a single Tailscale-secured endpoint.</p>
 
                     <div class="grid md:grid-cols-2 gap-12 items-center py-10">
                         <div class="glass p-8 rounded-[2rem] border-white/5 shadow-2xl">
-                            <h4 class="text-cyan-400 font-black mb-6 uppercase tracking-[0.2em] text-[10px]">Processing
-                                Topology</h4>
+                            <h4 class="text-cyan-400 font-black mb-6 uppercase tracking-[0.2em] text-[10px]">Processing Topology</h4>
                             <div class="mermaid">
                                 graph LR
-                                Mix[Mix] --> AI{Demucs}
-                                AI --> V[Vocals]
-                                AI --> D[Drums]
-                                style AI fill:#00f2ff,color:#000,stroke:none
-                                style Mix fill:#111,color:#555,stroke:#333
+                                Client[Browser / PWA] --> TS{Tailscale Funnel}
+                                TS --> iMac[Intel iMac Node]
+                                iMac --> BG[Background Removal]
+                                iMac --> UP[Upscaler]
+                                iMac --> DM[Demucs Audio]
+                                iMac --> SD[Stable Diffusion]
+                                style TS fill:#00f2ff,color:#000,stroke:none
+                                style iMac fill:#111,color:#555,stroke:#333
                             </div>
                         </div>
                         <p class="text-base italic leading-relaxed">
-                            By utilizing a specialized <strong class="text-white">U-Net Topology</strong>, Demucs
-                            compresses audio into high-level features before reconstruction. The <strong
-                                class="text-white">BiLSTM Core</strong> scans the track bidirectionally, ensuring
-                            rhythmic consistency that filters alone could never achieve.
+                            Each model runs locally on the same Intel iMac with an AMD Radeon Pro 5300 GPU. The server is exposed via <strong class="text-white">Tailscale Funnel</strong> (HTTPS), ensuring all processing happens on your own hardware with no third-party inference.
                         </p>
                     </div>
 
-                    <h3 class="text-2xl font-bold text-white uppercase tracking-tighter italic">The Self-Hosted
-                        Philosophy</h3>
-                    <p>While the Demucs algorithm is open-source, its computational demands are high. Most platforms
-                        take this gift and place it behind paywalls. This platform operates differently. By leveraging
-                        <strong class="text-cyan-400">Tailscale Funnel</strong> and a private Intel-based iMac server,
-                        your audio is processed in a high-precision 32-bit environment without corporate compromise.</p>
+                    <h3 class="text-2xl font-bold text-white uppercase tracking-tighter italic">Why Self-Host?</h3>
+                    <p>While cloud AI platforms offer convenience, they come at the cost of privacy, recurring subscription fees, and usage limits. This server runs entirely on your own hardware — an Intel-based iMac with 40GB of RAM and a dedicated AMD GPU. Background removal, upscaling, Demucs stem separation, and Stable Diffusion inference all execute locally, accessed securely through <strong class="text-cyan-400">Tailscale Funnel</strong> from any browser worldwide.</p>
+
+                    <p><strong class="text-white">The Stack:</strong> Python 3.10 + PyTorch 2.2.2 running on macOS. The Gradio-based server orchestrates all four model pipelines behind a unified interface. Tailscale Funnel provides TLS termination and global routing, while Firebase manages authentication and usage statistics.</p>
                 </div>
             </div>
         </section>
 
         <!-- FOOTER -->
-        <footer
-            class="mt-40 border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-8 relative">
-            <div
-                class="text-gray-600 text-[10px] font-black uppercase tracking-[0.3em] w-full md:w-auto text-center md:text-left">
-                &copy; 2026 Advanced Audio Studio // macOS Intel Node
+        <footer class="mt-40 border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-8 relative">
+            <div class="text-gray-600 text-[10px] font-black uppercase tracking-[0.3em] w-full md:w-auto text-center md:text-left">
+                &copy; 2026 AI Media Server // macOS Intel Node
                 <div class="mt-4 flex gap-6 justify-center md:justify-start">
-                    <a href="https://github.com/vicsanity623" target="_blank"
-                        class="hover:text-white transition-colors">Source Code</a>
+                    <a href="https://github.com/vicsanity623" target="_blank" class="hover:text-white transition-colors">Source Code</a>
                     <a href="#" class="hover:text-white transition-colors">Infrastructure</a>
                 </div>
             </div>
@@ -313,10 +522,8 @@ index.html
                 <div class="w-full sm:w-64 h-24 relative glass rounded-xl border-cyan-500/10 p-2">
                     <canvas id="usageChart"></canvas>
                 </div>
-                <div
-                    class="glass px-8 py-4 rounded-2xl border-cyan-500/10 flex items-center justify-between w-full sm:w-auto min-h-[64px]">
-                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.4em] mr-4">Global
-                        Sessions</span>
+                <div class="glass px-8 py-4 rounded-2xl border-cyan-500/10 flex items-center justify-between w-full sm:w-auto min-h-[64px]">
+                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.4em] mr-4">Global Sessions</span>
                     <span id="visit-count" class="font-mono text-cyan-400 font-bold text-lg">00000000</span>
                 </div>
             </div>
@@ -347,7 +554,7 @@ index.html
         const provider = new GoogleAuthProvider();
 
         const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
-        const getBackendUrl = () => "https://vics-imac-1.tail37b4f2.ts.net/";
+        const getBackendUrl = () => "https://vics-imac-1.tail37b4f2.ts.net:10000/";
 
         // Global Window Functions
         window.login = () => signInWithPopup(auth, provider).catch(err => console.error("Login failed", err));
@@ -369,7 +576,7 @@ index.html
                 const userRef = doc(db, "users", user.uid);
                 onSnapshot(userRef, (snap) => {
                     if (snap.exists()) {
-                        document.getElementById('stems-stat').innerText = `${snap.data().stemsCount || 0} Tracks Separated`;
+                        document.getElementById('stems-stat').innerText = `${snap.data().stemsCount || 0} Processed`;
                     } else {
                         setDoc(userRef, { stemsCount: 0, email: user.email });
                     }
@@ -445,7 +652,169 @@ index.html
             }, getBackendUrl());
         };
 
-        // Core App Logic
+        // ---- TAB SWITCHING ----
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('panel-' + tabId).classList.add('active');
+            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+
+            // Show/hide empty state based on tab
+            const emptyState = document.getElementById('empty-state');
+            const demucsResults = document.getElementById('results-area');
+            const bgResults = document.getElementById('bgResults');
+            const upResults = document.getElementById('upResults');
+            const genResults = document.getElementById('genResults');
+
+            if (tabId === 'demucs' && demucsResults.classList.contains('hidden')) {
+                emptyState.classList.remove('hidden');
+            } else if (tabId === 'bg' && bgResults.classList.contains('hidden')) {
+                emptyState.classList.remove('hidden');
+            } else if (tabId === 'upscale' && upResults.classList.contains('hidden')) {
+                emptyState.classList.remove('hidden');
+            } else if (tabId === 'generate' && genResults.classList.contains('hidden')) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        };
+
+        // ---- TAB 1: BG REMOVAL ----
+        const bgDropZone = document.getElementById('bgDropZone');
+        const bgFileInput = document.getElementById('bgFileInput');
+        const bgFileName = document.getElementById('bgFileName');
+        const bgBtn = document.getElementById('bgBtn');
+        let bgFile = null;
+
+        bgDropZone.onclick = () => { if (currentUser) bgFileInput.click(); };
+        bgFileInput.onchange = (e) => {
+            if (e.target.files.length > 0) {
+                bgFile = e.target.files[0];
+                bgFileName.textContent = bgFile.name;
+                bgBtn.disabled = false;
+            }
+        };
+
+        document.getElementById('bgThreshold').oninput = function() {
+            document.getElementById('bgThresholdVal').textContent = (this.value / 100).toFixed(2);
+        };
+
+        document.getElementById('bgBtn').addEventListener('click', async () => {
+            if (!bgFile || !currentUser) return;
+
+            const bgProgress = document.getElementById('bgProgress');
+            const bgBar = document.getElementById('bgBar');
+            const bgStatus = document.getElementById('bgStatus');
+            bgProgress.classList.remove('hidden');
+            bgBar.style.width = '10%';
+            bgStatus.textContent = 'Uploading...';
+
+            const formData = new FormData();
+            formData.append('file', bgFile);
+            formData.append('fast_mode', document.getElementById('bgFast').checked ? 'true' : 'false');
+            formData.append('threshold', (document.getElementById('bgThreshold').value / 100).toFixed(2));
+            formData.append('output_type', document.getElementById('bgType').value);
+
+            try {
+                bgBar.style.width = '30%';
+                bgStatus.textContent = 'Processing...';
+                const res = await fetch(`${getBackendUrl()}api/bg-remove`, {
+                    method: 'POST',
+                    headers: { 'X-API-Key': API_KEY, 'X-User-ID': currentUser.uid },
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Server error');
+                const data = await res.json();
+
+                bgBar.style.width = '100%';
+                bgStatus.textContent = 'Done!';
+
+                setTimeout(() => {
+                    bgProgress.classList.add('hidden');
+                    document.getElementById('bgResults').classList.remove('hidden');
+                    document.getElementById('empty-state').classList.add('hidden');
+                    document.getElementById('bgResultImg').src = getBackendUrl() + data.url;
+                    document.getElementById('bgDownloadLink').href = getBackendUrl() + data.url;
+                }, 500);
+            } catch (err) {
+                bgStatus.textContent = 'ERROR: Node offline or failed';
+                bgStatus.classList.add('text-red-500');
+                console.error(err);
+            }
+        });
+
+        // ---- TAB 2: UPSCALER ----
+        const upDropZone = document.getElementById('upDropZone');
+        const upFileInput = document.getElementById('upFileInput');
+        const upFileName = document.getElementById('upFileName');
+        const upBtn = document.getElementById('upBtn');
+        let upFile = null;
+        let upScaleVal = '4';
+
+        window.selectUpscaleScale = function(val) {
+            upScaleVal = val;
+            document.querySelectorAll('.up-scale-btn').forEach(b => {
+                b.classList.remove('border-cyan-400', 'text-cyan-400');
+                b.classList.add('border-white/10');
+                if (b.dataset.value === val) {
+                    b.classList.add('border-cyan-400', 'text-cyan-400');
+                }
+            });
+        };
+
+        upDropZone.onclick = () => { if (currentUser) upFileInput.click(); };
+        upFileInput.onchange = (e) => {
+            if (e.target.files.length > 0) {
+                upFile = e.target.files[0];
+                upFileName.textContent = upFile.name;
+                upBtn.disabled = false;
+            }
+        };
+
+        document.getElementById('upBtn').addEventListener('click', async () => {
+            if (!upFile || !currentUser) return;
+
+            const upProgress = document.getElementById('upProgress');
+            const upBar = document.getElementById('upBar');
+            const upStatus = document.getElementById('upStatus');
+            upProgress.classList.remove('hidden');
+            upBar.style.width = '10%';
+            upStatus.textContent = 'Uploading...';
+
+            const formData = new FormData();
+            formData.append('file', upFile);
+            formData.append('scale', upScaleVal);
+            formData.append('model', document.getElementById('upModel').value);
+
+            try {
+                upBar.style.width = '30%';
+                upStatus.textContent = 'Processing...';
+                const res = await fetch(`${getBackendUrl()}api/upscale`, {
+                    method: 'POST',
+                    headers: { 'X-API-Key': API_KEY, 'X-User-ID': currentUser.uid },
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Server error');
+                const data = await res.json();
+
+                upBar.style.width = '100%';
+                upStatus.textContent = 'Done!';
+
+                setTimeout(() => {
+                    upProgress.classList.add('hidden');
+                    document.getElementById('upResults').classList.remove('hidden');
+                    document.getElementById('empty-state').classList.add('hidden');
+                    document.getElementById('upResultImg').src = getBackendUrl() + data.url;
+                    document.getElementById('upDownloadLink').href = getBackendUrl() + data.url;
+                }, 500);
+            } catch (err) {
+                upStatus.textContent = 'ERROR: Node offline or failed';
+                upStatus.classList.add('text-red-500');
+                console.error(err);
+            }
+        });
+
+        // ---- TAB 3: DEMUCS (existing logic) ----
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const processBtn = document.getElementById('processBtn');
@@ -564,50 +933,149 @@ index.html
             downloadZipBtn.onclick = () => window.open(`${baseUrl}${data.zip}`);
         }
 
+        // ---- TAB 4: AI GENERATOR ----
+        const genDropZone = document.getElementById('genDropZone');
+        const genFileInput = document.getElementById('genFileInput');
+        const genFileName = document.getElementById('genFileName');
+        const genBtn = document.getElementById('genBtn');
+        const genStrengthWrap = document.getElementById('genStrengthWrap');
+        let genFile = null;
+
+        genDropZone.onclick = () => { if (currentUser) genFileInput.click(); };
+        genFileInput.onchange = (e) => {
+            if (e.target.files.length > 0) {
+                genFile = e.target.files[0];
+                genFileName.textContent = genFile.name;
+                genStrengthWrap.classList.remove('hidden');
+            } else {
+                genStrengthWrap.classList.add('hidden');
+            }
+        };
+
+        document.getElementById('genStrength').oninput = function() {
+            document.getElementById('genStrengthVal').textContent = (this.value / 100).toFixed(2);
+        };
+
+        document.getElementById('genSteps').oninput = function() {
+            document.getElementById('genStepsVal').textContent = this.value;
+        };
+
+        // Enable generate button when prompt has text
+        document.getElementById('genPrompt').oninput = function() {
+            genBtn.disabled = !this.value.trim() || !currentUser;
+        };
+
+        // Update steps range when model changes
+        document.getElementById('genModel').onchange = function() {
+            const stepsSlider = document.getElementById('genSteps');
+            const stepsVal = document.getElementById('genStepsVal');
+            if (this.value.includes('turbo') || this.value.includes('sd-turbo')) {
+                stepsSlider.max = '10';
+                stepsSlider.value = '4';
+            } else {
+                stepsSlider.max = '50';
+                stepsSlider.value = '25';
+            }
+            stepsVal.textContent = stepsSlider.value;
+        };
+
+        document.getElementById('genBtn').addEventListener('click', async () => {
+            const prompt = document.getElementById('genPrompt').value.trim();
+            if (!prompt || !currentUser) return;
+
+            const genProgress = document.getElementById('genProgress');
+            const genBar = document.getElementById('genBar');
+            const genStatus = document.getElementById('genStatus');
+            genProgress.classList.remove('hidden');
+            genBar.style.width = '10%';
+            genStatus.textContent = 'Sending request...';
+
+            const formData = new FormData();
+            formData.append('prompt', prompt);
+            formData.append('steps', document.getElementById('genSteps').value);
+            formData.append('model', document.getElementById('genModel').value);
+            formData.append('refine', document.getElementById('genRefine').checked ? 'true' : 'false');
+            formData.append('ollama_model', document.getElementById('genOllamaModel').value || 'qwen3.5:0.8b');
+            if (genFile) {
+                formData.append('ref_image', genFile);
+                formData.append('strength', (document.getElementById('genStrength').value / 100).toFixed(2));
+            }
+
+            try {
+                genBar.style.width = '40%';
+                genStatus.textContent = 'Generating...';
+                const res = await fetch(`${getBackendUrl()}api/generate`, {
+                    method: 'POST',
+                    headers: { 'X-API-Key': API_KEY, 'X-User-ID': currentUser.uid },
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Server error');
+                const data = await res.json();
+
+                genBar.style.width = '100%';
+                genStatus.textContent = 'Done!';
+
+                setTimeout(() => {
+                    genProgress.classList.add('hidden');
+                    document.getElementById('genResults').classList.remove('hidden');
+                    document.getElementById('empty-state').classList.add('hidden');
+                    document.getElementById('genResultImg').src = getBackendUrl() + data.url;
+                    document.getElementById('genDownloadLink').href = getBackendUrl() + data.url;
+                }, 500);
+            } catch (err) {
+                genStatus.textContent = 'ERROR: Node offline or failed';
+                genStatus.classList.add('text-red-500');
+                console.error(err);
+            }
+        });
+
+        document.getElementById('genNewBtn').addEventListener('click', () => {
+            document.getElementById('genResults').classList.add('hidden');
+            document.getElementById('empty-state').classList.remove('hidden');
+            document.getElementById('genResultImg').src = '';
+            document.getElementById('genPrompt').value = '';
+            genBtn.disabled = true;
+        });
+
         // Stats Graph Loader
         async function loadStats() {
-            // 1. Visit Counter (iMac Backend - Reliable)
             try {
                 const res = await fetch(getBackendUrl() + "counter", { method: 'POST' });
                 const d = await res.json();
                 if (d.count) {
                     document.getElementById('visit-count').innerText = d.count.toString().padStart(8, '0');
                 }
-            } catch (e) { 
-                console.log("iMac Counter Offline or Blocked"); 
+            } catch (e) {
+                console.log("iMac Counter Offline or Blocked");
             }
-        
-            // 2. Fetch Data for Graph (Firebase)
+
             try {
                 let labels = [], graphData = [];
                 const q = query(collection(db, "stats"), orderBy("date", "asc"), limit(14));
                 const gSnap = await getDocs(q);
-                
-                gSnap.forEach(d => { 
+
+                gSnap.forEach(d => {
                     const data = d.data();
-                    // SAFETY: Only try to format if 'date' actually exists in Firebase
-                    if(d.id.startsWith("daily_") && data.date) { 
+                    if (d.id.startsWith("daily_") && data.date) {
                         try {
                             const dateParts = data.date.split('-');
                             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                             const month = monthNames[parseInt(dateParts[1]) - 1] || "???";
                             const day = dateParts[2] || "??";
-                            labels.push(`${month} ${day}`); 
-                            graphData.push(data.count || 0); 
-                        } catch(err) { console.log("Skipping messy data point"); }
-                    } 
+                            labels.push(`${month} ${day}`);
+                            graphData.push(data.count || 0);
+                        } catch (err) { console.log("Skipping messy data point"); }
+                    }
                 });
-        
-                // Anchor Logic: If only 1 day exists, draw a slope from 0 to 1
+
                 if (graphData.length === 1) { labels.unshift('Start'); graphData.unshift(0); }
                 if (graphData.length === 0) { labels = ['N/A', 'N/A']; graphData = [0, 0]; }
-        
+
                 const ctx = document.getElementById('usageChart').getContext('2d');
                 let gradient = ctx.createLinearGradient(0, 0, 0, 80);
                 gradient.addColorStop(0, 'rgba(0, 242, 255, 0.4)');
                 gradient.addColorStop(1, 'rgba(0, 242, 255, 0.0)');
-        
-                // 3. Create the "Market Trend" Chart
+
                 new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -618,7 +1086,7 @@ index.html
                             borderWidth: 2,
                             backgroundColor: gradient,
                             fill: true,
-                            tension: 0, // Straight lines
+                            tension: 0,
                             pointRadius: 4,
                             pointBackgroundColor: '#00f2ff',
                             pointBorderColor: '#080808',
@@ -638,12 +1106,12 @@ index.html
                                 titleColor: '#00f2ff',
                                 padding: 10,
                                 displayColors: false,
-                                callbacks: { label: (c) => ` ${c.parsed.y} Tracks Processed` }
+                                callbacks: { label: (c) => ` ${c.parsed.y} Processed` }
                             }
                         },
                         scales: {
-                            x: { 
-                                display: true, 
+                            x: {
+                                display: true,
                                 grid: { display: false },
                                 ticks: { color: '#555', font: { size: 9, weight: 'bold' } }
                             },
@@ -651,8 +1119,8 @@ index.html
                         }
                     }
                 });
-            } catch(e) { 
-                console.error("Graph Data Error:", e); 
+            } catch (e) {
+                console.error("Graph Data Error:", e);
             }
         }
         loadStats();
