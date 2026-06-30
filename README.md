@@ -1,152 +1,455 @@
-# 🎵 Advanced Audio Stem Separator
+# AI - Local Media Server — Background Removal, Upscaling, AI img2img Generation & Audio Stem Separation
 
 [![Website](https://img.shields.io/badge/Website-Live-brightgreen)](https://vicsanity623.github.io)
 [![PWA](https://img.shields.io/badge/PWA-Installable-blue)](https://vicsanity623.github.io)
-[![Powered By](https://img.shields.io/badge/Powered%20By-Demucs%20AI-ff0055)](https://github.com/facebookresearch/demucs)
 
-A professional, **100% free**, web-based application that isolates audio tracks into individual stems (**Vocals, Drums, Bass, Other**) utilizing the state-of-the-art **Meta Demucs** AI engine. 
+A **100% free**, self-hosted AI media processing suite — no paywalls, no credit cards, no usage caps. Runs entirely on your own hardware through a secure Tailscale tunnel.
 
-Designed to bypass the corporate paywalls of services like Lala.ai or Splitter.ai, this platform operates entirely on volunteer, self-hosted hardware with **no file-length restrictions** and **no pay-per-minute** costs.
-
-🔗 **Try it now:** https://vicsanity623.github.io/audioStems
+**Try the live frontend:** https://vicsanity623.github.io
 
 ---
 
-## ✨ Core Features
+## ✨ What Can It Do?
 
-- **🚫 No Paywalls & Unlimited Length**: Upload full-length tracks (FLAC, WAV, MP3) without artificial pay-per-minute throttles.
-- **🔐 Google Authentication**: Secure sign-in to track your lifetime processing statistics and keep bad actors out.
-- **📚 Studio Library**: A beautiful glassmorphism browser tracking your most recent AI separations.
-- **📈 Global Analytics**: Cyberpunk-themed, live-updating line graphs (via Chart.js) showing the global processing heartbeat.
-- **🛡️ Enterprise Security**: Integrated **Cloudflare Turnstile** bot-protection to prevent network abuse.
-- **🌊 Interactive Player**: Real-time waveform visualization using **WaveSurfer.js** with targeted "Solo Mode" playback and 1-click `.ZIP` downloads.
+This isn't a one-trick pony. The frontend you'll find on GitHub Pages gives you four parallel tools, each powered by its own dedicated AI model running on the backend:
+
+| Tab | What It Does | Model |
+|-----|-------------|-------|
+| 🖼️ **BG Removal** | Removes backgrounds from images with adjustable threshold | `transparent-background` (PyTorch) |
+| 🔍 **Upscaler** | Upscales images 2x–4x using real-world super-resolution | `Real-ESRGAN` |
+| 🎨 **Generate** | Text-to-image / image-to-image generation with AI prompt refinement | `Stable Diffusion` (SD-Turbo, SDXL, FLUX, etc.) |
+| 🎵 **Separate** | Splits audio into Vocals, Drums, Bass, Other stems | `Meta Demucs` |
+
+All four share a single Python backend behind a Tailscale Funnel — meaning you can run every model on one machine and access it from anywhere on the planet.
 
 ---
 
-## 🏗️ Architecture & Infrastructure
+## 🏗️ Architecture
 
-This platform is a **headless web application** bridging a static frontend to a private machine-learning pipeline via zero-trust networking.
-
-### Infrastructure Topology
-
-```mermaid
-flowchart TB
-    subgraph Frontend [GitHub Pages]
-        UI[Glassmorphism UI]
-        Auth[Firebase Google Sign-In]
-        Player[WaveSurfer.js]
-    end
-
-    subgraph Security [Edge Security]
-        CF[Cloudflare Turnstile]
-    end
-
-    subgraph Tunnel [Networking]
-        TS((Tailscale Funnel))
-    end
-
-    subgraph Backend [Local iMac Server]
-        API[Python Flask API]
-        Demucs{Meta Demucs Model}
-        GPU[Apple Metal / MPS]
-    end
-
-    subgraph Database [Firebase Cloud]
-        FS[(Firestore Stats & Library)]
-    end
-
-    UI --> CF
-    CF -- Secure Token --> TS
-    TS -- Proxy --> API
-    API --> Demucs
-    Demucs -- Hardware Acceleration --> GPU
-    API -- Success Sync --> FS
-    Auth <--> FS
-    API -- WAV/ZIP Payload --> Player
 ```
-
-### The Inference Pipeline
-When an audio file is submitted, it enters a rigorous, hardware-accelerated processing pipeline:
-
-```mermaid
-sequenceDiagram
-    participant User as Web Browser
-    participant FB as Firebase
-    participant API as Flask Backend
-    participant Demucs as AI Model
-
-    User->>FB: Authenticate & Retrieve UID
-    User->>API: POST /separate (Audio + Cloudflare Token + UID)
-    API-->>User: 200 OK (Task Queued)
-    
-    API->>API: Validate Turnstile & UID Headers
-    API->>Demucs: Trigger HTDemucs Inference
-    
-    Note over Demucs: Utilizing BiLSTM Core & U-Net
-    Demucs-->>API: 4 Isolated WAV Stems Generated
-    
-    API->>API: Compress Stems to .ZIP
-    API->>FB: Log Separation to User Library & Global Stats
-    API-->>User: Delivery of Audio URLs
+┌─────────────────────────────────────────────┐
+│              GitHub Pages                    │
+│  (Static HTML/JS — no backend required)     │
+│  https://vicsanity623.github.io              │
+│                                              │
+│  Contains: 4-tab interface + Firebase Auth   │
+│  + Cloudflare Turnstile + Wavesurfer player  │
+└────────────────────┬────────────────────────┘
+                     │
+                     ▼
+            Tailscale Funnel
+       (https://your-machine.tailXXXXX.ts.net)
+                     │
+                     ▼
+┌─────────────────────────────────────────────┐
+│         Your Local Machine (Backend)         │
+│                                              │
+│  Python Gradio/FastAPI app on :7860           │
+│  ┌──────────────────────────────────────┐    │
+│  │  Gradio 5 UI (used for testing)      │    │
+│  │  ───────────────────────────────     │    │
+│  │  Custom REST API endpoints:          │    │
+│  │  POST /api/bg-remove   (bg removal) │    │
+│  │  POST /api/upscale     (upscaling)  │    │
+│  │  POST /api/generate    (AI gen)     │    │
+│  │  POST /separate        (demucs)     │    │
+│  │  GET  /status/{id}     (task poll)  │    │
+│  │  POST /counter         (analytics)  │    │
+│  │  GET  /outputs/{path}  (file serve) │    │
+│  └──────────────────────────────────────┘    │
+│                                              │
+│  Models on disk (~10–30 GB total):           │
+│  ├── transparent-background (PyTorch)        │
+│  ├── realesrgan-x4plus / -x2                 │
+│  ├── sd-turbo / sd-xl / flux / play-v2       │
+│  └── demucs htdemucs (Meta)                  │
+└─────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🧠 The Self-Hosted Philosophy
+# 🧑‍💻 Full macOS Setup Guide
 
-While the Demucs algorithm is open-source, its computational demands are incredibly high. Most web platforms take this open-source gift and immediately place it behind paywalls—throttling processing speeds and compressing the audio output quality purely for profit.
+Below is a _you-are-there_, step-by-step walkthrough of setting this entire backend on macOS (Darwin). Every command, every gotcha, every file we created along the way.
 
-**This platform operates differently.** 
-By leveraging a secure **Tailscale Funnel** tunnel, your audio request is securely routed from GitHub Pages directly to a private, Intel-based iMac. 
-- The audio is processed locally in a high-precision 32-bit floating-point environment.
-- The output is kept in pristine, studio-grade `WAV` format.
-- Output files are automatically wiped every 24 hours to ensure 100% data privacy.
+## Prerequisites
 
-This is a demonstration of how consumer hardware can be securely bridged to the global web to provide world-class, GPU-accelerated AI services without corporate compromise.
+- **macOS** (tested on Intel Mac with macOS Sequoia 15.x)
+- **Homebrew** (`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`)
+- **Python 3.10** (not 3.11+, because PyTorch + certain wheels have issues on newer Pythons on macOS)
+- **~30 GB free disk space** for model weights
+- **Tailscale account** (free tier works) if you want remote access
+- **Firebase project** (free Spark plan) if you want auth + analytics
+- **Cloudflare Turnstile** (free) if you want bot protection
+- **A GitHub account** to fork and host the frontend
 
----
+### Step 1: Install Python 3.10
 
-## ⚠️ Performance & Usage Limitations
+You need Python 3.10 specifically. Python 3.11+ breaks several dependencies on macOS.
 
-This service runs on **personal hardware**, not an autoscaling AWS server farm.
-
-- **Queueing:** The backend utilizes a strict First-In-First-Out (FIFO) queue. If multiple users hit the server simultaneously, your track will be queued.
-- **Hardware Profile:** Inference is automatically optimized for the host hardware (Apple Metal `mps`, Nvidia `cuda`, or fallback `cpu`). Average processing time is ~2–3 minutes per track.
-- **Uptime:** Because this relies on a physical iMac and a residential network tunnel, uptime is strictly **best-effort**.
-
----
-
-## 📜 Legal & Usage Policy
-
-⚠️ **EDUCATIONAL AND PROFESSIONAL USE ONLY**
-
-This tool is strictly intended for **educational, research, forensic, and professional production use** on content you own or have explicit permission to modify.
-
-1. ✅ You **must own** the rights to the uploaded audio.
-2. ❌ Do **not upload copyrighted material** without explicit permission from the rights holder.
-3. ✅ You are **fully responsible** for how the separated stems are utilized post-download.
-
-> **Privacy Notice:** We do not permanently store user audio. All raw files and generated stems are transient and are wiped from the server every 24 hours. Your Firebase profile simply stores a history string of your separated file names.
-
----
-
-## 🙏 Acknowledgments & Dependencies
-
-This project stands on the shoulders of giants. A massive thank you to the Meta Research team for open-sourcing the Demucs engine:
-
-```bibtex
-@article{defossez2021hybrid,
-  title={Hybrid Spectrogram and Waveform Source Separation},
-  author={Défossez, Alexandre},
-  journal={arXiv preprint arXiv:2111.03600},
-  year={2021}
-}
+```bash
+brew install python@3.10
 ```
 
-**Tech Stack:**
-- [Tailscale Funnel](https://tailscale.com) (Reverse Proxy)
-- [Firebase Auth & Firestore](https://firebase.google.com) (Database & Security)
-- [Cloudflare Turnstile](https://cloudflare.com) (Bot Mitigation)
-- [Chart.js](https://chartjs.org) (Data Visualization)
-- [WaveSurfer.js](https://wavesurfer-js.org) (Audio Player)
-- [TailwindCSS](https://tailwindcss.com) (UI Styling)
+Verify:
+```bash
+python3.10 --version
+# → Python 3.10.x
+```
+
+### Step 2: Clone the Repository
+
+```bash
+git clone https://github.com/vicsanity623/BGRemover.git
+cd BGRemover
+```
+
+### Step 3: Create the Virtual Environment
+
+Always use a venv — never install these packages globally (they pin very specific torch versions).
+
+```bash
+python3.10 -m venv .venvBGR
+source .venvBGR/bin/activate
+```
+
+Your prompt should now show `(.venvBGR)`.
+
+### Step 4: Install PyTorch (MPS or CPU)
+
+This is the trickiest part. On macOS you have two choices:
+
+**Option A — MPS (Metal Performance Shaders)** — for Apple Silicon Macs:
+```bash
+pip install torch torchvision torchaudio
+```
+
+**Option B — CPU** — for Intel Macs without a powerful GPU:
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+```
+
+Either way, verify:
+```bash
+python3 -c "import torch; print(torch.__version__); print('MPS available:', torch.backends.mps.is_available() if hasattr(torch.backends, 'mps') else 'N/A')"
+```
+
+### Step 5: Install Core Dependencies
+
+```bash
+pip install \
+  gradio==5.16.0 \
+  fastapi \
+  uvicorn \
+  python-multipart \
+  Pillow \
+  numpy \
+  opencv-python-headless \
+  pydub \
+  ffmpeg-python
+```
+
+**Important:** You also need `ffmpeg` on your system (not just the Python wrapper):
+
+```bash
+brew install ffmpeg
+```
+
+### Step 6: Install AI Models
+
+Each model is a separate install. Do them one at a time so you can see if anything breaks.
+
+#### 6a — Background Removal (`transparent-background`)
+
+```bash
+pip install transparent-background
+```
+
+On first run it downloads the model checkpoint (`~/.cache/transparent-background/...`). This is ~500 MB.
+
+#### 6b — Upscaler (`Real-ESRGAN`)
+
+```bash
+pip install realesrgan
+```
+
+Models download on first use to `~/.cache/realesrgan/...`. Approx 200 MB.
+
+#### 6c — Audio Separation (`demucs`)
+
+```bash
+pip install demucs
+```
+
+The `htdemucs` model downloads on first run to `~/Library/Caches/demucs/...`. Approx 1.5 GB.
+
+**Troubleshooting:** If `demucs` installs but the `demucs` command isn't found, add your Python bin to PATH:
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+Or symlink it:
+```bash
+ln -s $(which demucs) ~/.local/bin/demucs 2>/dev/null || true
+```
+
+**Vital:** Install `soundfile` so demucs can write WAV stems:
+```bash
+pip install soundfile
+```
+
+#### 6d — Stable Diffusion Models (Text-to-Image / Image-to-Image)
+
+This is the biggest install. It pulls in `diffusers`, `transformers`, `accelerate`, and the model weights (~5–10 GB).
+
+```bash
+pip install diffusers transformers accelerate
+```
+
+The app supports four diffusion models:
+
+| Model ID | Size | Notes |
+|----------|------|-------|
+| `stabilityai/sd-turbo` | ~3 GB | Default; fast (1–4 steps) |
+| `stabilityai/stable-diffusion-xl-base-1.0` | ~7 GB | High quality, needs MPS |
+| `black-forest-labs/FLUX.1-schnell` | ~8 GB | Needs `torch.compile`, MPS fallback |
+| `playgroundai/playground-v2.5-1024px-aesthetic` | ~5 GB | Aesthetic-focused |
+
+These download to `~/.cache/huggingface/` on first use. On a 50 Mbps connection, expect each to take 10–30 minutes.
+
+**MPS gotcha:** SDXL and FLUX use `float64` operations that MPS doesn't support. The app automatically patches these:
+```python
+xpu_module = types.ModuleType("xpu")
+xpu_module.empty_cache = lambda: None
+xpu_module.is_available = lambda: False
+torch.xpu = xpu_module
+```
+This is already in `app.py` — you don't need to do anything.
+
+### Step 7: Set Up the Directory Structure
+
+The app expects these directories relative to the project root:
+
+```bash
+mkdir -p outputs temp .cache/huggingface .cache/torch
+```
+
+### Step 8: Configure the Backend URL
+
+The frontend on GitHub Pages needs to know where to find your backend. Open `indexCOPY.html` (or your deployed `audioStems/index.html`) and find the `getBackendUrl` function:
+
+```javascript
+const getBackendUrl = () => "https://your-machine.tailXXXXX.ts.net:10000/";
+```
+
+Replace `your-machine.tailXXXXX.ts.net:10000` with your actual Tailscale Funnel URL and port.
+
+Also, the API key is a simple shared secret between the frontend and backend. Find it in `app.py`:
+```python
+_API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv"
+```
+And in the HTML:
+```javascript
+const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
+```
+If you change one, change the other.
+
+### Step 9: Run the Backend Locally
+
+```bash
+cd /path/to/BGRemover
+source .venvBGR/bin/activate
+python3 src/media_server/app.py
+```
+
+You should see:
+```
+* Running on local URL:  http://127.0.0.1:7860
+```
+
+At this point you can test it locally by visiting `http://127.0.0.1:7860` in your browser. You'll see the Gradio UI with all four tabs working.
+
+Test the REST API too:
+```bash
+curl -X POST http://127.0.0.1:7860/counter \
+  -H "x-api-key: jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv"
+# → {"count":1}
+```
+
+### Step 10: Expose via Tailscale Funnel (for Remote Access)
+
+This is what makes the whole thing work from anywhere — no static IP, no port forwarding, no cloud server.
+
+1. **Install Tailscale** on your Mac:
+   ```bash
+   brew install tailscale
+   ```
+
+2. **Sign in:**
+   ```bash
+   tailscale up
+   ```
+   This opens a browser to authenticate.
+
+3. **Enable Funnel:**
+   ```bash
+   tailscale funnel --bg 10000
+   ```
+   This tells Tailscale to accept HTTPS traffic on port 10000 and forward it to `http://127.0.0.1:7860`.
+
+4. **Find your funnel URL:**
+   ```bash
+   tailscale status
+   ```
+   Look for your machine name. Your funnel URL will be:
+   ```
+   https://your-machine.tailXXXXX.ts.net:10000/
+   ```
+
+5. **Test the funnel** from your phone (disconnect from WiFi):
+   ```
+   https://your-machine.tailXXXXX.ts.net:10000/counter
+   ```
+   If you get `{"detail":"Method Not Allowed"}`, the funnel is working (405 means the server received it, it's just a GET on a POST-only route).
+
+### Step 11: Deploy the Frontend to GitHub Pages
+
+1. Create a **new repository** on GitHub (e.g., `vicsanity623/vicsanity623.github.io` for a user site, or any name for a project site).
+
+2. Copy the frontend files into it:
+   ```bash
+   # From your BGRemover project
+   cp indexCOPY.html /path/to/your-github-pages-repo/index.html
+   # Also copy any assets, audio files, etc.
+   ```
+
+3. **Update the `getBackendUrl`** in the HTML to point to your Tailscale Funnel URL.
+
+4. **Push to GitHub:**
+   ```bash
+   cd /path/to/your-github-pages-repo
+   git add .
+   git commit -m "Deploy AI media processing suite"
+   git push
+   ```
+
+5. **Enable GitHub Pages** in the repo Settings → Pages → select `main` branch → Save.
+
+6. Wait ~2 minutes, then visit `https://your-username.github.io`.
+
+### Step 12: Firebase Auth (Optional but Recommended)
+
+The frontend uses Firebase Authentication (Google Sign-In) to track users and prevent abuse.
+
+1. Go to [Firebase Console](https://console.firebase.google.com) → Create a project (Spark free tier).
+2. Enable **Authentication** → **Google provider**.
+3. Enable **Cloud Firestore** (start in test mode).
+4. Get your Firebase config object from Project Settings → General → Your apps → Web app.
+5. Put it in the HTML file:
+   ```javascript
+   const firebaseConfig = {
+     apiKey: "AIzaSy...",
+     authDomain: "your-project.firebaseapp.com",
+     projectId: "your-project",
+     storageBucket: "your-project.appspot.com",
+     messagingSenderId: "...",
+     appId: "..."
+   };
+   ```
+
+### Step 13: Cloudflare Turnstile (Optional)
+
+The audio separation tab uses Turnstile CAPTCHA to prevent bots.
+
+1. Go to [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) → Add a site.
+2. Get your **site key** and **secret key**.
+3. Replace the `cf-turnstile-response` verification in the backend (right now it's a placeholder that always passes).
+
+---
+
+## 🔄 How to Update
+
+When you pull new changes:
+
+```bash
+git pull
+source .venvBGR/bin/activate
+pip install -r requirements.txt  # if one exists; otherwise install individually
+pkill -f "python3 src/media_server/app.py"
+python3 src/media_server/app.py
+```
+
+---
+
+## ⚙️ Model Cache Locations
+
+All models are cached locally. To keep your home drive from filling up, the app uses a custom cache directory on the same drive as the project:
+
+| Cache | Location |
+|-------|----------|
+| HuggingFace models | `BGRemover/.cache/huggingface/` |
+| Torch hub | `BGRemover/.cache/torch/` |
+| Transparent Background | `BGRemover/.transparent-background/` |
+| Demucs models | `~/Library/Caches/demucs/` |
+
+To move the HuggingFace cache to an external drive:
+
+```bash
+export HF_HOME=/Volumes/YourExternalDrive/.cache/huggingface
+```
+
+---
+
+## 🩺 Troubleshooting
+
+### "MPS not available" or XPU errors
+
+This is normal on Intel Macs. The app monkey-patches the missing XPU attributes so diffusers loads without crashing. If you see `torch.xpu` errors, make sure the monkey-patch near the top of `app.py` is present.
+
+### "demucs: command not found"
+
+```bash
+python3 -m demucs --help
+```
+If that works, use `python3 -m demucs` instead of `demucs` in the code. Or install demucs with pip's `--user` flag and add `~/.local/bin` to your PATH.
+
+### "soundfile not installed" or demucs errors
+
+```bash
+pip install soundfile
+```
+
+### "ModuleNotFoundError: No module named 'torch'"
+
+You skipped step 4. Run the PyTorch install command.
+
+### Frontend shows "NODE OFFLINE OR FAILED"
+
+This means either:
+1. Your Tailscale Funnel is down — run `tailscale funnel --bg 10000` again.
+2. The backend isn't running — restart it.
+3. The API key in the HTML doesn't match `_API_KEY` in `app.py`.
+4. The `getBackendUrl` in the HTML points to the wrong address.
+
+### The REST API returns 500 during bg-remove
+
+The `transparent-background` library saves output with the original file extension (e.g., `.jpeg` for JPEG inputs) for green-screen mode, but always uses `.png` for RGBA mode. If you change the code, make sure `out_ext` is set correctly:
+
+```python
+# In process_bg():
+if use_rgba:
+    out_ext = ".png"     # RGBA always outputs PNG
+else:
+    out_ext = ext         # Green screen preserves original extension
+```
+
+---
+
+## 📜 License & Usage
+
+This project is for **educational and personal use only**. You are responsible for ensuring you have the rights to any media you process. The AI models included have their own licenses (MIT, Apache 2.0, CC-BY-NC, etc.) — check each project's terms before commercial use.
+
+- **Demucs**: MIT License (Meta Research)
+- **Real-ESRGAN**: BSD 3-Clause
+- **transparent-background**: MIT License
+- **Stable Diffusion**: Stability AI CreativeML Open RAIL-M
+- **FLUX**: black-forest-labs terms
