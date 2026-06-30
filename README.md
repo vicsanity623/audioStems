@@ -1,6 +1,7 @@
 # AI - Local Media Server — Background Removal, Upscaling, AI img2img Generation & Audio Stem Separation
 
 [![Website](https://img.shields.io/badge/Website-Live-brightgreen)](https://vicsanity623.github.io)
+![Files Processed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fvics-imac-1.tail37b4f2.ts.net%3A10000%2Fapi%2Fstats&query=%24.files_processed&label=Files%20Processed&color=cyan)
 [![PWA](https://img.shields.io/badge/PWA-Installable-blue)](https://vicsanity623.github.io)
 
 A **100% free**, self-hosted AI media processing suite — no paywalls, no credit cards, no usage caps. Runs entirely on your own hardware through a secure Tailscale tunnel.
