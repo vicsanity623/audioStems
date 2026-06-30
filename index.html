@@ -125,8 +125,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .result-image {
@@ -233,46 +240,69 @@
                 <div>
                     <h2 class="text-5xl font-black mb-4 tracking-tighter uppercase leading-[0.9] italic text-white">
                         AI-Powered <br><span class="text-cyan-400">Media Studio</span></h2>
-                    <p class="text-gray-400 text-lg font-light leading-relaxed">Background removal, upscaling, stem separation, and image generation — all running locally on private iMac hardware via Tailscale.</p>
+                    <p class="text-gray-400 text-lg font-light leading-relaxed">Background removal, upscaling, stem
+                        separation, and image generation — all running locally on private iMac hardware via Tailscale.
+                    </p>
                 </div>
 
                 <!-- Tab Navigation -->
                 <div class="flex gap-1 glass p-1.5 rounded-2xl overflow-x-auto no-scrollbar" id="tabBar">
-                    <button class="tab-btn active flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]" data-tab="bg" onclick="switchTab('bg')">🪄 BG Removal</button>
-                    <button class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]" data-tab="upscale" onclick="switchTab('upscale')">🔍 Upscaler</button>
-                    <button class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]" data-tab="demucs" onclick="switchTab('demucs')">🎧 Demucs</button>
-                    <button class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]" data-tab="generate" onclick="switchTab('generate')">🎨 AI Gen</button>
+                    <button
+                        class="tab-btn active flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]"
+                        data-tab="bg" onclick="switchTab('bg')">🪄 BG Removal</button>
+                    <button
+                        class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]"
+                        data-tab="upscale" onclick="switchTab('upscale')">🔍 Upscaler</button>
+                    <button
+                        class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]"
+                        data-tab="demucs" onclick="switchTab('demucs')">🎧 Demucs</button>
+                    <button
+                        class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]"
+                        data-tab="generate" onclick="switchTab('generate')">🎨 AI Gen</button>
                 </div>
 
                 <!-- TAB 1: Background Removal -->
                 <div class="tab-panel active" id="panel-bg">
                     <div class="space-y-4">
-                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer relative shadow-2xl" id="bgDropZone">
+                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer relative shadow-2xl"
+                            id="bgDropZone">
                             <input type="file" id="bgFileInput" hidden accept="image/*,video/mp4,video/quicktime">
                             <div class="text-5xl mb-4">🪄</div>
                             <h3 class="text-lg font-bold mb-1 uppercase tracking-tighter">Upload Image or Video</h3>
-                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">PNG, JPG, WEBP, MP4, MOV</p>
-                            <div id="bgFileName" class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-4"></div>
+                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">PNG, JPG, WEBP, MP4,
+                                MOV</p>
+                            <div id="bgFileName"
+                                class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-4">
+                            </div>
+                            <img id="bgPreview" class="hidden mt-4 max-h-48 mx-auto rounded-xl object-contain" src="">
                         </div>
                         <div class="glass p-5 rounded-2xl space-y-4">
                             <label class="flex items-center gap-3 cursor-pointer">
                                 <input type="checkbox" id="bgFast" class="w-4 h-4 accent-cyan-500">
-                                <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Fast Mode (Lower GPU load)</span>
+                                <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Fast Mode
+                                    (Lower GPU load)</span>
                             </label>
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Alpha Threshold</label>
-                                <input type="range" id="bgThreshold" min="0" max="100" value="50" class="w-full accent-cyan-500">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Alpha
+                                    Threshold</label>
+                                <input type="range" id="bgThreshold" min="0" max="100" value="50"
+                                    class="w-full accent-cyan-500">
                                 <span id="bgThresholdVal" class="text-[10px] text-cyan-400 font-mono">0.50</span>
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Output Type</label>
-                                <select id="bgType" class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Output
+                                    Type</label>
+                                <select id="bgType"
+                                    class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
                                     <option value="rgba">Transparent (Highest Quality)</option>
                                     <option value="green">Green Screen</option>
                                 </select>
                             </div>
                         </div>
-                        <button id="bgBtn" disabled class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
+                        <button id="bgBtn" disabled
+                            class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
                             REMOVE BACKGROUND
                         </button>
                         <div id="bgProgress" class="hidden space-y-2">
@@ -289,30 +319,45 @@
                 <!-- TAB 2: Upscaler -->
                 <div class="tab-panel" id="panel-upscale">
                     <div class="space-y-4">
-                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer relative shadow-2xl" id="upDropZone">
+                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer relative shadow-2xl"
+                            id="upDropZone">
                             <input type="file" id="upFileInput" hidden accept="image/*,video/mp4,video/quicktime">
                             <div class="text-5xl mb-4">🔍</div>
                             <h3 class="text-lg font-bold mb-1 uppercase tracking-tighter">Upload Image or Video</h3>
-                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">PNG, JPG, WEBP, MP4, MOV</p>
-                            <div id="upFileName" class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-4"></div>
+                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">PNG, JPG, WEBP, MP4,
+                                MOV</p>
+                            <div id="upFileName"
+                                class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-4">
+                            </div>
+                            <img id="upPreview" class="hidden mt-4 max-h-48 mx-auto rounded-xl object-contain" src="">
                         </div>
                         <div class="glass p-5 rounded-2xl space-y-4">
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Upscale Multiplier</label>
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Upscale
+                                    Multiplier</label>
                                 <div class="flex gap-2">
-                                    <button class="up-scale-btn flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10 hover:border-cyan-400 transition" data-value="2" onclick="selectUpscaleScale('2')">2x</button>
-                                    <button class="up-scale-btn flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-cyan-400 text-cyan-400 transition" data-value="4" onclick="selectUpscaleScale('4')">4x</button>
+                                    <button
+                                        class="up-scale-btn flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10 hover:border-cyan-400 transition"
+                                        data-value="2" onclick="selectUpscaleScale('2')">2x</button>
+                                    <button
+                                        class="up-scale-btn flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-cyan-400 text-cyan-400 transition"
+                                        data-value="4" onclick="selectUpscaleScale('4')">4x</button>
                                 </div>
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">AI Model</label>
-                                <select id="upModel" class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">AI
+                                    Model</label>
+                                <select id="upModel"
+                                    class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
                                     <option value="realesrgan-x4plus">RealESRGAN x4plus (General)</option>
                                     <option value="realesrgan-x4plus-anime">RealESRGAN x4plus Anime</option>
                                 </select>
                             </div>
                         </div>
-                        <button id="upBtn" disabled class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
+                        <button id="upBtn" disabled
+                            class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
                             UPSCALE MEDIA
                         </button>
                         <div id="upProgress" class="hidden space-y-2">
@@ -329,17 +374,22 @@
                 <!-- TAB 3: Demucs Audio (existing logic) -->
                 <div class="tab-panel" id="panel-demucs">
                     <div class="space-y-4">
-                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-16 text-center cursor-pointer relative shadow-2xl" id="dropZone">
+                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-16 text-center cursor-pointer relative shadow-2xl"
+                            id="dropZone">
                             <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
                             <div class="text-6xl mb-6">📂</div>
                             <h3 class="text-xl font-bold mb-1 uppercase tracking-tighter">Drag Audio Source</h3>
-                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">or click to browse local files</p>
-                            <div id="fileNameDisplay" class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-6"></div>
+                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">or click to browse
+                                local files</p>
+                            <div id="fileNameDisplay"
+                                class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-6">
+                            </div>
                         </div>
                         <div class="turnstile-wrapper flex justify-center py-2">
                             <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
                         </div>
-                        <button id="processBtn" disabled class="w-full py-6 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
+                        <button id="processBtn" disabled
+                            class="w-full py-6 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
                             START AI SEPARATION
                         </button>
                         <div id="progressArea" class="hidden space-y-4">
@@ -348,9 +398,11 @@
                                 <span id="percentText" class="text-white">0%</span>
                             </div>
                             <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                                <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500">
+                                </div>
                             </div>
-                            <p class="text-[9px] text-gray-600 italic leading-relaxed" id="slowWarning">⚠️ Running on local Intel iMac GPU. Process is private and secure. Do not close browser.</p>
+                            <p class="text-[9px] text-gray-600 italic leading-relaxed" id="slowWarning">⚠️ Running on
+                                local Intel iMac GPU. Process is private and secure. Do not close browser.</p>
                         </div>
                     </div>
                 </div>
@@ -359,45 +411,65 @@
                 <div class="tab-panel" id="panel-generate">
                     <div class="space-y-4">
                         <div>
-                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">AI Model</label>
-                            <select id="genModel" class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">AI
+                                Model</label>
+                            <select id="genModel"
+                                class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
                                 <option value="stabilityai/sd-turbo">SD-Turbo (Fast, Low Quality)</option>
                                 <option value="Lykon/dreamshaper-8">Dreamshaper 8 (Good Quality)</option>
                                 <option value="stabilityai/sdxl-turbo">SDXL Turbo (Best Quality)</option>
-                                <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL Base 1.0 (Highest Quality, Slow)</option>
+                                <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL Base 1.0 (Highest Quality,
+                                    Slow)</option>
                                 <option value="SG161222/RealVisXL_V4.0">RealVisXL V4.0 (Photorealistic, SDXL)</option>
-                                <option value="RunDiffusion/Juggernaut-XL-v9">Juggernaut XL v9 (Versatile, SDXL)</option>
+                                <option value="RunDiffusion/Juggernaut-XL-v9">Juggernaut XL v9 (Versatile, SDXL)
+                                </option>
                             </select>
                         </div>
                         <div class="glass p-5 rounded-2xl">
-                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Prompt</label>
-                            <textarea id="genPrompt" rows="3" class="w-full glass text-white text-sm rounded-xl p-4 border-white/10 outline-none resize-none" placeholder="An astronaut riding a horse on Mars, highly detailed, photorealistic..."></textarea>
+                            <label
+                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Prompt</label>
+                            <textarea id="genPrompt" rows="3"
+                                class="w-full glass text-white text-sm rounded-xl p-4 border-white/10 outline-none resize-none"
+                                placeholder="An astronaut riding a horse on Mars, highly detailed, photorealistic..."></textarea>
                         </div>
-                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-8 text-center cursor-pointer relative shadow-2xl" id="genDropZone">
+                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-8 text-center cursor-pointer relative shadow-2xl"
+                            id="genDropZone">
                             <input type="file" id="genFileInput" hidden accept="image/*">
                             <div class="text-3xl mb-2">🖼️</div>
                             <h3 class="text-sm font-bold mb-1 uppercase tracking-tighter">Optional Reference Image</h3>
-                            <p class="text-gray-500 text-[10px] font-medium uppercase tracking-widest">Upload for Image-to-Image remixing</p>
-                            <div id="genFileName" class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-3"></div>
+                            <p class="text-gray-500 text-[10px] font-medium uppercase tracking-widest">Upload for
+                                Image-to-Image remixing</p>
+                            <div id="genFileName"
+                                class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-3">
+                            </div>
+                            <img id="genPreview" class="hidden mt-4 max-h-48 mx-auto rounded-xl object-contain" src="">
                         </div>
                         <div id="genStrengthWrap" class="hidden">
-                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Remixing Strength</label>
-                            <input type="range" id="genStrength" min="5" max="95" value="50" class="w-full accent-cyan-500">
+                            <label
+                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Remixing
+                                Strength</label>
+                            <input type="range" id="genStrength" min="5" max="95" value="50"
+                                class="w-full accent-cyan-500">
                             <span id="genStrengthVal" class="text-[10px] text-cyan-400 font-mono">0.50</span>
                         </div>
                         <div>
-                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Generation Steps</label>
+                            <label
+                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Generation
+                                Steps</label>
                             <input type="range" id="genSteps" min="1" max="50" value="4" class="w-full accent-cyan-500">
                             <span id="genStepsVal" class="text-[10px] text-cyan-400 font-mono">4</span>
                         </div>
                         <div class="glass p-4 rounded-2xl">
                             <label class="flex items-center gap-3 cursor-pointer">
                                 <input type="checkbox" id="genRefine" class="w-4 h-4 accent-cyan-500">
-                                <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Refine prompt via Ollama</span>
+                                <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Refine
+                                    prompt via Ollama</span>
                             </label>
-                            <input type="text" id="genOllamaModel" value="qwen3.5:0.8b" placeholder="ollama model name" class="mt-3 w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                            <input type="text" id="genOllamaModel" value="qwen-3.5:2b" placeholder="ollama model name"
+                                class="mt-3 w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
                         </div>
-                        <button id="genBtn" disabled class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
+                        <button id="genBtn" disabled
+                            class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
                             GENERATE MEDIA
                         </button>
                         <div id="genProgress" class="hidden space-y-2">
@@ -416,7 +488,8 @@
             <!-- RIGHT COLUMN: Ad + Results / Visualizer -->
             <div class="lg:col-span-7 space-y-8">
                 <!-- Top Ad Slot -->
-                <div class="glass p-4 rounded-[2.5rem] min-h-[300px] w-full flex items-center justify-center overflow-hidden border-white/5">
+                <div
+                    class="glass p-4 rounded-[2.5rem] min-h-[300px] w-full flex items-center justify-center overflow-hidden border-white/5">
                     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5972331036113330"
                         data-ad-slot="4287691766" data-ad-format="auto" data-full-width-responsive="true"></ins>
                     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
@@ -425,8 +498,10 @@
                 <!-- BG Results -->
                 <div id="bgResults" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
                     <div class="flex justify-between items-end mb-4 px-2">
-                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Background Removed</h2>
-                        <a id="bgDownloadLink" download class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
+                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Background
+                            Removed</h2>
+                        <a id="bgDownloadLink" download
+                            class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
                     </div>
                     <div class="glass p-4 rounded-[2rem] flex items-center justify-center border-white/5">
                         <img id="bgResultImg" class="result-image max-w-full" src="" alt="Result">
@@ -436,8 +511,10 @@
                 <!-- Upscale Results -->
                 <div id="upResults" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
                     <div class="flex justify-between items-end mb-4 px-2">
-                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Upscaled Result</h2>
-                        <a id="upDownloadLink" download class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
+                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Upscaled Result
+                        </h2>
+                        <a id="upDownloadLink" download
+                            class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
                     </div>
                     <div class="glass p-4 rounded-[2rem] flex items-center justify-center border-white/5">
                         <img id="upResultImg" class="result-image max-w-full" src="" alt="Result">
@@ -448,7 +525,9 @@
                 <div id="results-area" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
                     <div class="flex justify-between items-end mb-6 px-2">
                         <h2 class="text-2xl font-black tracking-tighter uppercase italic text-cyan-400">Stems Ready</h2>
-                        <button id="downloadZipBtn" class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10">Download All (.ZIP)</button>
+                        <button id="downloadZipBtn"
+                            class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10">Download
+                            All (.ZIP)</button>
                     </div>
                     <div id="tracks-wrapper" class="space-y-4"></div>
                 </div>
@@ -456,19 +535,23 @@
                 <!-- AI Gen Results -->
                 <div id="genResults" class="hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
                     <div class="flex justify-between items-end mb-4 px-2">
-                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Generated Image</h2>
-                        <a id="genDownloadLink" download class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
+                        <h2 class="text-xl font-black tracking-tighter uppercase italic text-cyan-400">Generated Image
+                        </h2>
+                        <a id="genDownloadLink" download
+                            class="text-[9px] font-black text-emerald-400 border border-emerald-400/30 px-5 py-2 rounded-full hover:bg-emerald-400 hover:text-black transition uppercase tracking-widest shadow-lg shadow-emerald-500/10 cursor-pointer">Download</a>
                     </div>
                     <div class="glass p-4 rounded-[2rem] flex items-center justify-center border-white/5">
                         <img id="genResultImg" class="result-image max-w-full" src="" alt="Result">
                     </div>
-                    <button id="genNewBtn" class="mt-3 w-full py-4 rounded-full border border-cyan-500/30 text-cyan-400 font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-500/10 transition-all">
+                    <button id="genNewBtn"
+                        class="mt-3 w-full py-4 rounded-full border border-cyan-500/30 text-cyan-400 font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-500/10 transition-all">
                         GENERATE NEW
                     </button>
                 </div>
 
                 <!-- Empty State -->
-                <div id="empty-state" class="h-64 border border-white/5 rounded-[2.5rem] flex items-center justify-center text-gray-900 font-black uppercase tracking-tighter text-5xl select-none opacity-20 italic">
+                <div id="empty-state"
+                    class="h-64 border border-white/5 rounded-[2.5rem] flex items-center justify-center text-gray-900 font-black uppercase tracking-tighter text-5xl select-none opacity-20 italic">
                     Studio Ready
                 </div>
             </div>
@@ -477,14 +560,19 @@
         <!-- DEEP DIVE BLOG CONTENT -->
         <section id="deep-dive" class="mt-40 glass p-8 md:p-20 rounded-[4rem] border-t-2 border-cyan-500/30 shadow-2xl">
             <div class="max-w-4xl mx-auto space-y-12">
-                <h2 class="text-6xl font-black tracking-tighter text-white uppercase leading-[0.8]">The Self-Hosted AI<br><span class="text-cyan-400">Media Server Revolution</span></h2>
+                <h2 class="text-6xl font-black tracking-tighter text-white uppercase leading-[0.8]">The Self-Hosted
+                    AI<br><span class="text-cyan-400">Media Server Revolution</span></h2>
 
                 <div class="space-y-8 text-gray-400 leading-relaxed text-lg font-light">
-                    <p>Four powerful AI models running directly on private hardware — no cloud subscriptions, no data leaving your network. Background removal via InSPyReNet, upscaling through RealESRGAN, audio stem separation with Meta Demucs, and image generation via Stable Diffusion, all orchestrated through a single Tailscale-secured endpoint.</p>
+                    <p>Four powerful AI models running directly on private hardware — no cloud subscriptions, no data
+                        leaving your network. Background removal via InSPyReNet, upscaling through RealESRGAN, audio
+                        stem separation with Meta Demucs, and image generation via Stable Diffusion, all orchestrated
+                        through a single Tailscale-secured endpoint.</p>
 
                     <div class="grid md:grid-cols-2 gap-12 items-center py-10">
                         <div class="glass p-8 rounded-[2rem] border-white/5 shadow-2xl">
-                            <h4 class="text-cyan-400 font-black mb-6 uppercase tracking-[0.2em] text-[10px]">Processing Topology</h4>
+                            <h4 class="text-cyan-400 font-black mb-6 uppercase tracking-[0.2em] text-[10px]">Processing
+                                Topology</h4>
                             <div class="mermaid">
                                 graph LR
                                 Client[Browser / PWA] --> TS{Tailscale Funnel}
@@ -498,24 +586,37 @@
                             </div>
                         </div>
                         <p class="text-base italic leading-relaxed">
-                            Each model runs locally on the same Intel iMac with an AMD Radeon Pro 5300 GPU. The server is exposed via <strong class="text-white">Tailscale Funnel</strong> (HTTPS), ensuring all processing happens on your own hardware with no third-party inference.
+                            Each model runs locally on the same Intel iMac with an AMD Radeon Pro 5300 GPU. The server
+                            is exposed via <strong class="text-white">Tailscale Funnel</strong> (HTTPS), ensuring all
+                            processing happens on your own hardware with no third-party inference.
                         </p>
                     </div>
 
                     <h3 class="text-2xl font-bold text-white uppercase tracking-tighter italic">Why Self-Host?</h3>
-                    <p>While cloud AI platforms offer convenience, they come at the cost of privacy, recurring subscription fees, and usage limits. This server runs entirely on your own hardware — an Intel-based iMac with 40GB of RAM and a dedicated AMD GPU. Background removal, upscaling, Demucs stem separation, and Stable Diffusion inference all execute locally, accessed securely through <strong class="text-cyan-400">Tailscale Funnel</strong> from any browser worldwide.</p>
+                    <p>While cloud AI platforms offer convenience, they come at the cost of privacy, recurring
+                        subscription fees, and usage limits. This server runs entirely on your own hardware — an
+                        Intel-based iMac with 40GB of RAM and a dedicated AMD GPU. Background removal, upscaling, Demucs
+                        stem separation, and Stable Diffusion inference all execute locally, accessed securely through
+                        <strong class="text-cyan-400">Tailscale Funnel</strong> from any browser worldwide.
+                    </p>
 
-                    <p><strong class="text-white">The Stack:</strong> Python 3.10 + PyTorch 2.2.2 running on macOS. The Gradio-based server orchestrates all four model pipelines behind a unified interface. Tailscale Funnel provides TLS termination and global routing, while Firebase manages authentication and usage statistics.</p>
+                    <p><strong class="text-white">The Stack:</strong> Python 3.10 + PyTorch 2.2.2 running on macOS. The
+                        Gradio-based server orchestrates all four model pipelines behind a unified interface. Tailscale
+                        Funnel provides TLS termination and global routing, while Firebase manages authentication and
+                        usage statistics.</p>
                 </div>
             </div>
         </section>
 
         <!-- FOOTER -->
-        <footer class="mt-40 border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-8 relative">
-            <div class="text-gray-600 text-[10px] font-black uppercase tracking-[0.3em] w-full md:w-auto text-center md:text-left">
+        <footer
+            class="mt-40 border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-8 relative">
+            <div
+                class="text-gray-600 text-[10px] font-black uppercase tracking-[0.3em] w-full md:w-auto text-center md:text-left">
                 &copy; 2026 AI Media Server // macOS Intel Node
                 <div class="mt-4 flex gap-6 justify-center md:justify-start">
-                    <a href="https://github.com/vicsanity623" target="_blank" class="hover:text-white transition-colors">Source Code</a>
+                    <a href="https://github.com/vicsanity623" target="_blank"
+                        class="hover:text-white transition-colors">Source Code</a>
                     <a href="#" class="hover:text-white transition-colors">Infrastructure</a>
                 </div>
             </div>
@@ -524,8 +625,10 @@
                 <div class="w-full sm:w-64 h-24 relative glass rounded-xl border-cyan-500/10 p-2">
                     <canvas id="usageChart"></canvas>
                 </div>
-                <div class="glass px-8 py-4 rounded-2xl border-cyan-500/10 flex items-center justify-between w-full sm:w-auto min-h-[64px]">
-                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.4em] mr-4">Global Sessions</span>
+                <div
+                    class="glass px-8 py-4 rounded-2xl border-cyan-500/10 flex items-center justify-between w-full sm:w-auto min-h-[64px]">
+                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.4em] mr-4">Global
+                        Sessions</span>
                     <span id="visit-count" class="font-mono text-cyan-400 font-bold text-lg">00000000</span>
                 </div>
             </div>
@@ -655,7 +758,7 @@
         };
 
         // ---- TAB SWITCHING ----
-        window.switchTab = function(tabId) {
+        window.switchTab = function (tabId) {
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('panel-' + tabId).classList.add('active');
@@ -694,10 +797,18 @@
                 bgFile = e.target.files[0];
                 bgFileName.textContent = bgFile.name;
                 bgBtn.disabled = false;
+                const preview = document.getElementById('bgPreview');
+                if (bgFile.type.startsWith('image/')) {
+                    preview.classList.remove('hidden');
+                    preview.src = URL.createObjectURL(bgFile);
+                } else {
+                    preview.classList.add('hidden');
+                    preview.src = '';
+                }
             }
         };
 
-        document.getElementById('bgThreshold').oninput = function() {
+        document.getElementById('bgThreshold').oninput = function () {
             document.getElementById('bgThresholdVal').textContent = (this.value / 100).toFixed(2);
         };
 
@@ -735,7 +846,7 @@
                     bgProgress.classList.add('hidden');
                     document.getElementById('bgResults').classList.remove('hidden');
                     document.getElementById('empty-state').classList.add('hidden');
-                    document.getElementById('bgResultImg').src = getBackendUrl() + data.url;
+                    document.getElementById('bgResultImg').src = getBackendUrl() + data.url + '?t=' + Date.now();
                     document.getElementById('bgDownloadLink').href = getBackendUrl() + data.url;
                 }, 500);
             } catch (err) {
@@ -753,7 +864,7 @@
         let upFile = null;
         let upScaleVal = '4';
 
-        window.selectUpscaleScale = function(val) {
+        window.selectUpscaleScale = function (val) {
             upScaleVal = val;
             document.querySelectorAll('.up-scale-btn').forEach(b => {
                 b.classList.remove('border-cyan-400', 'text-cyan-400');
@@ -770,6 +881,14 @@
                 upFile = e.target.files[0];
                 upFileName.textContent = upFile.name;
                 upBtn.disabled = false;
+                const preview = document.getElementById('upPreview');
+                if (upFile.type.startsWith('image/')) {
+                    preview.classList.remove('hidden');
+                    preview.src = URL.createObjectURL(upFile);
+                } else {
+                    preview.classList.add('hidden');
+                    preview.src = '';
+                }
             }
         };
 
@@ -806,7 +925,7 @@
                     upProgress.classList.add('hidden');
                     document.getElementById('upResults').classList.remove('hidden');
                     document.getElementById('empty-state').classList.add('hidden');
-                    document.getElementById('upResultImg').src = getBackendUrl() + data.url;
+                    document.getElementById('upResultImg').src = getBackendUrl() + data.url + '?t=' + Date.now();
                     document.getElementById('upDownloadLink').href = getBackendUrl() + data.url;
                 }, 500);
             } catch (err) {
@@ -949,26 +1068,34 @@
                 genFile = e.target.files[0];
                 genFileName.textContent = genFile.name;
                 genStrengthWrap.classList.remove('hidden');
+                const preview = document.getElementById('genPreview');
+                if (genFile.type.startsWith('image/')) {
+                    preview.classList.remove('hidden');
+                    preview.src = URL.createObjectURL(genFile);
+                } else {
+                    preview.classList.add('hidden');
+                    preview.src = '';
+                }
             } else {
                 genStrengthWrap.classList.add('hidden');
             }
         };
 
-        document.getElementById('genStrength').oninput = function() {
+        document.getElementById('genStrength').oninput = function () {
             document.getElementById('genStrengthVal').textContent = (this.value / 100).toFixed(2);
         };
 
-        document.getElementById('genSteps').oninput = function() {
+        document.getElementById('genSteps').oninput = function () {
             document.getElementById('genStepsVal').textContent = this.value;
         };
 
         // Enable generate button when prompt has text
-        document.getElementById('genPrompt').oninput = function() {
+        document.getElementById('genPrompt').oninput = function () {
             genBtn.disabled = !this.value.trim() || !currentUser;
         };
 
         // Update steps range when model changes
-        document.getElementById('genModel').onchange = function() {
+        document.getElementById('genModel').onchange = function () {
             const stepsSlider = document.getElementById('genSteps');
             const stepsVal = document.getElementById('genStepsVal');
             if (this.value.includes('turbo') || this.value.includes('sd-turbo')) {
@@ -997,7 +1124,7 @@
             formData.append('steps', document.getElementById('genSteps').value);
             formData.append('model', document.getElementById('genModel').value);
             formData.append('refine', document.getElementById('genRefine').checked ? 'true' : 'false');
-            formData.append('ollama_model', document.getElementById('genOllamaModel').value || 'qwen3.5:0.8b');
+            formData.append('ollama_model', document.getElementById('genOllamaModel').value || 'qwen-3.5:2b');
             if (genFile) {
                 formData.append('ref_image', genFile);
                 formData.append('strength', (document.getElementById('genStrength').value / 100).toFixed(2));
@@ -1021,7 +1148,7 @@
                     genProgress.classList.add('hidden');
                     document.getElementById('genResults').classList.remove('hidden');
                     document.getElementById('empty-state').classList.add('hidden');
-                    document.getElementById('genResultImg').src = getBackendUrl() + data.url;
+                    document.getElementById('genResultImg').src = getBackendUrl() + data.url + '?t=' + Date.now();
                     document.getElementById('genDownloadLink').href = getBackendUrl() + data.url;
                 }, 500);
             } catch (err) {
