@@ -11,7 +11,7 @@ A **100% free**, self-hosted AI media processing suite — no paywalls, no credi
 
 ## ✨ What Can It Do?
 
-This isn't a one-trick pony. The frontend you'll find on GitHub Pages gives you four parallel tools, each powered by its own dedicated AI model running on the backend:
+This isn't a one-trick pony. The frontend you'll find here  gives you four parallel tools, each powered by its own dedicated AI model running on the backend:
 
 | Tab | What It Does | Model |
 |-----|-------------|-------|
