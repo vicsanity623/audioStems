@@ -337,21 +337,47 @@ def process_ip_adapter(prompt, steps, ref_image, ipa_scale, progress=gr.Progress
         progress(0, desc="Loading IP-Adapter pipeline...")
         unload_current_model()
         base_model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+        use_mps = torch.backends.mps.is_available()
+
         try:
             from diffusers import StableDiffusionXLImg2ImgPipeline
-            pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
-                base_model_id, torch_dtype=torch.float16, variant="fp16"
-            )
-            progress(0.3, desc="Loading IP-Adapter weights...")
-            pipe.load_ip_adapter(
-                "h94/IP-Adapter",
-                subfolder="sdxl_models",
-                weight_name="ip-adapter_sdxl_vit-h.safetensors",
-            )
-            pipe.set_ip_adapter_scale(float(ipa_scale))
-            _sd_pipe_ipa = pipe.to("cpu")
-            _current_model_id = "IP-Adapter XL"
-            progress(0.6, desc="IP-Adapter loaded on CPU")
+
+            if use_mps:
+                try:
+                    progress(0.1, desc="Loading IP-Adapter on MPS...")
+                    pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
+                        base_model_id, torch_dtype=torch.float16, variant="fp16"
+                    )
+                    progress(0.3, desc="Loading IP-Adapter weights...")
+                    pipe.load_ip_adapter(
+                        "h94/IP-Adapter",
+                        subfolder="sdxl_models",
+                        weight_name="ip-adapter_sdxl_vit-h.safetensors",
+                    )
+                    pipe.set_ip_adapter_scale(float(ipa_scale))
+                    _sd_pipe_ipa = pipe.to("mps")
+                    _current_model_id = "IP-Adapter XL"
+                    progress(0.6, desc="IP-Adapter loaded on MPS")
+                except Exception as e:
+                    print(f"MPS load failed for IP-Adapter: {e}")
+                    use_mps = False
+
+            if not use_mps:
+                progress(0.1, desc="Loading IP-Adapter on CPU (float32)...")
+                pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
+                    base_model_id, torch_dtype=torch.float32
+                )
+                progress(0.3, desc="Loading IP-Adapter weights...")
+                pipe.load_ip_adapter(
+                    "h94/IP-Adapter",
+                    subfolder="sdxl_models",
+                    weight_name="ip-adapter_sdxl_vit-h.safetensors",
+                )
+                pipe.set_ip_adapter_scale(float(ipa_scale))
+                _sd_pipe_ipa = pipe.to("cpu")
+                _current_model_id = "IP-Adapter XL"
+                progress(0.6, desc="IP-Adapter loaded on CPU")
+
         except Exception as e:
             print(f"IP-Adapter load failed: {e}")
             import traceback; traceback.print_exc()
@@ -506,8 +532,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # TODO: Replace with your own GitHub Pages URL and local dev URL
 ALLOWED_ORIGINS = [
     "https://your-username.github.io",
-    "http://127.0.0.1:PORTNUMBER", # e.g. PORT NUMBER = 5555 
-    "http://localhost:5555",
+    "http://127.0.0.1:7860",
+    "http://localhost:7860",
 ]
 
 
