@@ -506,8 +506,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # TODO: Replace with your own GitHub Pages URL and local dev URL
 ALLOWED_ORIGINS = [
     "https://your-username.github.io",
-    "http://127.0.0.1:7860",
-    "http://localhost:7860",
+    "http://127.0.0.1:PORTNUMBER", # e.g. PORT NUMBER = 5555 
+    "http://localhost:5555",
 ]
 
 
