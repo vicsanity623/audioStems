@@ -3,22 +3,21 @@
 [![Website](https://img.shields.io/badge/Website-Live-brightgreen)](https://vicsanity623.github.io)
 ![Files Processed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fvics-imac-1.tail37b4f2.ts.net%3A10000%2Fapi%2Fstats&query=%24.files_processed&label=Files%20Processed&color=cyan)
 [![PWA](https://img.shields.io/badge/PWA-Installable-blue)](https://vicsanity623.github.io)
-
 A **100% free**, self-hosted AI media processing suite — no paywalls, no credit cards, no usage caps. Runs entirely on your own hardware through a secure Tailscale tunnel.
 
-**Try the live frontend:** https://vicsanity623.github.io
+**Try the live frontend:** https://vicsanity623.github.io/audioStems
 
 ---
 
 ## ✨ What Can It Do?
 
-This isn't a one-trick pony. The frontend you'll find here  gives you four parallel tools, each powered by its own dedicated AI model running on the backend:
+This isn't a one-trick pony. The frontend you'll find on GitHub Pages gives you four parallel tools, each powered by its own dedicated AI model running on the backend:
 
 | Tab | What It Does | Model |
 |-----|-------------|-------|
 | 🖼️ **BG Removal** | Removes backgrounds from images with adjustable threshold | `transparent-background` (PyTorch) |
 | 🔍 **Upscaler** | Upscales images 2x–4x using real-world super-resolution | `Real-ESRGAN` |
-| 🎨 **Generate** | Text-to-image / image-to-image generation with AI prompt refinement | `Stable Diffusion` (SD-Turbo, SDXL, FLUX, etc.) |
+| 🎨 **Generate** | Text-to-image / image-to-image / face & style transfer with AI prompt refinement | `Stable Diffusion` (SD-Turbo, SDXL, RealVisXL, Juggernaut, IP-Adapter) |
 | 🎵 **Separate** | Splits audio into Vocals, Drums, Bass, Other stems | `Meta Demucs` |
 
 All four share a single Python backend behind a Tailscale Funnel — meaning you can run every model on one machine and access it from anywhere on the planet.
@@ -49,20 +48,22 @@ All four share a single Python backend behind a Tailscale Funnel — meaning you
 │  ┌──────────────────────────────────────┐    │
 │  │  Gradio 5 UI (used for testing)      │    │
 │  │  ───────────────────────────────     │    │
-│  │  Custom REST API endpoints:          │    │
-│  │  POST /api/bg-remove   (bg removal) │    │
-│  │  POST /api/upscale     (upscaling)  │    │
-│  │  POST /api/generate    (AI gen)     │    │
-│  │  POST /separate        (demucs)     │    │
-│  │  GET  /status/{id}     (task poll)  │    │
-│  │  POST /counter         (analytics)  │    │
-│  │  GET  /outputs/{path}  (file serve) │    │
+  │  │  Custom REST API endpoints:          │    │
+  │  │  POST /api/bg-remove   (bg removal) │    │
+  │  │  POST /api/upscale     (upscaling)  │    │
+  │  │  POST /api/generate    (AI gen)     │    │
+  │  │  POST /separate        (demucs)     │    │
+  │  │  GET  /status/{id}     (task poll)  │    │
+  │  │  POST /counter         (analytics)  │    │
+  │  │  GET  /api/stats       (live stats) │    │
+  │  │  GET  /outputs/{path}  (file serve) │    │
 │  └──────────────────────────────────────┘    │
 │                                              │
 │  Models on disk (~10–30 GB total):           │
 │  ├── transparent-background (PyTorch)        │
 │  ├── realesrgan-x4plus / -x2                 │
-│  ├── sd-turbo / sd-xl / flux / play-v2       │
+│  ├── sd-turbo / sd-xl / realvisxl / juggernaut│
+│  ├── IP-Adapter XL (face/style transfer)     │
 │  └── demucs htdemucs (Meta)                  │
 └─────────────────────────────────────────────┘
 ```
@@ -200,20 +201,23 @@ pip install soundfile
 
 #### 6d — Stable Diffusion Models (Text-to-Image / Image-to-Image)
 
-This is the biggest install. It pulls in `diffusers`, `transformers`, `accelerate`, and the model weights (~5–10 GB).
+This is the biggest install. It pulls in `diffusers`, `transformers`, `accelerate`, and the model weights (~5–15 GB).
 
 ```bash
 pip install diffusers transformers accelerate
 ```
 
-The app supports four diffusion models:
+The app supports six diffusion models:
 
 | Model ID | Size | Notes |
 |----------|------|-------|
 | `stabilityai/sd-turbo` | ~3 GB | Default; fast (1–4 steps) |
-| `stabilityai/stable-diffusion-xl-base-1.0` | ~7 GB | High quality, needs MPS |
-| `black-forest-labs/FLUX.1-schnell` | ~8 GB | Needs `torch.compile`, MPS fallback |
-| `playgroundai/playground-v2.5-1024px-aesthetic` | ~5 GB | Aesthetic-focused |
+| `Lykon/dreamshaper-8` | ~2 GB | SD 1.5, good general purpose |
+| `stabilityai/sdxl-turbo` | ~7 GB | SDXL, fast (1–4 steps) |
+| `stabilityai/stable-diffusion-xl-base-1.0` | ~7 GB | SDXL base, highest quality |
+| `SG161222/RealVisXL_V4.0` | ~7 GB | SDXL, photorealistic |
+| `RunDiffusion/Juggernaut-XL-v9` | ~7 GB | SDXL, versatile |
+| `IP-Adapter XL` | ~7 GB (base) + ~600 MB (adapter) | Face & style transfer from reference images |
 
 These download to `~/.cache/huggingface/` on first use. On a 50 Mbps connection, expect each to take 10–30 minutes.
 
@@ -442,6 +446,74 @@ if use_rgba:
 else:
     out_ext = ext         # Green screen preserves original extension
 ```
+
+---
+
+## 🛠️ Build Your Own Version
+
+A **template version** of `app.py` is included as `app_template.py`. It strips out all model-specific logic and replaces it with clear placeholders so you can wire up your own models.
+
+### What's in the template
+
+- `MODEL_CONFIGS` dict → replace with your own model definitions
+- Empty `process_bg()`, `process_upscale()`, `process_txt2img()`, `process_ip_adapter()` functions → fill in your own model loading/inference
+- Empty `_run_demucs_task()` → wire up your own audio separation
+- API endpoints already wired up and ready to go
+- Auth, file serving, counter, stats — all pre-built
+
+### How to use it
+
+1. **Copy the template:**
+   ```bash
+   cp app_template.py src/media_server/app.py
+   ```
+
+2. **Open `src/media_server/app.py`** and search for `TODO` comments. Each one marks where you need to add your own logic.
+
+3. **Define your models** in `MODEL_CONFIGS`:
+   ```python
+   MODEL_CONFIGS = {
+       "my-model-id": {
+           "name": "My Model Display Name",
+           "resolution": 1024,
+           "steps_range": (10, 50),
+           "default_steps": 25,
+           "guidance_scale": 7.5,
+           "variant": "fp16",
+           "needs_offloading": True,
+       },
+   }
+   ```
+
+4. **Implement the processing functions** — each one receives the input and should return the output file path:
+   ```python
+   def process_bg(input_path, fast_mode, threshold, output_type):
+       # TODO: Load your model, process the image, return output path
+       output_path = os.path.join(OUTPUT_DIR, "result.png")
+       # ... your inference code here ...
+       return output_path
+   ```
+
+5. **Update the HTML** to match your models — the `<select id="genModel">` dropdown values must match your `MODEL_CONFIGS` keys.
+
+6. **Run it:**
+   ```bash
+   source .venvBGR/bin/activate
+   python3 src/media_server/app.py
+   ```
+
+### Template API endpoints (pre-built)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/api/bg-remove` | Background removal |
+| POST | `/api/upscale` | Image upscaling |
+| POST | `/api/generate` | Text-to-image / image-to-image |
+| POST | `/separate` | Audio stem separation |
+| GET | `/status/{task_id}` | Poll async task status |
+| POST | `/counter` | Visit counter (public) |
+| GET | `/api/stats` | Live stats (visits, files processed, queue) |
+| GET | `/outputs/{path}` | Serve output files |
 
 ---
 
