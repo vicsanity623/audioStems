@@ -5,7 +5,7 @@
 [![PWA](https://img.shields.io/badge/PWA-Installable-blue)](https://vicsanity623.github.io)
 A **100% free**, self-hosted AI media processing suite — no paywalls, no credit cards, no usage caps. Runs entirely on your own hardware through a secure Tailscale tunnel.
 
-**Try the live frontend:** https://vicsanity623.github.io/audioStems
+**Try the live frontend:** https://vicsanity623.github.io
 
 ---
 
@@ -238,25 +238,43 @@ The app expects these directories relative to the project root:
 mkdir -p outputs temp .cache/huggingface .cache/torch
 ```
 
-### Step 8: Configure the Backend URL
+### Step 8: Configure the Backend URL & API Key
 
-The frontend on GitHub Pages needs to know where to find your backend. Open `indexCOPY.html` (or your deployed `audioStems/index.html`) and find the `getBackendUrl` function:
+The frontend on GitHub Pages needs to know where to find your backend, and both sides need a matching secret key.
+
+#### 8a — Set your Tailscale Funnel URL
+
+Open `index.html` (or your deployed `.html`) and find the `getBackendUrl` function:
 
 ```javascript
 const getBackendUrl = () => "https://your-machine.tailXXXXX.ts.net:10000/";
 ```
 
-Replace `your-machine.tailXXXXX.ts.net:10000` with your actual Tailscale Funnel URL and port.
+Replace `your-machine.tailXXXXX.ts.net:10000` with your actual Tailscale Funnel URL and port. You can find this by running `tailscale status` — look for your machine name.
 
-Also, the API key is a simple shared secret between the frontend and backend. Find it in `app.py`:
+#### 8b — Generate a unique API key
+
+The API key is a shared secret between the frontend and backend. **Do not use the key from this repo** — generate your own:
+
+```bash
+openssl rand -hex 32
+```
+
+This outputs a 64-character random hex string. Copy it.
+
+Now update **both** files with your new key:
+
+**In `src/media_server/app.py`:**
 ```python
-_API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv"
+_API_KEY = "paste-your-generated-key-here"
 ```
-And in the HTML:
+
+**In `index.html`:**
 ```javascript
-const API_KEY = "jshdgcjhBSDCHLAsrdhvsdvhjasbdvlha34hbvb234kjv";
+const API_KEY = "paste-your-generated-key-here";
 ```
-If you change one, change the other.
+
+**Both must match exactly.** If you change one, change the other.
 
 ### Step 9: Run the Backend Locally
 
@@ -323,7 +341,7 @@ This is what makes the whole thing work from anywhere — no static IP, no port 
 2. Copy the frontend files into it:
    ```bash
    # From your BGRemover project
-   cp indexCOPY.html /path/to/your-github-pages-repo/index.html
+   cp index.html /path/to/your-github-pages-repo/index.html
    # Also copy any assets, audio files, etc.
    ```
 
