@@ -488,6 +488,9 @@
                                         <li>If 5 o'clock shadow persists, blur/smooth the beard area on the original photo <em>before</em> uploading.</li>
                                         <li>Generating at higher step counts (20–50) produces more refined detail.</li>
                                         <li>Use the <strong>Reference Image</strong> upload + <strong>Remixing Strength</strong> slider above to dial in the right blend.</li>
+                                        <li><strong>ControlNet</strong> models must be downloaded separately. Run:<br>
+                                            <code class="text-[9px] bg-black/50 px-2 py-1 rounded">huggingface-cli download diffusers/controlnet-canny-sdxl-1.0</code><br>
+                                            <code class="text-[9px] bg-black/50 px-2 py-1 rounded">huggingface-cli download diffusers/controlnet-depth-sdxl-1.0</code></li>
                                     </ul>
                                 </div>
                             </div>
@@ -526,6 +529,27 @@
                                 Steps</label>
                             <input type="range" id="genSteps" min="1" max="50" value="4" class="w-full accent-cyan-500">
                             <span id="genStepsVal" class="text-[10px] text-cyan-400 font-mono">4</span>
+                        </div>
+                        <div id="genCfgWrap">
+                            <label
+                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">CFG Scale
+                                <span class="text-gray-600 font-normal normal-case tracking-normal">(Prompt adherence)</span></label>
+                            <input type="range" id="genCfgScale" min="0" max="20" step="0.5" value="7.5"
+                                class="w-full accent-cyan-500">
+                            <span id="genCfgScaleVal" class="text-[10px] text-cyan-400 font-mono">7.5</span>
+                            <p id="genCfgWarn" class="text-[9px] text-amber-500 hidden mt-1">Set to 0 disables CFG (SD-Turbo / SDXL-Turbo default)</p>
+                        </div>
+                        <div id="genControlNetWrap" class="hidden">
+                            <label
+                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">ControlNet
+                                <span class="text-gray-600 font-normal normal-case tracking-normal">(Preserves structure)</span></label>
+                            <select id="genControlNet"
+                                class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                                <option value="">None</option>
+                                <option value="canny">Canny Edge (Preserves composition)</option>
+                                <option value="depth">Depth Map (Preserves spatial structure)</option>
+                            </select>
+                            <p class="text-[9px] text-gray-600 mt-1">Requires ControlNet model to be cached locally. See Prompt Guide for details.</p>
                         </div>
                         <div class="glass p-4 rounded-2xl">
                             <label class="flex items-center gap-3 cursor-pointer">
@@ -1133,6 +1157,18 @@
         const genStrengthWrap = document.getElementById('genStrengthWrap');
         let genFile = null;
 
+        const genControlNetWrap = document.getElementById('genControlNetWrap');
+        const genCfgWrap = document.getElementById('genCfgWrap');
+
+        function updateControlNetVisibility() {
+            const model = document.getElementById('genModel').value;
+            if (genFile && model !== 'IP-Adapter XL') {
+                genControlNetWrap.classList.remove('hidden');
+            } else {
+                genControlNetWrap.classList.add('hidden');
+            }
+        }
+
         genDropZone.onclick = () => { if (currentUser) genFileInput.click(); };
         genFileInput.onchange = (e) => {
             if (e.target.files.length > 0) {
@@ -1147,8 +1183,10 @@
                     preview.classList.add('hidden');
                     preview.src = '';
                 }
+                updateControlNetVisibility();
             } else {
                 genStrengthWrap.classList.add('hidden');
+                genControlNetWrap.classList.add('hidden');
             }
         };
 
@@ -1160,12 +1198,19 @@
             document.getElementById('genStepsVal').textContent = this.value;
         };
 
+        document.getElementById('genCfgScale').oninput = function () {
+            const val = parseFloat(this.value).toFixed(1);
+            document.getElementById('genCfgScaleVal').textContent = val;
+            const warn = document.getElementById('genCfgWarn');
+            warn.classList.toggle('hidden', val != '0.0');
+        };
+
         // Enable generate button when prompt has text
         document.getElementById('genPrompt').oninput = function () {
             genBtn.disabled = !this.value.trim() || !currentUser;
         };
 
-        // Update steps range when model changes
+        // Update controls when model changes
         document.getElementById('genModel').onchange = function () {
             const stepsSlider = document.getElementById('genSteps');
             const stepsVal = document.getElementById('genStepsVal');
@@ -1174,8 +1219,15 @@
                 stepsSlider.value = '4';
             } else {
                 stepsSlider.max = '50';
-                stepsSlider.value = '25';
             }
+            // Show CFG scale for non-turbo models (turbo models use CFG=0)
+            const cfgWrap = document.getElementById('genCfgWrap');
+            if (this.value === 'IP-Adapter XL') {
+                cfgWrap.classList.add('hidden');
+            } else {
+                cfgWrap.classList.remove('hidden');
+            }
+            updateControlNetVisibility();
             stepsVal.textContent = stepsSlider.value;
         };
 
@@ -1194,6 +1246,8 @@
             formData.append('prompt', prompt);
             formData.append('steps', document.getElementById('genSteps').value);
             formData.append('model', document.getElementById('genModel').value);
+            formData.append('cfg_scale', document.getElementById('genCfgScale').value);
+            formData.append('controlnet_type', document.getElementById('genControlNet').value);
             formData.append('refine', document.getElementById('genRefine').checked ? 'true' : 'false');
             formData.append('ollama_model', document.getElementById('genOllamaModel').value || 'qwen-3.5:2b');
             if (genFile) {
