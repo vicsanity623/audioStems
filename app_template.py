@@ -500,7 +500,15 @@ import mimetypes
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.exceptions import HTTPException
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+
+
+# TODO: Replace with your own GitHub Pages URL and local dev URL
+ALLOWED_ORIGINS = [
+    "https://your-username.github.io",
+    "http://127.0.0.1:7860",
+    "http://localhost:7860",
+]
 
 
 def _verify_api(request):
@@ -513,17 +521,21 @@ fastapi_app = FastAPI()
 
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 
 @fastapi_app.middleware("http")
 async def _log_requests(request: Request, call_next):
-    response = await call_next(request)
     origin = request.headers.get("origin", "none")
     host = request.headers.get("host", "none")
+    if origin != "none" and origin not in ALLOWED_ORIGINS:
+        print(f"[BLOCKED] {request.method} {request.url.path} | origin={origin}")
+        return JSONResponse({"error": "Origin not allowed"}, status_code=403)
+    response = await call_next(request)
     print(f"[API] {request.method} {request.url.path} -> {response.status_code} | origin={origin} | host={host}")
     return response
 
