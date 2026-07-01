@@ -142,9 +142,18 @@
             border-radius: 1.5rem;
         }
 
-        details summary::-webkit-details-marker { display: none; }
-        details summary::marker { display: none; content: ''; }
-        details summary { list-style: none; }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details summary::marker {
+            display: none;
+            content: '';
+        }
+
+        details summary {
+            list-style: none;
+        }
     </style>
 </head>
 
@@ -439,58 +448,92 @@
                                 <span class="flex items-center gap-2">💡 Prompt Guide & Settings</span>
                                 <span class="text-gray-500 text-lg transition-transform group-open:rotate-180">▾</span>
                             </summary>
-                            <div class="px-4 pb-4 space-y-4 text-[11px] leading-relaxed text-gray-300 border-t border-white/5 pt-4">
-                                <p class="text-white font-semibold">The reason your previous attempts likely haven't produced good results is that AI models are naturally "stubborn" in <strong>img2img</strong>. If the model sees a masculine face, it tries to preserve those features, often resulting in a picture of a man awkwardly wearing makeup rather than a true transformation.</p>
-                                <p>To fix this, you need <strong>three things</strong>: a highly specific positive prompt, a ruthless negative prompt, and the right settings (denoising strength).</p>
+                            <div
+                                class="px-4 pb-4 space-y-4 text-[11px] leading-relaxed text-gray-300 border-t border-white/5 pt-4">
+                                <p class="text-white font-semibold">The reason your previous attempts likely haven't
+                                    produced good results is that AI models are naturally "stubborn" in
+                                    <strong>img2img</strong>. If the model sees a masculine face, it tries to preserve
+                                    those features, often resulting in a picture of a man awkwardly wearing makeup
+                                    rather than a true transformation.</p>
+                                <p>To fix this, you need <strong>three things</strong>: a highly specific positive
+                                    prompt, a ruthless negative prompt, and the right settings (denoising strength).</p>
 
                                 <div class="glass p-3 rounded-xl space-y-2">
-                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">1. &ldquo;Subtle Feminization&rdquo; Prompt (Gender Swap)</h4>
-                                    <p class="text-[10px] text-gray-500">Use when you want a natural, beautiful female version of the subject.</p>
+                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">1.
+                                        &ldquo;Selfie Transformation&rdquo; Prompt (Gender Swap)</h4>
+                                    <p class="text-[10px] text-gray-500">Use when you want a natural, beautiful female
+                                        version of the subject.</p>
                                     <div class="space-y-1">
-                                        <p class="text-emerald-400 font-bold text-[9px] tracking-wider uppercase">Positive:</p>
-                                        <p class="text-gray-400 italic text-[10px]">A beautiful woman, stunning realistic portrait, long luscious wavy hair, subtle elegant feminine makeup, soft flawless skin, wispy eyelashes, soft pink lipstick, subtle blended eyeshadow. Delicate feminine facial features, soft jawline, gorgeous aesthetic, natural soft lighting, 8k resolution, highly detailed, photorealistic, Vogue editorial photography.</p>
+                                        <p class="text-emerald-400 font-bold text-[9px] tracking-wider uppercase">
+                                            Positive:</p>
+                                        <p class="text-gray-400 italic text-[10px]">A beautiful woman, stunning
+                                            realistic portrait, long luscious wavy hair, subtle elegant feminine makeup,
+                                            soft flawless skin, wispy eyelashes, soft pink lipstick, subtle blended
+                                            eyeshadow. Delicate feminine facial features, soft jawline, gorgeous
+                                            aesthetic, natural soft lighting, 8k resolution, highly detailed,
+                                            photorealistic, Vogue editorial photography.</p>
                                     </div>
                                     <div class="space-y-1">
-                                        <p class="text-red-400 font-bold text-[9px] tracking-wider uppercase">Negative (Critical):</p>
-                                        <p class="text-gray-500 italic text-[10px]">masculine, male, man, stubble, 5 o'clock shadow, facial hair, mustache, beard, Adam's apple, broad jawline, harsh shadows, rough skin, manly, deep wrinkles, ugly, deformed.</p>
+                                        <p class="text-red-400 font-bold text-[9px] tracking-wider uppercase">Negative
+                                            (Critical):</p>
+                                        <p class="text-gray-500 italic text-[10px]">masculine, male, man, stubble, 5
+                                            o'clock shadow, facial hair, mustache, beard, Adam's apple, broad jawline,
+                                            harsh shadows, rough skin, manly, deep wrinkles, ugly, deformed.</p>
                                     </div>
                                 </div>
 
                                 <div class="glass p-3 rounded-xl space-y-2">
-                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">2. &ldquo;RuPaul Drag&rdquo; Transformation</h4>
-                                    <p class="text-[10px] text-gray-500">Use for high-glamor, theatrical, fierce drag queen makeup.</p>
+                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">2.
+                                        &ldquo;Drag Transformation&rdquo; Transformation</h4>
+                                    <p class="text-[10px] text-gray-500">Use for high-glamor, theatrical, fierce drag
+                                        queen makeup.</p>
                                     <div class="space-y-1">
-                                        <p class="text-emerald-400 font-bold text-[9px] tracking-wider uppercase">Positive:</p>
-                                        <p class="text-gray-400 italic text-[10px]">A fierce glamorous high-fashion drag queen, RuPaul's Drag Race style, extreme theatrical drag makeup, heavy dramatic eyelashes, sharp cut-crease eyeshadow, heavily contoured cheekbones, bold glossy overlined lips, massive voluminous long luscious wavy hair, dazzling sequin outfit, highly detailed face, professional studio lighting, hyperrealistic, ultra-detailed, drag excellence.</p>
+                                        <p class="text-emerald-400 font-bold text-[9px] tracking-wider uppercase">
+                                            Positive:</p>
+                                        <p class="text-gray-400 italic text-[10px]">A fierce glamorous high-fashion drag
+                                            queen, RuPaul's Drag Race style, extreme theatrical drag makeup, heavy
+                                            dramatic eyelashes, sharp cut-crease eyeshadow, heavily contoured
+                                            cheekbones, bold glossy overlined lips, massive voluminous long luscious
+                                            wavy hair, dazzling sequin outfit, highly detailed face, professional studio
+                                            lighting, hyperrealistic, ultra-detailed, drag excellence.</p>
                                     </div>
                                     <div class="space-y-1">
-                                        <p class="text-red-400 font-bold text-[9px] tracking-wider uppercase">Negative:</p>
-                                        <p class="text-gray-500 italic text-[10px]">masculine, male face, stubble, facial hair, beard, unstyled hair, subtle makeup, bare face, no makeup, natural look, Adam's apple, manly jaw, plain, boring.</p>
+                                        <p class="text-red-400 font-bold text-[9px] tracking-wider uppercase">Negative:
+                                        </p>
+                                        <p class="text-gray-500 italic text-[10px]">masculine, male face, stubble,
+                                            facial hair, beard, unstyled hair, subtle makeup, bare face, no makeup,
+                                            natural look, Adam's apple, manly jaw, plain, boring.</p>
                                     </div>
                                 </div>
 
                                 <div class="glass p-3 rounded-xl space-y-2">
-                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">💡 The Secret Sauce: Workflow &amp; Settings</h4>
-                                    <p class="text-[10px] text-gray-500">A good text prompt is only 30% of the battle.</p>
+                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">💡 The
+                                        Secret Sauce: Workflow &amp; Settings</h4>
+                                    <p class="text-[10px] text-gray-500">A good text prompt is only 30% of the battle.
+                                    </p>
 
-                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">Denoising Strength (img2img)</p>
+                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">
+                                        Denoising Strength (img2img)</p>
                                     <ul class="list-disc list-inside text-gray-400 space-y-1 text-[10px]">
-                                        <li><span class="text-red-400">Too low (0.1–0.4):</span> original guy with smudged colors</li>
-                                        <li><span class="text-red-400">Too high (0.8–1.0):</span> completely different person</li>
-                                        <li class="text-cyan-300 font-semibold">Sweet spot: <strong>0.55 – 0.70</strong></li>
+                                        <li><span class="text-red-400">Too low (0.1–0.4):</span> original guy with
+                                            smudged colors</li>
+                                        <li><span class="text-red-400">Too high (0.8–1.0):</span> completely different
+                                            person</li>
+                                        <li class="text-cyan-300 font-semibold">Sweet spot: <strong>0.55 – 0.70</strong>
+                                        </li>
                                     </ul>
 
-                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">CFG Scale</p>
-                                    <p class="text-gray-400 text-[10px]">Turn up to <strong>7.5 – 9</strong> so the AI listens strictly to your prompt.</p>
+                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">CFG
+                                        Scale</p>
+                                    <p class="text-gray-400 text-[10px]">Turn up to <strong>7.5 – 9</strong> so the AI
+                                        listens strictly to your prompt.</p>
 
-                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">Pro Tips</p>
+                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">Pro Tips
+                                    </p>
                                     <ul class="list-disc list-inside text-gray-400 space-y-1 text-[10px]">
-                                        <li>If 5 o'clock shadow persists, blur/smooth the beard area on the original photo <em>before</em> uploading.</li>
                                         <li>Generating at higher step counts (20–50) produces more refined detail.</li>
-                                        <li>Use the <strong>Reference Image</strong> upload + <strong>Remixing Strength</strong> slider above to dial in the right blend.</li>
-                                        <li><strong>ControlNet</strong> models must be downloaded separately. Run:<br>
-                                            <code class="text-[9px] bg-black/50 px-2 py-1 rounded">huggingface-cli download diffusers/controlnet-canny-sdxl-1.0</code><br>
-                                            <code class="text-[9px] bg-black/50 px-2 py-1 rounded">huggingface-cli download diffusers/controlnet-depth-sdxl-1.0</code></li>
+                                        <li>Use the <strong>Reference Image</strong> upload + <strong>Remixing
+                                                Strength</strong> slider above to dial in the right blend.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -532,24 +575,29 @@
                         </div>
                         <div id="genCfgWrap">
                             <label
-                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">CFG Scale
-                                <span class="text-gray-600 font-normal normal-case tracking-normal">(Prompt adherence)</span></label>
+                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">CFG
+                                Scale
+                                <span class="text-gray-600 font-normal normal-case tracking-normal">(Prompt
+                                    adherence)</span></label>
                             <input type="range" id="genCfgScale" min="0" max="20" step="0.5" value="7.5"
                                 class="w-full accent-cyan-500">
                             <span id="genCfgScaleVal" class="text-[10px] text-cyan-400 font-mono">7.5</span>
-                            <p id="genCfgWarn" class="text-[9px] text-amber-500 hidden mt-1">Set to 0 disables CFG (SD-Turbo / SDXL-Turbo default)</p>
+                            <p id="genCfgWarn" class="text-[9px] text-amber-500 hidden mt-1">Set to 0 disables CFG
+                                (SD-Turbo / SDXL-Turbo default)</p>
                         </div>
                         <div id="genControlNetWrap" class="hidden">
                             <label
                                 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">ControlNet
-                                <span class="text-gray-600 font-normal normal-case tracking-normal">(Preserves structure)</span></label>
+                                <span class="text-gray-600 font-normal normal-case tracking-normal">(Preserves
+                                    structure)</span></label>
                             <select id="genControlNet"
                                 class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
                                 <option value="">None</option>
                                 <option value="canny">Canny Edge (Preserves composition)</option>
                                 <option value="depth">Depth Map (Preserves spatial structure)</option>
                             </select>
-                            <p class="text-[9px] text-gray-600 mt-1">Requires ControlNet model to be cached locally. See Prompt Guide for details.</p>
+                            <p class="text-[9px] text-gray-600 mt-1">Requires ControlNet model to be cached locally. See
+                                Prompt Guide for details.</p>
                         </div>
                         <div class="glass p-4 rounded-2xl">
                             <label class="flex items-center gap-3 cursor-pointer">
@@ -690,8 +738,9 @@
                         Intel-based iMac with 40GB of RAM and a dedicated AMD GPU. Background removal, upscaling, Demucs
                         stem separation, and Stable Diffusion inference all execute locally, accessed securely through
                         <strong class="text-cyan-400">Tailscale Funnel</strong> from any browser worldwide. No data
-                        leaves this machine. Check the <a href="https://github.com/vicsanity623/BGRemover/blob/main/README.md"
-                        target="_blank" class="text-cyan-400 underline hover:text-white transition-colors">README.md</a>
+                        leaves this machine. Check the <a
+                            href="https://github.com/vicsanity623/BGRemover/blob/main/README.md" target="_blank"
+                            class="text-cyan-400 underline hover:text-white transition-colors">README.md</a>
                         for steps on how to clone this repo and host it on your own hardware.
                     </p>
 
