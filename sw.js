@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'v2.2.5'; 
-const CACHE_NAME = `demucsstems-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v2.3.0'; 
+const CACHE_NAME = `ai-media-server-${CACHE_VERSION}`;
 
 const FILES_TO_CACHE = [
   './', 
