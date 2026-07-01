@@ -597,11 +597,11 @@ def api_bg_remove(
             _increment_processed()
             return {"url": f"outputs/{os.path.basename(result)}"}
         return JSONResponse({"error": "Processing failed"}, status_code=500)
-    except NotImplementedError as e:
-        return JSONResponse({"error": str(e)}, status_code=501)
-    except Exception as e:
+    except NotImplementedError:
+        return JSONResponse({"error": "Not implemented — TODO: add your own model logic"}, status_code=501)
+    except Exception:
         import traceback; traceback.print_exc()
-        return JSONResponse({"error": str(e)}, status_code=500)
+        return JSONResponse({"error": "Internal server error"}, status_code=500)
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
@@ -624,10 +624,10 @@ def api_upscale(
             _increment_processed()
             return {"url": f"outputs/{os.path.basename(result)}"}
         return JSONResponse({"error": "Processing failed"}, status_code=500)
-    except NotImplementedError as e:
-        return JSONResponse({"error": str(e)}, status_code=501)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except NotImplementedError:
+        return JSONResponse({"error": "Not implemented — TODO: add your own model logic"}, status_code=501)
+    except Exception:
+        return JSONResponse({"error": "Internal server error"}, status_code=500)
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
@@ -666,10 +666,10 @@ def api_generate(
             _increment_processed()
             return {"url": f"outputs/{os.path.basename(result)}"}
         return JSONResponse({"error": "Generation failed"}, status_code=500)
-    except NotImplementedError as e:
-        return JSONResponse({"error": str(e)}, status_code=501)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except NotImplementedError:
+        return JSONResponse({"error": "Not implemented — TODO: add your own model logic"}, status_code=501)
+    except Exception:
+        return JSONResponse({"error": "Internal server error"}, status_code=500)
     finally:
         if ref_path and os.path.exists(ref_path):
             os.remove(ref_path)
@@ -766,10 +766,10 @@ def _run_demucs_task(task_id, file_path, filename):
     try:
         # TODO: Replace with your own model inference
         raise NotImplementedError("TODO: Implement _run_demucs_task() with your own model")
-    except Exception as e:
+    except Exception:
         with _task_lock:
             _demucs_tasks[task_id]["status"] = "error"
-            _demucs_tasks[task_id]["message"] = str(e)
+            _demucs_tasks[task_id]["message"] = "Processing error"
     finally:
         if os.path.exists(file_path):
             os.remove(file_path)
