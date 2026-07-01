@@ -1,7 +1,7 @@
 {
-  "name": "Stemz",
-  "short_name": "Stemz",
-  "description": "Demucs Stem Separation.",
+  "name": "Ai-media-server",
+  "short_name": "AMS",
+  "description": "BackgroundRemover, AI Upscale, Audio Separation, AI generator text tot image /image to image.",
   "start_url": ".",
   "id": ".",
   "display": "standalone",
