@@ -23,7 +23,7 @@ jobs:
       - name: Inject API key into HTML
         run: |
           if [ -n "${{ secrets.API_KEY }}" ]; then
-            sed -i "s|__API_KEY__|${{ secrets.API_KEY }}|g" indexCOPY.html
+            sed -i "s|__API_KEY__|${{ secrets.API_KEY }}|g" index.html
           else
             echo "WARNING: API_KEY secret not set — using placeholder"
           fi
