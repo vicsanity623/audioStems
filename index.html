@@ -87,42 +87,7 @@
             box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
         }
 
-        /* Tab Navigation */
-        .tab-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            white-space: nowrap;
-        }
-
-        .tab-btn::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 2px;
-            background: var(--accent);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .tab-btn.active::after {
-            width: 60%;
-        }
-
-        .tab-btn.active {
-            color: var(--accent);
-            background: rgba(0, 242, 255, 0.08);
-        }
-
-        .tab-panel {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
+        /* Tab Navigation - Legacy (unused, kept for compatibility) */
 
         @keyframes fadeIn {
             from {
@@ -153,6 +118,478 @@
 
         details summary {
             list-style: none;
+        }
+
+        /* === MODERN TOOL PANEL UI === */
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: rgba(8, 8, 8, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0.5rem 0;
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+        }
+
+        .bottom-nav-inner {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            min-width: 64px;
+            position: relative;
+        }
+
+        .nav-item:active {
+            transform: scale(0.95);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 242, 255, 0.1);
+        }
+
+        .nav-item.active .nav-icon {
+            color: var(--accent);
+        }
+
+        .nav-item.active .nav-label {
+            color: var(--accent);
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .nav-label {
+            font-size: 0.55rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #555;
+            transition: color 0.3s;
+            white-space: nowrap;
+        }
+
+        /* Tool Panel Container */
+        .tool-panel {
+            display: none;
+            animation: panelIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tool-panel.active {
+            display: block;
+        }
+
+        @keyframes panelIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Model Selector */
+        .model-selector {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 0.875rem 1rem;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .model-selector:focus {
+            border-color: rgba(0, 242, 255, 0.3);
+        }
+
+        .model-selector option {
+            background: #141414;
+            color: white;
+        }
+
+        /* Clean Upload Zone */
+        .upload-clean {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1.5px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .upload-clean:hover {
+            border-color: rgba(0, 242, 255, 0.3);
+            background: rgba(0, 242, 255, 0.03);
+        }
+
+        .upload-clean:active {
+            transform: scale(0.99);
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .upload-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-subtitle {
+            font-size: 0.65rem;
+            color: #555;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Settings Grid */
+        .settings-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .settings-grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .settings-grid-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .setting-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 1rem;
+            padding: 0.875rem;
+        }
+
+        .setting-label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #666;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .setting-select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            cursor: pointer;
+        }
+
+        .setting-select option {
+            background: #141414;
+        }
+
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 22px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #666;
+            left: 3px;
+            top: 3px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: rgba(0, 242, 255, 0.3);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(18px);
+            background: var(--accent);
+        }
+
+        .toggle-text {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #777;
+            flex: 1;
+        }
+
+        /* Scale Button Pills */
+        .scale-pills {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .scale-pill {
+            flex: 1;
+            padding: 0.625rem;
+            border-radius: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-align: center;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scale-pill.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 242, 255, 0.06);
+        }
+
+        /* Prompt Textarea */
+        .prompt-area {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 1rem;
+            color: white;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            resize: none;
+            min-height: 80px;
+            transition: border-color 0.3s;
+        }
+
+        .prompt-area:focus {
+            border-color: rgba(0, 242, 255, 0.3);
+        }
+
+        .prompt-area::placeholder {
+            color: #444;
+        }
+
+        /* Category Buttons */
+        .category-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .category-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.875rem 0.5rem;
+            border-radius: 1rem;
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover {
+            border-color: rgba(0, 242, 255, 0.2);
+            background: rgba(0, 242, 255, 0.04);
+        }
+
+        .category-btn .cat-icon {
+            font-size: 1.25rem;
+            opacity: 0.7;
+        }
+
+        .category-btn .cat-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #888;
+        }
+
+        /* Compact Upload (for reference images) */
+        .upload-compact {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1.5px dashed rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-compact:hover {
+            border-color: rgba(0, 242, 255, 0.25);
+        }
+
+        /* Action Button (full-width CTA) */
+        .action-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.875rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .action-btn-primary {
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 114, 255, 0.3);
+        }
+
+        .action-btn-primary:hover {
+            box-shadow: 0 6px 30px rgba(0, 114, 255, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .action-btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .action-btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Section Divider */
+        .section-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0.25rem 0;
+        }
+
+        /* Range Slider (modern) */
+        .range-modern {
+            width: 100%;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .range-modern::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(0, 242, 255, 0.4);
+        }
+
+        .range-value {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'Inter', monospace;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        /* Panel Label */
+        .panel-label {
+            font-size: 0.55rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #555;
+            margin-bottom: 0.375rem;
+        }
+
+        /* Bottom spacing for bottom nav */
+        .bottom-spacer {
+            height: 80px;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .settings-grid-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+            .nav-item {
+                padding: 0.5rem 0.625rem;
+                min-width: 56px;
+            }
         }
     </style>
 </head>
@@ -258,183 +695,133 @@
                     </p>
                 </div>
 
-                <!-- Tab Navigation -->
-                <div class="flex gap-1 glass p-1.5 rounded-2xl overflow-x-auto no-scrollbar" id="tabBar">
-                    <button
-                        class="tab-btn active flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]"
-                        data-tab="bg" onclick="switchTab('bg')">🪄 BG Removal</button>
-                    <button
-                        class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]"
-                        data-tab="upscale" onclick="switchTab('upscale')">🔍 Upscaler</button>
-                    <button
-                        class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]"
-                        data-tab="demucs" onclick="switchTab('demucs')">🎧 Demucs</button>
-                    <button
-                        class="tab-btn flex-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em]"
-                        data-tab="generate" onclick="switchTab('generate')">🎨 AI Gen</button>
-                </div>
+                <!-- TOOL PANELS (Modern Layout) -->
+                <div class="space-y-4">
 
-                <!-- TAB 1: Background Removal -->
-                <div class="tab-panel active" id="panel-bg">
-                    <div class="space-y-4">
-                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer relative shadow-2xl"
-                            id="bgDropZone">
-                            <input type="file" id="bgFileInput" hidden accept="image/*,video/mp4,video/quicktime">
-                            <div class="text-5xl mb-4">🪄</div>
-                            <h3 class="text-lg font-bold mb-1 uppercase tracking-tighter">Upload Image or Video</h3>
-                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">PNG, JPG, WEBP, MP4,
-                                MOV</p>
-                            <div id="bgFileName"
-                                class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-4">
-                            </div>
-                            <img id="bgPreview" class="hidden mt-4 max-h-48 mx-auto rounded-xl object-contain" src="">
-                        </div>
-                        <div class="glass p-5 rounded-2xl space-y-4">
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Background Model</label>
-                                <select id="bgModel" class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
-                                    <option value="inspyrenet">InSPyReNet (Fast, GPU)</option>
-                                    <option value="birefnet">BiRefNet / RMBG-2.0 (Best Quality, CPU)</option>
-                                </select>
-                            </div>
-                            <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" id="bgFast" class="w-4 h-4 accent-cyan-500">
-                                <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Fast Mode
-                                    (Lower GPU load)</span>
-                            </label>
-                            <div>
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Alpha
-                                    Threshold</label>
-                                <input type="range" id="bgThreshold" min="0" max="100" value="50"
-                                    class="w-full accent-cyan-500">
-                                <span id="bgThresholdVal" class="text-[10px] text-cyan-400 font-mono">0.50</span>
-                            </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Output
-                                    Type</label>
-                                <select id="bgType"
-                                    class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
-                                    <option value="rgba">Transparent (Highest Quality)</option>
-                                    <option value="green">Green Screen</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button id="bgBtn" disabled
-                            class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
-                            REMOVE BACKGROUND
-                        </button>
-                        <div id="bgProgress" class="hidden space-y-2">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
-                                <span class="text-cyan-400" id="bgStatus">Processing...</span>
-                            </div>
-                            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div id="bgBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <!-- PANEL 1: Background Removal -->
+                    <div class="tool-panel active" id="panel-bg">
+                        <div class="space-y-3">
+                            <select id="bgModel" class="model-selector">
+                                <option value="inspyrenet">InSPyReNet (Fast, GPU)</option>
+                                <option value="birefnet">BiRefNet / RMBG-2.0 (Best Quality, CPU)</option>
+                            </select>
 
-                <!-- TAB 2: Upscaler -->
-                <div class="tab-panel" id="panel-upscale">
-                    <div class="space-y-4">
-                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-12 text-center cursor-pointer relative shadow-2xl"
-                            id="upDropZone">
-                            <input type="file" id="upFileInput" hidden accept="image/*,video/mp4,video/quicktime">
-                            <div class="text-5xl mb-4">🔍</div>
-                            <h3 class="text-lg font-bold mb-1 uppercase tracking-tighter">Upload Image or Video</h3>
-                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">PNG, JPG, WEBP, MP4,
-                                MOV</p>
-                            <div id="upFileName"
-                                class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-4">
+                            <div class="upload-clean" id="bgDropZone">
+                                <input type="file" id="bgFileInput" hidden accept="image/*,video/mp4,video/quicktime">
+                                <div class="upload-icon">✨</div>
+                                <div class="upload-title">Upload Image or Video</div>
+                                <div class="upload-subtitle">PNG, JPG, WEBP, MP4, MOV</div>
+                                <div id="bgFileName" class="text-cyan-400 font-mono text-[10px] truncate mt-3" style="font-size:0.6rem;letter-spacing:0.05em;"></div>
+                                <img id="bgPreview" class="hidden mt-3 max-h-40 mx-auto rounded-xl object-contain" src="">
                             </div>
-                            <img id="upPreview" class="hidden mt-4 max-h-48 mx-auto rounded-xl object-contain" src="">
-                        </div>
-                        <div class="glass p-5 rounded-2xl space-y-4">
-                            <div>
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Upscale
-                                    Multiplier</label>
-                                <div class="flex gap-2">
-                                    <button
-                                        class="up-scale-btn flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10 hover:border-cyan-400 transition"
-                                        data-value="2" onclick="selectUpscaleScale('2')">2x</button>
-                                    <button
-                                        class="up-scale-btn flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border border-cyan-400 text-cyan-400 transition"
-                                        data-value="4" onclick="selectUpscaleScale('4')">4x</button>
+
+                            <div class="settings-grid settings-grid-3">
+                                <div class="setting-card">
+                                    <span class="setting-label">Mode</span>
+                                    <div class="toggle-row">
+                                        <span class="toggle-text">Fast (GPU)</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="bgFast">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="setting-card">
+                                    <span class="setting-label">Alpha Threshold</span>
+                                    <input type="range" id="bgThreshold" min="0" max="100" value="50" class="range-modern">
+                                    <span id="bgThresholdVal" class="range-value">0.50</span>
+                                </div>
+                                <div class="setting-card">
+                                    <span class="setting-label">Output Type</span>
+                                    <select id="bgType" class="setting-select">
+                                        <option value="rgba">Transparent</option>
+                                        <option value="green">Green Screen</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div>
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">AI
-                                    Model</label>
-                                <select id="upModel"
-                                    class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
-                                    <option value="realesrgan-x4plus">RealESRGAN x4plus (General)</option>
-                                    <option value="realesrgan-x4plus-anime">RealESRGAN x4plus Anime</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button id="upBtn" disabled
-                            class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
-                            UPSCALE MEDIA
-                        </button>
-                        <div id="upProgress" class="hidden space-y-2">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
-                                <span class="text-cyan-400" id="upStatus">Processing...</span>
-                            </div>
-                            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div id="upBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- TAB 3: Demucs Audio (existing logic) -->
-                <div class="tab-panel" id="panel-demucs">
-                    <div class="space-y-4">
-                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-16 text-center cursor-pointer relative shadow-2xl"
-                            id="dropZone">
-                            <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
-                            <div class="text-6xl mb-6">📂</div>
-                            <h3 class="text-xl font-bold mb-1 uppercase tracking-tighter">Drag Audio Source</h3>
-                            <p class="text-gray-500 text-xs font-medium uppercase tracking-widest">or click to browse
-                                local files</p>
-                            <div id="fileNameDisplay"
-                                class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-6">
-                            </div>
-                        </div>
-                        <div class="turnstile-wrapper flex justify-center py-2">
-                            <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
-                        </div>
-                        <button id="processBtn" disabled
-                            class="w-full py-6 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
-                            START AI SEPARATION
-                        </button>
-                        <div id="progressArea" class="hidden space-y-4">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
-                                <span id="statusText" class="text-cyan-400 italic">Initializing Cluster...</span>
-                                <span id="percentText" class="text-white">0%</span>
-                            </div>
-                            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500">
+                            <button id="bgBtn" disabled class="action-btn action-btn-primary">Remove Background</button>
+
+                            <div id="bgProgress" class="hidden space-y-2">
+                                <div class="flex justify-between text-[10px] font-bold" style="letter-spacing:0.1em;">
+                                    <span class="text-cyan-400" id="bgStatus">Processing...</span>
+                                </div>
+                                <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div id="bgBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
                                 </div>
                             </div>
-                            <p class="text-[9px] text-gray-600 italic leading-relaxed" id="slowWarning">⚠️ Running on
-                                local Intel iMac GPU. Process is private and secure. Do not close browser.</p>
                         </div>
                     </div>
-                </div>
 
-                <!-- TAB 4: AI Generator -->
-                <div class="tab-panel" id="panel-generate">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">AI
-                                Model</label>
-                            <select id="genModel"
-                                class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                    <!-- PANEL 2: Upscaler -->
+                    <div class="tool-panel" id="panel-upscale">
+                        <div class="space-y-3">
+                            <select id="upModel" class="model-selector">
+                                <option value="realesrgan-x4plus">RealESRGAN x4plus (General)</option>
+                                <option value="realesrgan-x4plus-anime">RealESRGAN x4plus Anime</option>
+                            </select>
+
+                            <div class="upload-clean" id="upDropZone">
+                                <input type="file" id="upFileInput" hidden accept="image/*,video/mp4,video/quicktime">
+                                <div class="upload-icon">🔍</div>
+                                <div class="upload-title">Upload Image or Video</div>
+                                <div class="upload-subtitle">PNG, JPG, WEBP, MP4, MOV</div>
+                                <div id="upFileName" class="text-cyan-400 font-mono text-[10px] truncate mt-3" style="font-size:0.6rem;letter-spacing:0.05em;"></div>
+                                <img id="upPreview" class="hidden mt-3 max-h-40 mx-auto rounded-xl object-contain" src="">
+                            </div>
+
+                            <div class="scale-pills">
+                                <button class="scale-pill" data-value="2" onclick="selectUpscaleScale('2')">2x</button>
+                                <button class="scale-pill active" data-value="4" onclick="selectUpscaleScale('4')">4x</button>
+                            </div>
+
+                            <button id="upBtn" disabled class="action-btn action-btn-primary">Upscale Media</button>
+
+                            <div id="upProgress" class="hidden space-y-2">
+                                <div class="flex justify-between text-[10px] font-bold" style="letter-spacing:0.1em;">
+                                    <span class="text-cyan-400" id="upStatus">Processing...</span>
+                                </div>
+                                <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div id="upBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 3: Demucs Audio -->
+                    <div class="tool-panel" id="panel-demucs">
+                        <div class="space-y-3">
+                            <div class="upload-clean" id="dropZone">
+                                <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
+                                <div class="upload-icon">🎧</div>
+                                <div class="upload-title">Upload Audio Track</div>
+                                <div class="upload-subtitle">MP3, WAV, FLAC, M4A, OGG</div>
+                                <div id="fileNameDisplay" class="text-cyan-400 font-mono text-[10px] truncate mt-3" style="font-size:0.6rem;letter-spacing:0.05em;"></div>
+                            </div>
+
+                            <div class="turnstile-wrapper flex justify-center py-2">
+                                <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
+                            </div>
+
+                            <button id="processBtn" disabled class="action-btn action-btn-primary">Start AI Separation</button>
+
+                            <div id="progressArea" class="hidden space-y-4">
+                                <div class="flex justify-between text-[10px] font-bold" style="letter-spacing:0.1em;">
+                                    <span id="statusText" class="text-cyan-400">Initializing Cluster...</span>
+                                    <span id="percentText" class="text-white">0%</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div id="progressBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                                </div>
+                                <p class="text-[9px] text-gray-600 leading-relaxed" id="slowWarning">Running on local Intel iMac GPU. Process is private and secure. Do not close browser.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 4: AI Generator -->
+                    <div class="tool-panel" id="panel-generate">
+                        <div class="space-y-3">
+                            <select id="genModel" class="model-selector">
                                 <option value="stabilityai/sd-turbo">SD-Turbo (Fast, Low Quality)</option>
                                 <option value="Lykon/dreamshaper-8">Dreamshaper 8 (Good Quality, SD 1.5)</option>
                                 <option value="SG161222/Realistic_Vision_V6.0_NV1">Realistic Vision V6.0 (Photorealistic, SD 1.5)</option>
@@ -448,194 +835,114 @@
                                 <option value="RunDiffusion/Juggernaut-XL-v10">Juggernaut XL v10 (Best Quality, SDXL)</option>
                                 <option value="IP-Adapter XL">IP-Adapter XL (Face/Style Transfer, requires ref image)</option>
                             </select>
-                        </div>
 
-                        <!-- PROMPT GUIDE (collapsible) -->
-                        <details class="glass rounded-2xl overflow-hidden group">
-                            <summary
-                                class="flex items-center justify-between p-4 cursor-pointer text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400 hover:text-white transition-colors list-none select-none">
-                                <span class="flex items-center gap-2">💡 Prompt Guide & Settings</span>
-                                <span class="text-gray-500 text-lg transition-transform group-open:rotate-180">▾</span>
-                            </summary>
-                            <div
-                                class="px-4 pb-4 space-y-4 text-[11px] leading-relaxed text-gray-300 border-t border-white/5 pt-4">
-                                <p class="text-white font-semibold">The reason your previous attempts likely haven't
-                                    produced good results is that AI models are naturally "stubborn" in
-                                    <strong>img2img</strong>. If the model sees a masculine face, it tries to preserve
-                                    those features, often resulting in a picture of a man awkwardly wearing makeup
-                                    rather than a true transformation.
-                                </p>
-                                <p>To fix this, you need <strong>three things</strong>: a highly specific positive
-                                    prompt, a ruthless negative prompt, and the right settings (denoising strength).</p>
+                            <textarea id="genPrompt" rows="3" class="prompt-area" placeholder="Describe your image..."></textarea>
 
-                                <div class="glass p-3 rounded-xl space-y-2">
-                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">1.
-                                        &ldquo;Selfie Transformation&rdquo; Prompt (Gender Swap)</h4>
-                                    <p class="text-[10px] text-gray-500">Use when you want a natural, beautiful female
-                                        version of the subject.</p>
-                                    <div class="space-y-1">
-                                        <p class="text-emerald-400 font-bold text-[9px] tracking-wider uppercase">
-                                            Positive:</p>
-                                        <p class="text-gray-400 italic text-[10px]">A beautiful woman, stunning
-                                            realistic portrait, long luscious wavy hair, subtle elegant feminine makeup,
-                                            soft flawless skin, wispy eyelashes, soft pink lipstick, subtle blended
-                                            eyeshadow. Delicate feminine facial features, soft jawline, gorgeous
-                                            aesthetic, natural soft lighting, 8k resolution, highly detailed,
-                                            photorealistic, Vogue editorial photography.</p>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <p class="text-red-400 font-bold text-[9px] tracking-wider uppercase">Negative
-                                            (Critical):</p>
-                                        <p class="text-gray-500 italic text-[10px]">masculine, male, man, stubble, 5
-                                            o'clock shadow, facial hair, mustache, beard, Adam's apple, broad jawline,
-                                            harsh shadows, rough skin, manly, deep wrinkles, ugly, deformed.</p>
-                                    </div>
+                            <div class="category-btns">
+                                <div class="category-btn" onclick="document.querySelector('[data-tab=generate]').click()">
+                                    <span class="cat-icon">🎭</span>
+                                    <span class="cat-label">Style</span>
                                 </div>
-
-                                <div class="glass p-3 rounded-xl space-y-2">
-                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">2.
-                                        &ldquo;Drag Transformation&rdquo; Transformation</h4>
-                                    <p class="text-[10px] text-gray-500">Use for high-glamor, theatrical, fierce drag
-                                        queen makeup.</p>
-                                    <div class="space-y-1">
-                                        <p class="text-emerald-400 font-bold text-[9px] tracking-wider uppercase">
-                                            Positive:</p>
-                                        <p class="text-gray-400 italic text-[10px]">A fierce glamorous high-fashion drag
-                                            queen, RuPaul's Drag Race style, extreme theatrical drag makeup, heavy
-                                            dramatic eyelashes, sharp cut-crease eyeshadow, heavily contoured
-                                            cheekbones, bold glossy overlined lips, massive voluminous long luscious
-                                            wavy hair, dazzling sequin outfit, highly detailed face, professional studio
-                                            lighting, hyperrealistic, ultra-detailed, drag excellence.</p>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <p class="text-red-400 font-bold text-[9px] tracking-wider uppercase">Negative:
-                                        </p>
-                                        <p class="text-gray-500 italic text-[10px]">masculine, male face, stubble,
-                                            facial hair, beard, unstyled hair, subtle makeup, bare face, no makeup,
-                                            natural look, Adam's apple, manly jaw, plain, boring.</p>
-                                    </div>
+                                <div class="category-btn" onclick="document.querySelector('[data-tab=generate]').click()">
+                                    <span class="cat-icon">👤</span>
+                                    <span class="cat-label">Character</span>
                                 </div>
-
-                                <div class="glass p-3 rounded-xl space-y-2">
-                                    <h4 class="text-white font-black text-[10px] tracking-[0.2em] uppercase">💡 The
-                                        Secret Sauce: Workflow &amp; Settings</h4>
-                                    <p class="text-[10px] text-gray-500">A good text prompt is only 30% of the battle.
-                                    </p>
-
-                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">
-                                        Denoising Strength (img2img)</p>
-                                    <ul class="list-disc list-inside text-gray-400 space-y-1 text-[10px]">
-                                        <li><span class="text-red-400">Too low (0.1–0.4):</span> original guy with
-                                            smudged colors</li>
-                                        <li><span class="text-red-400">Too high (0.8–1.0):</span> completely different
-                                            person</li>
-                                        <li class="text-cyan-300 font-semibold">Sweet spot: <strong>0.55 – 0.70</strong>
-                                        </li>
-                                    </ul>
-
-                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">CFG
-                                        Scale</p>
-                                    <p class="text-gray-400 text-[10px]">Turn up to <strong>7.5 – 9</strong> so the AI
-                                        listens strictly to your prompt.</p>
-
-                                    <p class="text-cyan-400 font-bold text-[9px] tracking-wider uppercase mt-2">Pro Tips
-                                    </p>
-                                    <ul class="list-disc list-inside text-gray-400 space-y-1 text-[10px]">
-                                        <li>Generating at higher step counts (20–50) produces more refined detail.</li>
-                                        <li>Use the <strong>Reference Image</strong> upload + <strong>Remixing
-                                                Strength</strong> slider above to dial in the right blend.</li>
-                                    </ul>
+                                <div class="category-btn" onclick="document.querySelector('[data-tab=generate]').click()">
+                                    <span class="cat-icon">📦</span>
+                                    <span class="cat-label">Object</span>
                                 </div>
                             </div>
-                        </details>
 
-                        <div class="glass p-5 rounded-2xl">
-                            <label
-                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Prompt</label>
-                            <textarea id="genPrompt" rows="3"
-                                class="w-full glass text-white text-sm rounded-xl p-4 border-white/10 outline-none resize-none"
-                                placeholder="An astronaut riding a horse on Mars, highly detailed, photorealistic..."></textarea>
-                        </div>
-                        <div class="upload-zone glass border-2 border-dashed border-gray-800 rounded-[2.5rem] p-8 text-center cursor-pointer relative shadow-2xl"
-                            id="genDropZone">
-                            <input type="file" id="genFileInput" hidden accept="image/*">
-                            <div class="text-3xl mb-2">🖼️</div>
-                            <h3 class="text-sm font-bold mb-1 uppercase tracking-tighter">Optional Reference Image</h3>
-                            <p class="text-gray-500 text-[10px] font-medium uppercase tracking-widest">Upload for
-                                Image-to-Image remixing</p>
-                            <div id="genFileName"
-                                class="text-cyan-400 font-mono text-[10px] truncate uppercase tracking-[0.2em] mt-3">
+                            <div class="upload-compact" id="genDropZone">
+                                <input type="file" id="genFileInput" hidden accept="image/*">
+                                <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+                                    <span style="font-size:1rem;opacity:0.5;">🖼️</span>
+                                    <span class="upload-title" style="margin-bottom:0;">Upload Reference Image</span>
+                                </div>
+                                <div class="upload-subtitle" style="margin-top:0.25rem;">Optional — for Image-to-Image remixing</div>
+                                <div id="genFileName" class="text-cyan-400 font-mono text-[10px] truncate mt-2" style="font-size:0.6rem;letter-spacing:0.05em;"></div>
+                                <img id="genPreview" class="hidden mt-3 max-h-32 mx-auto rounded-xl object-contain" src="">
                             </div>
-                            <img id="genPreview" class="hidden mt-4 max-h-48 mx-auto rounded-xl object-contain" src="">
-                        </div>
-                        <div id="genStrengthWrap" class="hidden">
-                            <label
-                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Remixing
-                                Strength</label>
-                            <input type="range" id="genStrength" min="5" max="95" value="50"
-                                class="w-full accent-cyan-500">
-                            <span id="genStrengthVal" class="text-[10px] text-cyan-400 font-mono">0.50</span>
-                        </div>
-                        <div>
-                            <label
-                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Generation
-                                Steps</label>
-                            <input type="range" id="genSteps" min="1" max="50" value="4" class="w-full accent-cyan-500">
-                            <span id="genStepsVal" class="text-[10px] text-cyan-400 font-mono">4</span>
-                        </div>
-                        <div id="genCfgWrap">
-                            <label
-                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">CFG
-                                Scale
-                                <span class="text-gray-600 font-normal normal-case tracking-normal">(Prompt
-                                    adherence)</span></label>
-                            <input type="range" id="genCfgScale" min="0" max="20" step="0.5" value="7.5"
-                                class="w-full accent-cyan-500">
-                            <span id="genCfgScaleVal" class="text-[10px] text-cyan-400 font-mono">7.5</span>
-                            <p id="genCfgWarn" class="text-[9px] text-amber-500 hidden mt-1">Set to 0 disables CFG
-                                (SD-Turbo / SDXL-Turbo default)</p>
-                        </div>
-                        <label class="flex items-center gap-3 cursor-pointer py-1" id="genLcmWrap">
-                            <input type="checkbox" id="genLcm" class="w-4 h-4 accent-cyan-500">
-                            <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">🚀 Fast Mode
-                                (LCM, 1-4 step on SD 1.5 models)</span>
-                        </label>
-                        <div id="genControlNetWrap" class="hidden">
-                            <label
-                                class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">ControlNet
-                                <span class="text-gray-600 font-normal normal-case tracking-normal">(Preserves
-                                    structure)</span></label>
-                            <select id="genControlNet"
-                                class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
-                                <option value="">None</option>
-                                <option value="canny">Canny Edge (Preserves composition)</option>
-                                <option value="depth">Depth Map (Preserves spatial structure)</option>
-                            </select>
-                            <p class="text-[9px] text-gray-600 mt-1">Requires ControlNet model to be cached locally. See
-                                Prompt Guide for details.</p>
-                        </div>
-                        <div class="glass p-4 rounded-2xl">
-                            <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" id="genRefine" class="w-4 h-4 accent-cyan-500">
-                                <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Refine
-                                    prompt via Ollama</span>
-                            </label>
-                            <input type="text" id="genOllamaModel" value="qwen-3.5:2b" placeholder="ollama model name"
-                                class="mt-3 w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
-                        </div>
-                        <button id="genBtn" disabled
-                            class="w-full py-5 rounded-full bg-white text-black font-black text-xs tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all disabled:opacity-10 shadow-lg shadow-white/5">
-                            GENERATE MEDIA
-                        </button>
-                        <div id="genProgress" class="hidden space-y-2">
-                            <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.3em]">
-                                <span class="text-cyan-400" id="genStatus">Generating...</span>
+
+                            <div id="genStrengthWrap" class="hidden">
+                                <span class="setting-label">Remixing Strength</span>
+                                <input type="range" id="genStrength" min="5" max="95" value="50" class="range-modern">
+                                <span id="genStrengthVal" class="range-value">0.50</span>
                             </div>
-                            <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div id="genBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+
+                            <div class="settings-grid settings-grid-3">
+                                <div class="setting-card">
+                                    <span class="setting-label">Steps</span>
+                                    <input type="range" id="genSteps" min="1" max="50" value="4" class="range-modern">
+                                    <span id="genStepsVal" class="range-value">4</span>
+                                </div>
+                                <div class="setting-card" id="genCfgWrap">
+                                    <span class="setting-label">CFG Scale</span>
+                                    <input type="range" id="genCfgScale" min="0" max="20" step="0.5" value="7.5" class="range-modern">
+                                    <span id="genCfgScaleVal" class="range-value">7.5</span>
+                                </div>
+                                <div class="setting-card">
+                                    <span class="setting-label">Fast Mode</span>
+                                    <div class="toggle-row">
+                                        <span class="toggle-text">LCM</span>
+                                        <label class="toggle-switch" id="genLcmWrap">
+                                            <input type="checkbox" id="genLcm">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p id="genCfgWarn" class="text-[9px] text-amber-500 hidden">Set to 0 disables CFG (SD-Turbo / SDXL-Turbo default)</p>
+
+                            <div id="genControlNetWrap" class="hidden">
+                                <span class="setting-label">ControlNet</span>
+                                <select id="genControlNet" class="setting-select">
+                                    <option value="">None</option>
+                                    <option value="canny">Canny Edge (Preserves composition)</option>
+                                    <option value="depth">Depth Map (Preserves spatial structure)</option>
+                                </select>
+                            </div>
+
+                            <!-- PROMPT GUIDE (collapsible) -->
+                            <details class="setting-card overflow-hidden group" style="cursor:pointer;">
+                                <summary class="flex items-center justify-between cursor-pointer select-none" style="list-style:none;">
+                                    <span style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#555;">Prompt Guide & Settings</span>
+                                    <span class="text-gray-500 transition-transform group-open:rotate-180" style="font-size:0.75rem;">▾</span>
+                                </summary>
+                                <div class="space-y-3 text-[11px] leading-relaxed text-gray-400" style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.05);">
+                                    <p class="text-white font-semibold">AI models are naturally "stubborn" in img2img. You need a highly specific positive prompt, a ruthless negative prompt, and the right denoising strength.</p>
+                                    <div class="glass p-3 rounded-xl space-y-2">
+                                        <h4 class="text-white font-black text-[10px] uppercase" style="letter-spacing:0.12em;">Prompt Tip</h4>
+                                        <p class="text-gray-400" style="font-size:0.65rem;">Use detailed descriptions. Set denoising to 0.55–0.70 for best results. CFG Scale 7.5–9 for strict prompt adherence.</p>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <div class="setting-card">
+                                <label class="toggle-row cursor-pointer">
+                                    <span class="toggle-text">Refine prompt via Ollama</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="genRefine">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </label>
+                                <input type="text" id="genOllamaModel" value="qwen-3.5:2b" placeholder="ollama model name" class="setting-select" style="margin-top:0.5rem;">
+                            </div>
+
+                            <button id="genBtn" disabled class="action-btn action-btn-primary">Generate Image</button>
+
+                            <div id="genProgress" class="hidden space-y-2">
+                                <div class="flex justify-between text-[10px] font-bold" style="letter-spacing:0.1em;">
+                                    <span class="text-cyan-400" id="genStatus">Generating...</span>
+                                </div>
+                                <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div id="genBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
 
             </div>
@@ -767,6 +1074,9 @@
             </div>
         </section>
 
+        <!-- BOTTOM SPACER (for fixed bottom nav) -->
+        <div class="bottom-spacer"></div>
+
         <!-- FOOTER -->
         <footer
             class="mt-40 border-t border-white/5 pt-16 flex flex-col md:flex-row justify-between items-center gap-8 relative">
@@ -796,6 +1106,28 @@
 
     <div id="ad-detection-bait" class="adsbox ad-placement doubleclick" style="position: absolute; left: -9999px;">
         &nbsp;</div>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="bottom-nav-inner">
+            <div class="nav-item active" data-tab="bg" onclick="switchTab('bg')">
+                <span class="nav-icon">🪄</span>
+                <span class="nav-label">BG Removal</span>
+            </div>
+            <div class="nav-item" data-tab="upscale" onclick="switchTab('upscale')">
+                <span class="nav-icon">🔍</span>
+                <span class="nav-label">Upscale</span>
+            </div>
+            <div class="nav-item" data-tab="demucs" onclick="switchTab('demucs')">
+                <span class="nav-icon">🎧</span>
+                <span class="nav-label">Demucs</span>
+            </div>
+            <div class="nav-item" data-tab="generate" onclick="switchTab('generate')">
+                <span class="nav-icon">🎨</span>
+                <span class="nav-label">AI Gen</span>
+            </div>
+        </div>
+    </nav>
 
     <!-- SCRIPT MODULE WITH FIREBASE & APP LOGIC -->
     <script type="module">
@@ -918,10 +1250,10 @@
 
         // ---- TAB SWITCHING ----
         window.switchTab = function (tabId) {
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             document.getElementById('panel-' + tabId).classList.add('active');
-            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+            document.querySelector(`.nav-item[data-tab="${tabId}"]`).classList.add('active');
 
             // Show/hide empty state based on tab
             const emptyState = document.getElementById('empty-state');
