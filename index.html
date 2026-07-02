@@ -290,6 +290,13 @@
                             <img id="bgPreview" class="hidden mt-4 max-h-48 mx-auto rounded-xl object-contain" src="">
                         </div>
                         <div class="glass p-5 rounded-2xl space-y-4">
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">Background Model</label>
+                                <select id="bgModel" class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
+                                    <option value="inspyrenet">InSPyReNet (Fast, GPU)</option>
+                                    <option value="birefnet">BiRefNet / RMBG-2.0 (Best Quality, CPU)</option>
+                                </select>
+                            </div>
                             <label class="flex items-center gap-3 cursor-pointer">
                                 <input type="checkbox" id="bgFast" class="w-4 h-4 accent-cyan-500">
                                 <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">Fast Mode
@@ -429,15 +436,17 @@
                             <select id="genModel"
                                 class="w-full glass text-white text-xs rounded-xl p-3 border-white/10 outline-none">
                                 <option value="stabilityai/sd-turbo">SD-Turbo (Fast, Low Quality)</option>
-                                <option value="Lykon/dreamshaper-8">Dreamshaper 8 (Good Quality)</option>
+                                <option value="Lykon/dreamshaper-8">Dreamshaper 8 (Good Quality, SD 1.5)</option>
+                                <option value="SG161222/Realistic_Vision_V6.0_NV1">Realistic Vision V6.0 (Photorealistic, SD 1.5)</option>
+                                <option value="nitrosocke/revAnimated_v122">RevAnimated v1.2.2 (Stylized, SD 1.5)</option>
+                                <option value="segmind/SSD-1B">SSD-1B (Lightweight SDXL, Fast)</option>
+                                <option value="segmind/Segmind-VegaRT">Segmind VegaRT (Ultra Fast, Lightweight SDXL)</option>
                                 <option value="stabilityai/sdxl-turbo">SDXL Turbo (Best Quality)</option>
-                                <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL Base 1.0 (Highest Quality,
-                                    Slow)</option>
+                                <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL Base 1.0 (Highest Quality, Slow)</option>
                                 <option value="SG161222/RealVisXL_V4.0">RealVisXL V4.0 (Photorealistic, SDXL)</option>
-                                <option value="RunDiffusion/Juggernaut-XL-v9">Juggernaut XL v9 (Versatile, SDXL)
-                                </option>
-                                <option value="IP-Adapter XL">IP-Adapter XL (Face/Style Transfer, requires ref image)
-                                </option>
+                                <option value="RunDiffusion/Juggernaut-XL-v9">Juggernaut XL v9 (Versatile, SDXL)</option>
+                                <option value="RunDiffusion/Juggernaut-XL-v10">Juggernaut XL v10 (Best Quality, SDXL)</option>
+                                <option value="IP-Adapter XL">IP-Adapter XL (Face/Style Transfer, requires ref image)</option>
                             </select>
                         </div>
 
@@ -454,7 +463,8 @@
                                     produced good results is that AI models are naturally "stubborn" in
                                     <strong>img2img</strong>. If the model sees a masculine face, it tries to preserve
                                     those features, often resulting in a picture of a man awkwardly wearing makeup
-                                    rather than a true transformation.</p>
+                                    rather than a true transformation.
+                                </p>
                                 <p>To fix this, you need <strong>three things</strong>: a highly specific positive
                                     prompt, a ruthless negative prompt, and the right settings (denoising strength).</p>
 
@@ -585,6 +595,11 @@
                             <p id="genCfgWarn" class="text-[9px] text-amber-500 hidden mt-1">Set to 0 disables CFG
                                 (SD-Turbo / SDXL-Turbo default)</p>
                         </div>
+                        <label class="flex items-center gap-3 cursor-pointer py-1" id="genLcmWrap">
+                            <input type="checkbox" id="genLcm" class="w-4 h-4 accent-cyan-500">
+                            <span class="text-[11px] font-medium uppercase tracking-widest text-gray-400">🚀 Fast Mode
+                                (LCM, 1-4 step on SD 1.5 models)</span>
+                        </label>
                         <div id="genControlNetWrap" class="hidden">
                             <label
                                 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 block mb-2">ControlNet
@@ -968,6 +983,7 @@
 
             const formData = new FormData();
             formData.append('file', bgFile);
+            formData.append('bg_model', document.getElementById('bgModel').value);
             formData.append('fast_mode', document.getElementById('bgFast').checked ? 'true' : 'false');
             formData.append('threshold', (document.getElementById('bgThreshold').value / 100).toFixed(2));
             formData.append('output_type', document.getElementById('bgType').value);
@@ -1259,6 +1275,14 @@
             genBtn.disabled = !this.value.trim() || !currentUser;
         };
 
+        // SD 1.5 model list (resolution ≤ 512)
+        const SD15_MODELS = [
+            'stabilityai/sd-turbo',
+            'Lykon/dreamshaper-8',
+            'SG161222/Realistic_Vision_V6.0_NV1',
+            'nitrosocke/revAnimated_v122',
+        ];
+
         // Update controls when model changes
         document.getElementById('genModel').onchange = function () {
             const stepsSlider = document.getElementById('genSteps');
@@ -1276,9 +1300,18 @@
             } else {
                 cfgWrap.classList.remove('hidden');
             }
+            // Show LCM checkbox only for SD 1.5 models
+            const lcmWrap = document.getElementById('genLcmWrap');
+            if (SD15_MODELS.includes(this.value)) {
+                lcmWrap.classList.remove('hidden');
+            } else {
+                lcmWrap.classList.add('hidden');
+            }
             updateControlNetVisibility();
             stepsVal.textContent = stepsSlider.value;
         };
+        // Trigger initial state
+        document.getElementById('genModel').dispatchEvent(new Event('change'));
 
         document.getElementById('genBtn').addEventListener('click', async () => {
             const prompt = document.getElementById('genPrompt').value.trim();
@@ -1295,6 +1328,7 @@
             formData.append('prompt', prompt);
             formData.append('steps', document.getElementById('genSteps').value);
             formData.append('model', document.getElementById('genModel').value);
+            formData.append('use_lcm', document.getElementById('genLcm').checked ? 'true' : 'false');
             formData.append('cfg_scale', document.getElementById('genCfgScale').value);
             formData.append('controlnet_type', document.getElementById('genControlNet').value);
             formData.append('refine', document.getElementById('genRefine').checked ? 'true' : 'false');
