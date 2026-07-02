@@ -72,7 +72,7 @@ All four share a single Python backend behind a Tailscale Funnel — meaning you
 
 # 🧑‍💻 Full macOS Setup Guide
 
-Below is a _you-are-there_, step-by-step walkthrough of setting this entire backend on macOS (Darwin). Every command, every gotcha, every file we created along the way.
+Below is a _you-are-there_, step-by-step walkthrough of setting this entire backend on macOS (Darwin). Development is focused on supporting older hardware and low cost setups with or without GPU's. This is intended to run on all hardware not just expensive GPUs. the server here is slow but the math is the same just slower running on CPU but same math/ same results as a fast GPU, you will find that this setup guide is specific to intel based macOS, there is no windows/linux documentation yet.
 
 ## Prerequisites
 
