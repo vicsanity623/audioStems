@@ -95,13 +95,13 @@ If you are running a different operating system or hardware configuration, you c
 * **Watch Your Python Version:** Older or non-standard hardware often lacks pre-compiled binaries (wheels) for the newest Python releases (like Python 3.12+). Sticking to **Python 3.10 or 3.11** is highly recommended to avoid complex C++ compilation errors during setup.
 * **Match PyTorch to Your Hardware:** This setup uses Metal Performance Shaders (`mps`) for macOS GPU acceleration. If you are on Windows or Linux with an NVIDIA card, you will need to install the `cuda` version of PyTorch instead. If you have no dedicated GPU, you can run entirely on `cpu` (though processing times will increase).
 * **Adjust System Paths:** Pay close attention to executable paths. For example, Intel Macs place Homebrew installations in `/usr/local/bin/`, while Apple Silicon Macs place them in `/opt/homebrew/bin/`. Windows and Linux will require setting environment paths to wherever your system utilities (like `ffmpeg` or `realesrgan`) are installed.
-* **Resolve Dependency Constraints:** If you encounter dependency conflicts during installation, look closely at the package versions. Restricting modern packages to slightly older, stable releases often resolves issues where your hardware's maximum supported PyTorch version cannot satisfy newer libraries.
-* **Monitor Dependency Vulnerabilities:** To support older or non-standard hardware, you may need to pin specific, older versions of core libraries (such as PyTorch, Transformers, or Gradio). Doing so introduces a trade-off between hardware compatibility and security, as older dependencies often contain known vulnerabilities (such as untrusted data deserialization in Hugging Face Transformers [3] or path traversal vulnerabilities in Gradio [3]). 
+* **Security & Vulnerability Management:** Running local AI models on legacy hardware often forces developers to use older package dependencies, which can introduce known security vulnerabilities (such as untrusted data deserialization in Hugging Face Transformers or path traversal risks in Gradio). 
 
-  To mitigate these security risks on your local machine:
-  * **Never Expose Ports Publicly:** Do not expose your local Gradio port (`XXXX`) directly to the open internet. Access your server remotely only via a private, encrypted overlay network like **Tailscale** (as detailed in this guide).
-  * **Keep Upgrades Balanced:** Regularly check the **Security** tab of this repository for Dependabot alerts [3]. If a library can be safely upgraded to a patched, secure version (such as `transformers>=4.48.0` [3] or `gradio>=6.7.0` [3]) without breaking your local hardware compatibility, you should do so immediately.
-  * **Trust Your Sources:** Be highly cautious when downloading and loading third-party models, configurations, or untrusted media files, as deserialization exploits often rely on compromised model config files [3].
+  To maintain a secure environment without breaking hardware compatibility, this repository utilizes custom Python code wrappers (monkey-patches) in `app.py`. This allows you to run patched, secure versions of these libraries (including `transformers>=4.48.0` and `gradio>=6.7.0`) directly on legacy macOS engines.
+  
+  **Best Security Practices:**
+  * **Avoid Router Port Forwarding:** While sharing the port number `7860` in documentation is standard and safe, you should **never** configure your home Wi-Fi router to forward port `7860` directly to the public internet. Doing so exposes your machine to automated public scans. Always access your server remotely using a secure, private overlay network like **Tailscale**.
+  * **Trust Your Sources:** Be highly cautious when downloading and loading third-party models or configurations, as deserialization exploits often rely on compromised model files hosted on untrusted public sites.
 
 ---
   
