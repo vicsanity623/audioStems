@@ -30,6 +30,20 @@ TEMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(TEMP_DIR, exist_ok=True)
 
+# Personal ArtFlow backup directories (local paths, only visible to you)
+ARTFLOW_DIR = "/Volumes/XTRA/ArtFlow"
+ARTFLOW_OG_DIR = "/Volumes/XTRA/ArtFlowOG"
+os.makedirs(ARTFLOW_DIR, exist_ok=True)
+os.makedirs(ARTFLOW_OG_DIR, exist_ok=True)
+
+def _copy_to_artflow(source_path, target_dir):
+    if not source_path or not os.path.exists(source_path):
+        return
+    try:
+        shutil.copy2(source_path, os.path.join(target_dir, os.path.basename(source_path)))
+    except Exception:
+        pass
+
 _API_KEY = "REPLACE_WITH_YOUR_OWN_RANDOM_STRING"
 
 # ---------------------------------------------------------
@@ -49,6 +63,9 @@ _sd_pipe_txt = None
 _sd_pipe_img = None
 _sd_pipe_ipa = None
 _current_model_id = None
+
+_controlnet_model = None
+_controlnet_type = None
 
 # ---------------------------------------------------------
 # MODEL CONFIGS — TODO: Add your own models here
@@ -158,7 +175,7 @@ def refine_prompt_with_ollama(raw_prompt, model_name, progress=gr.Progress()):
 # UNLOAD MODELS
 # ---------------------------------------------------------
 def unload_current_model():
-    global _sd_pipe_txt, _sd_pipe_img, _sd_pipe_ipa, _current_model_id
+    global _sd_pipe_txt, _sd_pipe_img, _sd_pipe_ipa, _current_model_id, _controlnet_model, _controlnet_type
     if _sd_pipe_txt is not None:
         del _sd_pipe_txt
         _sd_pipe_txt = None
@@ -169,6 +186,8 @@ def unload_current_model():
         del _sd_pipe_ipa
         _sd_pipe_ipa = None
     _current_model_id = None
+    _controlnet_model = None
+    _controlnet_type = None
     import gc
     gc.collect()
     if torch.cuda.is_available():
@@ -232,25 +251,147 @@ def process_upscale(input_path, scale="4", model_choice="realesrgan-x4plus"):
 # ---------------------------------------------------------
 # TEXT-TO-IMAGE / IMAGE-TO-IMAGE — TODO: Implement your own model
 # ---------------------------------------------------------
-def _try_load_sd_model(pipeline_cls, model_id, device_hint, variant, progress):
+def _try_load_sd_model(pipeline_cls, model_id, device_hint, variant, progress, extra_kwargs=None):
     """Load a Stable Diffusion pipeline with MPS/CPU fallback."""
+    if extra_kwargs is None:
+        extra_kwargs = {}
     if device_hint == "mps":
         try:
             progress(0, desc=f"Loading {model_id} on MPS...")
-            pipe = pipeline_cls.from_pretrained(model_id, torch_dtype=torch.float16, variant=variant)
+            pipe = pipeline_cls.from_pretrained(model_id, torch_dtype=torch.float16, variant=variant, **extra_kwargs)
             pipe = pipe.to("mps")
             print(f"Loaded {model_id} on MPS")
             return pipe, "mps"
         except Exception as e:
             print(f"MPS load failed for {model_id}: {e}")
     progress(0, desc=f"Loading {model_id} on CPU...")
-    pipe = pipeline_cls.from_pretrained(model_id, torch_dtype=torch.float32, variant=variant)
+    pipe = pipeline_cls.from_pretrained(model_id, torch_dtype=torch.float32, variant=variant, **extra_kwargs)
     pipe = pipe.to("cpu")
     print(f"Loaded {model_id} on CPU")
     return pipe, "cpu"
 
+_TEMPLATE_DIR = os.path.dirname(os.path.abspath(__file__))
+HF_HUB = os.environ.get("HF_HUB", os.path.join(_TEMPLATE_DIR, ".cache", "huggingface", "hub"))
 
-def process_txt2img(prompt, steps, ref_image, strength, model_id, progress=gr.Progress()):
+CONTROLNET_CONFIGS = {
+    "canny": {
+        "name": "Canny Edge",
+        "model_id": os.path.join(HF_HUB, "controlnet-canny-sdxl-1.0"),
+        "repo_id": "diffusers/controlnet-canny-sdxl-1.0",
+        "description": "Preserves edges and composition",
+    },
+    "depth": {
+        "name": "Depth",
+        "model_id": os.path.join(HF_HUB, "controlnet-depth-sdxl-1.0"),
+        "repo_id": "diffusers/controlnet-depth-sdxl-1.0",
+        "description": "Preserves depth and spatial structure",
+    },
+}
+
+def _preprocess_canny(image, low_threshold=100, high_threshold=200):
+    import cv2
+    import numpy as np
+    arr = np.array(image)
+    gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+    edges = cv2.Canny(gray, low_threshold, high_threshold)
+    return Image.fromarray(edges).convert("RGB")
+
+def _load_controlnet(controlnet_type):
+    global _controlnet_model, _controlnet_type
+    if _controlnet_type == controlnet_type and _controlnet_model is not None:
+        return _controlnet_model
+    cfg = CONTROLNET_CONFIGS.get(controlnet_type)
+    if not cfg:
+        return None
+    print(f"[ControlNet] Loading {cfg['name']} on CPU...")
+    try:
+        from diffusers import ControlNetModel
+        cnet = ControlNetModel.from_pretrained(
+            cfg["model_id"],
+            torch_dtype=torch.float32,
+        )
+        _controlnet_model = cnet
+        _controlnet_type = controlnet_type
+        print(f"[ControlNet] Loaded {cfg['name']}")
+        return cnet
+    except Exception as e:
+        print(f"[ControlNet] Failed to load {cfg['name']}: {e}")
+        print(f"[ControlNet] Download manually from: https://huggingface.co/{cfg['repo_id']}")
+        return None
+
+def _unload_controlnet():
+    global _controlnet_model, _controlnet_type
+    _controlnet_model = None
+    _controlnet_type = None
+    import gc; gc.collect()
+
+def _encode_long_prompt(pipe, prompt, negative_prompt=None, device="cpu"):
+    """Encode prompt with chunking for >77 token CLIP limit.
+    Works with SDXL (dual text encoder) pipelines.
+    Returns (prompt_embeds, negative_prompt_embeds, pooled_prompt_embeds, negative_pooled_prompt_embeds)
+    or (None, None, None, None) if the pipeline is not SDXL."""
+    is_sdxl = hasattr(pipe, 'tokenizer_2') and hasattr(pipe, 'text_encoder_2')
+    if not is_sdxl:
+        return None, None, None, None
+
+    import torch
+
+    def _chunk_encode(text, tokenizer, text_encoder):
+        tokens = tokenizer(text, truncation=False, return_tensors="pt")
+        input_ids = tokens.input_ids[0]
+        max_len = tokenizer.model_max_length
+        seq_len = input_ids.shape[0]
+
+        if seq_len <= max_len:
+            outputs = text_encoder(tokens.input_ids.to(device), output_hidden_states=True)
+            hidden = outputs.last_hidden_state
+            pooled = outputs.pooler_output if hasattr(outputs, 'pooler_output') else hidden[:, -1]
+            return hidden, pooled
+
+        chunk_size = max_len - 2
+        bos_id = tokenizer.bos_token_id or 49406
+        eos_id = tokenizer.eos_token_id or 49407
+        pad_id = tokenizer.pad_token_id or eos_id
+
+        hidden_chunks = []
+        pooled_chunks = []
+
+        for i in range(0, seq_len, chunk_size):
+            chunk_ids = input_ids[i:i + chunk_size]
+            chunk_ids = torch.cat([
+                torch.tensor([bos_id], dtype=torch.long, device=input_ids.device),
+                chunk_ids,
+                torch.tensor([eos_id], dtype=torch.long, device=input_ids.device),
+            ])
+            if chunk_ids.shape[0] < max_len:
+                pad_count = max_len - chunk_ids.shape[0]
+                chunk_ids = torch.cat([chunk_ids, torch.full((pad_count,), pad_id, dtype=torch.long, device=input_ids.device)])
+            outputs = text_encoder(chunk_ids.unsqueeze(0).to(device), output_hidden_states=True)
+            hidden_chunks.append(outputs.last_hidden_state)
+            if hasattr(outputs, 'pooler_output'):
+                pooled_chunks.append(outputs.pooler_output)
+
+        hidden = torch.cat(hidden_chunks, dim=1)
+        pooled = torch.stack(pooled_chunks).mean(dim=0) if pooled_chunks else hidden[:, -1]
+        return hidden, pooled
+
+    h1, p1 = _chunk_encode(prompt, pipe.tokenizer, pipe.text_encoder)
+    h2, p2 = _chunk_encode(prompt, pipe.tokenizer_2, pipe.text_encoder_2)
+
+    seq_len = min(h1.shape[1], h2.shape[1])
+    prompt_embeds = torch.cat([h1[:, :seq_len], h2[:, :seq_len]], dim=-1)
+    pooled_prompt_embeds = torch.cat([p1, p2], dim=-1)
+
+    neg_prompt = negative_prompt if negative_prompt else ""
+    nh1, np1 = _chunk_encode(neg_prompt, pipe.tokenizer, pipe.text_encoder)
+    nh2, np2 = _chunk_encode(neg_prompt, pipe.tokenizer_2, pipe.text_encoder_2)
+    neg_seq_len = min(nh1.shape[1], nh2.shape[1])
+    negative_prompt_embeds = torch.cat([nh1[:, :neg_seq_len], nh2[:, :neg_seq_len]], dim=-1)
+    negative_pooled_prompt_embeds = torch.cat([np1, np2], dim=-1)
+
+    return prompt_embeds, negative_prompt_embeds, pooled_prompt_embeds, negative_pooled_prompt_embeds
+
+def process_txt2img(prompt, steps, ref_image, strength, model_id, progress=gr.Progress(), cfg_scale=None, controlnet_type=None):
     """
     Generate an image from text (or image-to-image if ref_image is provided).
 
@@ -258,31 +399,44 @@ def process_txt2img(prompt, steps, ref_image, strength, model_id, progress=gr.Pr
     The default implementation uses diffusers AutoPipeline which works with most
     SD/SDXL models out of the box.
     """
-    global _sd_pipe_txt, _sd_pipe_img, _current_model_id
+    global _sd_pipe_txt, _sd_pipe_img, _current_model_id, _controlnet_model
     if not DIFFUSERS_AVAILABLE:
         return None
 
     config = MODEL_CONFIGS.get(model_id, MODEL_CONFIGS.get(list(MODEL_CONFIGS.keys())[0]))
     total_steps = int(steps)
     resolution = config["resolution"]
-    guidance_scale = config["guidance_scale"]
+    guidance_scale = float(cfg_scale) if cfg_scale is not None else config["guidance_scale"]
     variant = config.get("variant")
 
-    if _current_model_id != model_id:
+    cache_key = model_id
+    control_image = None
+    controlnet = None
+
+    if controlnet_type and ref_image is not None:
+        controlnet = _load_controlnet(controlnet_type)
+        if controlnet is not None:
+            cache_key = f"{model_id}+{controlnet_type}"
+
+    if _current_model_id != cache_key:
         progress(0, desc=f"Unloading previous model...")
         unload_current_model()
+
+        pipe_kwargs = {}
+        if controlnet is not None:
+            pipe_kwargs["controlnet"] = controlnet
 
         use_mps = torch.backends.mps.is_available() and config["resolution"] <= 512
         device_hint = "mps" if use_mps else "cpu"
 
         if ref_image is not None:
-            _sd_pipe_img, actual_device = _try_load_sd_model(AutoPipelineForImage2Image, model_id, device_hint, variant, progress)
+            _sd_pipe_img, actual_device = _try_load_sd_model(AutoPipelineForImage2Image, model_id, device_hint, variant, progress, extra_kwargs=pipe_kwargs)
             _sd_pipe_txt = None
         else:
-            _sd_pipe_txt, actual_device = _try_load_sd_model(AutoPipelineForText2Image, model_id, device_hint, variant, progress)
+            _sd_pipe_txt, actual_device = _try_load_sd_model(AutoPipelineForText2Image, model_id, device_hint, variant, progress, extra_kwargs=pipe_kwargs)
             _sd_pipe_img = None
 
-        _current_model_id = model_id
+        _current_model_id = cache_key
 
     if ref_image is not None:
         params = list(_sd_pipe_img.text_encoder.parameters()) if hasattr(_sd_pipe_img, 'text_encoder') else list(_sd_pipe_img.unet.parameters())
@@ -291,6 +445,10 @@ def process_txt2img(prompt, steps, ref_image, strength, model_id, progress=gr.Pr
     device = str(params[0].device) if params else "cpu"
 
     generator = torch.Generator(device=device).manual_seed(random.randint(0, 2**32))
+
+    pipe = _sd_pipe_img if ref_image is not None else _sd_pipe_txt
+    pe, npe, ppe, nppe = _encode_long_prompt(pipe, prompt, device=device)
+    use_long = pe is not None
 
     def step_callback(step_idx, timestep, latents):
         progress((step_idx + 1) / total_steps, desc=f"Generating step {step_idx + 1}/{total_steps}...")
@@ -306,11 +464,39 @@ def process_txt2img(prompt, steps, ref_image, strength, model_id, progress=gr.Pr
         paste_y = (resolution - new_h) // 2
         padded.paste(init_image, (paste_x, paste_y))
 
-        progress(0, desc=f"Generating image-to-image ({total_steps} steps)...")
-        result = _sd_pipe_img(prompt=prompt, image=padded, strength=float(strength), num_inference_steps=total_steps, guidance_scale=guidance_scale, callback=step_callback, callback_steps=1, generator=generator).images[0]
+        if controlnet is not None and controlnet_type:
+            control_image = _preprocess_canny(init_image.resize((resolution, resolution), Image.LANCZOS))
+            progress(0, desc=f"Generating with ControlNet ({total_steps} steps)...")
+            if use_long:
+                result = _sd_pipe_img(
+                    prompt_embeds=pe, negative_prompt_embeds=npe,
+                    pooled_prompt_embeds=ppe, negative_pooled_prompt_embeds=nppe,
+                    image=padded, strength=float(strength),
+                    num_inference_steps=total_steps, guidance_scale=guidance_scale,
+                    control_image=control_image, controlnet_conditioning_scale=0.5,
+                    callback=step_callback, callback_steps=1, generator=generator,
+                ).images[0]
+            else:
+                result = _sd_pipe_img(
+                    prompt=prompt, image=padded, strength=float(strength),
+                    num_inference_steps=total_steps, guidance_scale=guidance_scale,
+                    control_image=control_image, controlnet_conditioning_scale=0.5,
+                    callback=step_callback, callback_steps=1, generator=generator,
+                ).images[0]
+        else:
+            progress(0, desc=f"Generating image-to-image ({total_steps} steps)...")
+            if use_long:
+                result = _sd_pipe_img(prompt_embeds=pe, negative_prompt_embeds=npe, pooled_prompt_embeds=ppe, negative_pooled_prompt_embeds=nppe, image=padded, strength=float(strength), num_inference_steps=total_steps, guidance_scale=guidance_scale, callback=step_callback, callback_steps=1, generator=generator).images[0]
+            else:
+                result = _sd_pipe_img(prompt=prompt, image=padded, strength=float(strength), num_inference_steps=total_steps, guidance_scale=guidance_scale, callback=step_callback, callback_steps=1, generator=generator).images[0]
     else:
+        if controlnet is not None and controlnet_type:
+            progress(0, desc="ControlNet requires a reference image, falling back to text-to-image...")
         progress(0, desc=f"Generating text-to-image ({total_steps} steps)...")
-        result = _sd_pipe_txt(prompt=prompt, num_inference_steps=total_steps, guidance_scale=guidance_scale, callback=step_callback, callback_steps=1, generator=generator).images[0]
+        if use_long:
+            result = _sd_pipe_txt(prompt_embeds=pe, negative_prompt_embeds=npe, pooled_prompt_embeds=ppe, negative_pooled_prompt_embeds=nppe, num_inference_steps=total_steps, guidance_scale=guidance_scale, callback=step_callback, callback_steps=1, generator=generator).images[0]
+        else:
+            result = _sd_pipe_txt(prompt=prompt, num_inference_steps=total_steps, guidance_scale=guidance_scale, callback=step_callback, callback_steps=1, generator=generator).images[0]
 
     progress(1, desc="Saving result...")
     out_path = os.path.join(OUTPUT_DIR, f"ai_gen_{abs(hash(prompt)) % 100000}.png")
@@ -322,11 +508,13 @@ def process_txt2img(prompt, steps, ref_image, strength, model_id, progress=gr.Pr
     return out_path
 
 
-def process_ip_adapter(prompt, steps, ref_image, ipa_scale, progress=gr.Progress()):
+def process_ip_adapter(prompt, steps, ref_image, ipa_scale, progress=gr.Progress(), cfg_scale=None):
     """
     Process image using IP-Adapter (face/style transfer from reference image).
 
     TODO: Implement your own IP-Adapter logic or remove if not needed.
+    Loads directly on CPU (float32) since IP-Adapter + SDXL + image encoder
+    exceeds MPS memory limits on most Macs (~6.77 GB cap).
     """
     global _sd_pipe_ipa, _current_model_id
 
@@ -334,52 +522,60 @@ def process_ip_adapter(prompt, steps, ref_image, ipa_scale, progress=gr.Progress
         return None
 
     if _current_model_id != "IP-Adapter XL" or _sd_pipe_ipa is None:
-        progress(0, desc="Loading IP-Adapter pipeline...")
+        print("[IP-Adapter] Unloading previous model...")
         unload_current_model()
+        _current_model_id = None
         base_model_id = "stabilityai/stable-diffusion-xl-base-1.0"
-        use_mps = torch.backends.mps.is_available()
+
+        # Clear stale HF lock files
+        from huggingface_hub import constants
+        lock_dir = os.path.join(constants.hf_cache_home, ".locks")
+        if os.path.isdir(lock_dir):
+            import pathlib, time
+            now = time.time()
+            for lock_file in pathlib.Path(lock_dir).rglob("*.lock"):
+                try:
+                    if now - lock_file.stat().st_mtime > 300:
+                        lock_file.unlink()
+                except Exception:
+                    pass
 
         try:
+            print("[IP-Adapter] Loading SDXL base pipeline on CPU (local only)...")
             from diffusers import StableDiffusionXLImg2ImgPipeline
+            pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
+                base_model_id, torch_dtype=torch.float32, variant="fp16",
+                local_files_only=True,
+            )
+            print("[IP-Adapter] Loading correct CLIP-ViT-H-14 image encoder (projection_dim=1024)...")
+            from transformers import CLIPVisionModelWithProjection
+            correct_clip = CLIPVisionModelWithProjection.from_pretrained(
+                "/Volumes/XTRA/PYOB2026MAY/BGRemover/.cache/models/CLIP-ViT-H-14",
+                local_files_only=True,
+            )
+            pipe.register_modules(image_encoder=correct_clip)
 
-            if use_mps:
-                try:
-                    progress(0.1, desc="Loading IP-Adapter on MPS...")
-                    pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
-                        base_model_id, torch_dtype=torch.float16, variant="fp16"
-                    )
-                    progress(0.3, desc="Loading IP-Adapter weights...")
-                    pipe.load_ip_adapter(
-                        "h94/IP-Adapter",
-                        subfolder="sdxl_models",
-                        weight_name="ip-adapter_sdxl_vit-h.safetensors",
-                    )
-                    pipe.set_ip_adapter_scale(float(ipa_scale))
-                    _sd_pipe_ipa = pipe.to("mps")
-                    _current_model_id = "IP-Adapter XL"
-                    progress(0.6, desc="IP-Adapter loaded on MPS")
-                except Exception as e:
-                    print(f"MPS load failed for IP-Adapter: {e}")
-                    use_mps = False
+            from transformers import CLIPImageProcessor
+            feature_extractor = CLIPImageProcessor(size=224, crop_size=224)
+            pipe.register_modules(feature_extractor=feature_extractor)
 
-            if not use_mps:
-                progress(0.1, desc="Loading IP-Adapter on CPU (float32)...")
-                pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
-                    base_model_id, torch_dtype=torch.float32
-                )
-                progress(0.3, desc="Loading IP-Adapter weights...")
-                pipe.load_ip_adapter(
-                    "h94/IP-Adapter",
-                    subfolder="sdxl_models",
-                    weight_name="ip-adapter_sdxl_vit-h.safetensors",
-                )
-                pipe.set_ip_adapter_scale(float(ipa_scale))
-                _sd_pipe_ipa = pipe.to("cpu")
-                _current_model_id = "IP-Adapter XL"
-                progress(0.6, desc="IP-Adapter loaded on CPU")
+            print("[IP-Adapter] Loading IP-Adapter weights...")
+            pipe.load_ip_adapter(
+                "h94/IP-Adapter",
+                subfolder="sdxl_models",
+                weight_name="ip-adapter_sdxl_vit-h.safetensors",
+                local_files_only=True,
+            )
 
-        except Exception as e:
-            print(f"IP-Adapter load failed: {e}")
+            pipe.set_ip_adapter_scale(float(ipa_scale))
+            _sd_pipe_ipa = pipe.to("cpu")
+            _current_model_id = "IP-Adapter XL"
+            print("[IP-Adapter] Pipeline loaded on CPU")
+
+            import gc; gc.collect()
+
+        except Exception:
+            print("[IP-Adapter] Load failed")
             import traceback; traceback.print_exc()
             return None
 
@@ -389,6 +585,7 @@ def process_ip_adapter(prompt, steps, ref_image, ipa_scale, progress=gr.Progress
     params = list(pipe.image_encoder.parameters()) if hasattr(pipe, 'image_encoder') else list(pipe.unet.parameters())
     device = str(params[0].device) if params else "cpu"
 
+    print(f"[IP-Adapter] Preparing reference image ({ref_image})...")
     init_image = Image.open(ref_image).convert("RGB")
     orig_w, orig_h = init_image.size
     resolution = 1024
@@ -402,35 +599,54 @@ def process_ip_adapter(prompt, steps, ref_image, ipa_scale, progress=gr.Progress
 
     generator = torch.Generator(device=device).manual_seed(random.randint(0, 2**32))
 
-    def step_callback(step_idx, timestep, latents):
-        progress((step_idx + 1) / steps, desc=f"Generating step {step_idx + 1}/{steps}...")
+    pe, npe, ppe, nppe = _encode_long_prompt(pipe, prompt if prompt else "", device=device)
 
-    progress(0, desc=f"Generating with IP-Adapter ({steps} steps)...")
-    result = pipe(
-        prompt=prompt if prompt else "",
-        image=padded,
-        num_inference_steps=steps,
-        strength=float(ipa_scale),
-        guidance_scale=7.5,
-        callback=step_callback,
-        callback_steps=1,
-        generator=generator,
-    ).images[0]
+    print(f"[IP-Adapter] Generating with {steps} steps on {device}...")
+    try:
+        if pe is not None:
+            result = pipe(
+                prompt_embeds=pe, negative_prompt_embeds=npe,
+                pooled_prompt_embeds=ppe, negative_pooled_prompt_embeds=nppe,
+                image=padded,
+                ip_adapter_image=init_image,
+                num_inference_steps=steps,
+                strength=float(ipa_scale),
+                guidance_scale=float(cfg_scale) if cfg_scale is not None else 7.5,
+                generator=generator,
+            ).images[0]
+        else:
+            result = pipe(
+                prompt=prompt if prompt else "",
+                image=padded,
+                ip_adapter_image=init_image,
+                num_inference_steps=steps,
+                strength=float(ipa_scale),
+                guidance_scale=float(cfg_scale) if cfg_scale is not None else 7.5,
+                generator=generator,
+            ).images[0]
+    except Exception as e:
+        print(f"[IP-Adapter] Inference failed: {e}")
+        import traceback; traceback.print_exc()
+        return None
 
-    progress(1, desc="Saving result...")
+    print("[IP-Adapter] Saving result...")
     out_path = os.path.join(OUTPUT_DIR, f"ai_gen_{abs(hash(prompt or 'ipa')) % 100000}.png")
     result.save(out_path)
 
     if device == "mps":
         torch.mps.empty_cache()
 
+    print(f"[IP-Adapter] Done: {out_path}")
     return out_path
 
 
-def handle_txt2img_click(prompt, steps, ref_image, strength, use_refine, ollama_model, model_id, progress=gr.Progress()):
+def handle_txt2img_click(prompt, steps, ref_image, strength, use_refine, ollama_model, model_id, progress=gr.Progress(), cfg_scale=None, controlnet_type=None):
     if use_refine and prompt:
         prompt = refine_prompt_with_ollama(prompt, ollama_model, progress)
-    res_file = process_txt2img(prompt, steps, ref_image, strength, model_id, progress)
+    if model_id == "IP-Adapter XL":
+        res_file = process_ip_adapter(prompt, steps, ref_image, strength, progress, cfg_scale=cfg_scale)
+    else:
+        res_file = process_txt2img(prompt, steps, ref_image, strength, model_id, progress, cfg_scale=cfg_scale, controlnet_type=controlnet_type)
     meta = get_file_metadata_and_stems(res_file)
     if res_file:
         config = MODEL_CONFIGS.get(model_id, MODEL_CONFIGS.get(list(MODEL_CONFIGS.keys())[0]))
@@ -641,6 +857,8 @@ def api_generate(
     model: str = Form("stabilityai/sd-turbo"),
     ref_image: UploadFile = File(None),
     strength: str = Form("0.5"),
+    cfg_scale: str = Form(""),
+    controlnet_type: str = Form(""),
     refine: str = Form("false"),
     ollama_model: str = Form("qwen-3.5:2b"),
 ):
@@ -656,12 +874,14 @@ def api_generate(
             ref_path = os.path.join(TEMP_DIR, ref_image.filename)
             with open(ref_path, "wb") as f:
                 f.write(ref_image.file.read())
+        parsed_cfg = float(cfg_scale) if cfg_scale else None
+        parsed_cnet = controlnet_type if controlnet_type else None
         if model == "IP-Adapter XL":
             if not ref_path:
                 return JSONResponse({"error": "IP-Adapter requires a reference image"}, status_code=400)
-            result = process_ip_adapter(final_prompt, int(steps), ref_path, float(strength), gr.Progress())
+            result = process_ip_adapter(final_prompt, int(steps), ref_path, float(strength), gr.Progress(), cfg_scale=parsed_cfg)
         else:
-            result = process_txt2img(final_prompt, int(steps), ref_path, float(strength), model, gr.Progress())
+            result = process_txt2img(final_prompt, int(steps), ref_path, float(strength), model, gr.Progress(), cfg_scale=parsed_cfg, controlnet_type=parsed_cnet)
         if result and os.path.exists(result):
             _increment_processed()
             return {"url": f"outputs/{os.path.basename(result)}"}
@@ -669,6 +889,7 @@ def api_generate(
     except NotImplementedError:
         return JSONResponse({"error": "Not implemented — TODO: add your own model logic"}, status_code=501)
     except Exception:
+        import traceback; traceback.print_exc()
         return JSONResponse({"error": "Internal server error"}, status_code=500)
     finally:
         if ref_path and os.path.exists(ref_path):
