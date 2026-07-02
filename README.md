@@ -134,8 +134,8 @@ python3.10 --version
 ### Step 2: Clone the Repository
 
 ```bash
-git clone https://github.com/vicsanity623/BGRemover.git
-cd BGRemover
+git clone https://github.com/vicsanity623/audioStems.git
+cd audioStems
 ```
 
 ### Step 3: Create the Virtual Environment
@@ -317,7 +317,7 @@ const API_KEY = "paste-your-generated-key-here";
 ### Step 9: Run the Backend Locally
 
 ```bash
-cd /path/to/BGRemover
+cd /path/to/audioStems
 source .venvBGR/bin/activate
 python3 src/media_server/app.py
 ```
@@ -378,7 +378,7 @@ This is what makes the whole thing work from anywhere — no static IP, no port 
 
 2. Copy the frontend files into it:
    ```bash
-   # From your BGRemover project
+   # From your audioStems project
    cp index.html /path/to/your-github-pages-repo/index.html
    # Also copy any assets, audio files, etc.
    ```
@@ -447,15 +447,15 @@ All models are cached locally. To keep your home drive from filling up, the app 
 
 | Cache | Location |
 |-------|----------|
-| HuggingFace models | `BGRemover/.cache/huggingface/` |
-| Torch hub | `BGRemover/.cache/torch/` |
-| Transparent Background | `BGRemover/.transparent-background/` |
+| HuggingFace models | `audioStems/.cache/huggingface/` |
+| Torch hub | `audioStems/.cache/torch/` |
+| Transparent Background | `audioStems/.transparent-background/` |
 | Demucs models | `~/Library/Caches/demucs/` |
 
 To move the HuggingFace cache to an external drive:
 
 ```bash
-export HF_HOME=/Volumes/YourExternalDrive/.cache/huggingface
+export HF_HOME=/Volumes/YourExternalDrive/audioStems/.cache/huggingface
 ```
 
 ---
