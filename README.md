@@ -28,43 +28,43 @@ All four share a single Python backend behind a Tailscale Funnel — meaning you
 
 ```
 ┌─────────────────────────────────────────────┐
-│              GitHub Pages                    │
+│              GitHub Pages                   │
 │  (Static HTML/JS — no backend required)     │
-│  https://vicsanity623.github.io              │
-│                                              │
-│  Contains: 4-tab interface + Firebase Auth   │
-│  + Cloudflare Turnstile + Wavesurfer player  │
+│  https://vicsanity623.github.io             │
+│                                             │
+│  Contains: 4-tab interface + Firebase Auth  │
+│  + Cloudflare Turnstile + Wavesurfer player │
 └────────────────────┬────────────────────────┘
                      │
                      ▼
             Tailscale Funnel
-       (https://your-machine.tailXXXXX.ts.net)
+   (https://your-machine.tailXXXXX.ts.net)
                      │
                      ▼
 ┌─────────────────────────────────────────────┐
-│         Your Local Machine (Backend)         │
-│                                              │
-│  Python Gradio/FastAPI app on :7860           │
-│  ┌──────────────────────────────────────┐    │
-│  │  Gradio 5 UI (used for testing)      │    │
-│  │  ───────────────────────────────     │    │
-  │  │  Custom REST API endpoints:          │    │
-  │  │  POST /api/bg-remove   (bg removal) │    │
-  │  │  POST /api/upscale     (upscaling)  │    │
-  │  │  POST /api/generate    (AI gen)     │    │
-  │  │  POST /separate        (demucs)     │    │
-  │  │  GET  /status/{id}     (task poll)  │    │
-  │  │  POST /counter         (analytics)  │    │
-  │  │  GET  /api/stats       (live stats) │    │
-  │  │  GET  /outputs/{path}  (file serve) │    │
-│  └──────────────────────────────────────┘    │
-│                                              │
-│  Models on disk (~10–30 GB total):           │
-│  ├── transparent-background (PyTorch)        │
-│  ├── realesrgan-x4plus / -x2                 │
-│  ├── sd-turbo / sd-xl / realvisxl / juggernaut│
-│  ├── IP-Adapter XL (face/style transfer)     │
-│  └── demucs htdemucs (Meta)                  │
+│         Your Local Machine (Backend)        │
+│                                             │
+│  Python Gradio/FastAPI app on :7860         │
+│  ┌──────────────────────────────────────┐   │
+│  │  Gradio 5 UI (used for testing)      │   │
+│  │  ───────────────────────────────     │   │
+│  │  Custom REST API endpoints:          │   │
+│  │  POST /api/bg-remove   (bg removal)  │   │
+│  │  POST /api/upscale     (upscaling)   │   │
+│  │  POST /api/generate    (AI gen)      │   │
+│  │  POST /separate        (demucs)      │   │
+│  │  GET  /status/{id}     (task poll)   │   │
+│  │  POST /counter         (analytics)   │   │
+│  │  GET  /api/stats       (live stats)  │   │
+│  │  GET  /outputs/{path}  (file serve)  │   │
+│  └──────────────────────────────────────┘   │
+│                                             │
+│  Models on disk (~10–30 GB total):          │
+│  ├── transparent-background (PyTorch)       │
+│  ├── realesrgan-x4plus / -x2                │
+│  ├── sd-turbo /sd-xl /realvisxl /juggernaut │
+│  ├── IP-Adapter XL (face/style transfer)    │
+│  └── demucs htdemucs (Meta)                 │
 └─────────────────────────────────────────────┘
 ```
 
@@ -76,7 +76,7 @@ Below is a _you-are-there_, step-by-step walkthrough of setting this entire back
 
 ## Prerequisites
 
-- **macOS** (tested on Intel Mac with macOS Sequoia 15.x)
+- **macOS** (tested on Intel Mac with macOS Tahoe v26.5.1)
 - **Homebrew** (`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`)
 - **Python 3.10** (not 3.11+, because PyTorch + certain wheels have issues on newer Pythons on macOS)
 - **~30 GB free disk space** for model weights
