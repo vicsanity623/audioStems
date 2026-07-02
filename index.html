@@ -25,7 +25,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/wavesurfer.js@7"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script>
+        window.__turnstileWidgets = {};
+        window.__renderTurnstileWidgets = function () {
+            var key = '0x4AAAAAACVDGkCTPm9o_-CA';
+            ['bg', 'up', 'demucs', 'generate', 'music'].forEach(function (id) {
+                var el = document.getElementById('turnstile-' + id);
+                if (el) window.__turnstileWidgets[id] = turnstile.render(el, { sitekey: key, theme: 'dark' });
+            });
+        };
+    </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=__renderTurnstileWidgets" async defer></script>
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
         mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
@@ -740,6 +750,10 @@
                                 </div>
                             </div>
 
+                            <div class="turnstile-wrapper flex justify-center py-2">
+                                <div id="turnstile-bg"></div>
+                            </div>
+
                             <button id="bgBtn" disabled class="action-btn action-btn-primary">Remove Background</button>
 
                             <div id="bgProgress" class="hidden space-y-2">
@@ -775,6 +789,10 @@
                                 <button class="scale-pill active" data-value="4" onclick="selectUpscaleScale('4')">4x</button>
                             </div>
 
+                            <div class="turnstile-wrapper flex justify-center py-2">
+                                <div id="turnstile-up"></div>
+                            </div>
+
                             <button id="upBtn" disabled class="action-btn action-btn-primary">Upscale Media</button>
 
                             <div id="upProgress" class="hidden space-y-2">
@@ -791,6 +809,11 @@
                     <!-- PANEL 3: Demucs Audio -->
                     <div class="tool-panel" id="panel-demucs">
                         <div class="space-y-3">
+                            <select id="demucsModel" class="model-selector">
+                                <option value="htdemucs">HTDemucs (Default)</option>
+                                <option value="htdemucs_ft">HTDemucs FT (Fine-tuned)</option>
+                            </select>
+
                             <div class="upload-clean" id="dropZone">
                                 <input type="file" id="fileInput" hidden accept=".mp3,.wav,.flac,.m4a,.ogg">
                                 <div class="upload-icon">🎧</div>
@@ -800,7 +823,7 @@
                             </div>
 
                             <div class="turnstile-wrapper flex justify-center py-2">
-                                <div class="cf-turnstile" data-sitekey="0x4AAAAAACVDGkCTPm9o_-CA" data-theme="dark"></div>
+                                <div id="turnstile-demucs"></div>
                             </div>
 
                             <button id="processBtn" disabled class="action-btn action-btn-primary">Start AI Separation</button>
@@ -940,6 +963,10 @@
                                 </div>
                             </div>
 
+                            <div class="turnstile-wrapper flex justify-center py-2">
+                                <div id="turnstile-generate"></div>
+                            </div>
+
                             <button id="genBtn" disabled class="action-btn action-btn-primary">Generate Image</button>
 
                             <div id="genProgress" class="hidden space-y-2">
@@ -968,6 +995,10 @@
                                     <span id="musicDurationVal" class="range-value" style="margin-top:0;">30s</span>
                                 </div>
                                 <input type="range" id="musicDuration" min="10" max="120" value="30" class="range-modern">
+                            </div>
+
+                            <div class="turnstile-wrapper flex justify-center py-2">
+                                <div id="turnstile-music"></div>
                             </div>
 
                             <button id="musicBtn" disabled class="action-btn action-btn-primary">Generate Music</button>
@@ -1361,7 +1392,8 @@
         };
 
         document.getElementById('bgBtn').addEventListener('click', async () => {
-            if (!bgFile || !currentUser) return;
+            const cfToken = turnstile.getResponse(window.__turnstileWidgets.bg);
+            if (!cfToken || !bgFile || !currentUser) { alert("Please verify you are human."); return; }
 
             const bgProgress = document.getElementById('bgProgress');
             const bgBar = document.getElementById('bgBar');
@@ -1372,6 +1404,7 @@
 
             const formData = new FormData();
             formData.append('file', bgFile);
+            formData.append('cf-turnstile-response', cfToken);
             formData.append('bg_model', document.getElementById('bgModel').value);
             formData.append('fast_mode', document.getElementById('bgFast').checked ? 'true' : 'false');
             formData.append('threshold', (document.getElementById('bgThreshold').value / 100).toFixed(2));
@@ -1442,7 +1475,8 @@
         };
 
         document.getElementById('upBtn').addEventListener('click', async () => {
-            if (!upFile || !currentUser) return;
+            const cfToken = turnstile.getResponse(window.__turnstileWidgets.up);
+            if (!cfToken || !upFile || !currentUser) { alert("Please verify you are human."); return; }
 
             const upProgress = document.getElementById('upProgress');
             const upBar = document.getElementById('upBar');
@@ -1453,6 +1487,7 @@
 
             const formData = new FormData();
             formData.append('file', upFile);
+            formData.append('cf-turnstile-response', cfToken);
             formData.append('scale', upScaleVal);
             formData.append('model', document.getElementById('upModel').value);
 
@@ -1512,8 +1547,8 @@
 
         processBtn.addEventListener('click', async () => {
             if (processBtn.innerText === "SEPARATE ANOTHER") { location.reload(); return; }
-            const cfToken = turnstile.getResponse();
-            if (!cfToken || !currentUser) { alert("Check or Login missing."); return; }
+            const cfToken = turnstile.getResponse(window.__turnstileWidgets.demucs);
+            if (!cfToken || !currentUser) { alert("Please verify you are human."); return; }
 
             isProcessing = true;
             processBtn.classList.add('hidden');
@@ -1522,6 +1557,7 @@
             const formData = new FormData();
             formData.append('audioFile', selectedFile);
             formData.append('cf-turnstile-response', cfToken);
+            formData.append('model_choice', document.getElementById('demucsModel').value);
 
             try {
                 const res = await fetch(`${getBackendUrl()}separate`, {
@@ -1717,7 +1753,8 @@
 
         document.getElementById('genBtn').addEventListener('click', async () => {
             const prompt = document.getElementById('genPrompt').value.trim();
-            if (!prompt || !currentUser) return;
+            const cfToken = turnstile.getResponse(window.__turnstileWidgets.generate);
+            if (!cfToken || !prompt || !currentUser) { alert("Please verify you are human."); return; }
 
             const genProgress = document.getElementById('genProgress');
             const genBar = document.getElementById('genBar');
@@ -1727,6 +1764,7 @@
             genStatus.textContent = 'Sending request...';
 
             const formData = new FormData();
+            formData.append('cf-turnstile-response', cfToken);
             formData.append('prompt', prompt);
             formData.append('steps', document.getElementById('genSteps').value);
             formData.append('model', document.getElementById('genModel').value);
@@ -1811,7 +1849,8 @@
 
         musicBtn.addEventListener('click', async () => {
             const prompt = musicPrompt.value.trim();
-            if (!prompt || !currentUser) return;
+            const cfToken = turnstile.getResponse(window.__turnstileWidgets.music);
+            if (!cfToken || !prompt || !currentUser) { alert("Please verify you are human."); return; }
 
             musicProgress.classList.remove('hidden');
             musicResults.classList.add('hidden');
@@ -1820,6 +1859,7 @@
             musicBtn.disabled = true;
 
             const formData = new FormData();
+            formData.append('cf-turnstile-response', cfToken);
             formData.append('prompt', prompt);
             formData.append('model', musicModel.value);
             formData.append('duration', musicDuration.value);
