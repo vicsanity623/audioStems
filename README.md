@@ -96,7 +96,13 @@ If you are running a different operating system or hardware configuration, you c
 * **Match PyTorch to Your Hardware:** This setup uses Metal Performance Shaders (`mps`) for macOS GPU acceleration. If you are on Windows or Linux with an NVIDIA card, you will need to install the `cuda` version of PyTorch instead. If you have no dedicated GPU, you can run entirely on `cpu` (though processing times will increase).
 * **Adjust System Paths:** Pay close attention to executable paths. For example, Intel Macs place Homebrew installations in `/usr/local/bin/`, while Apple Silicon Macs place them in `/opt/homebrew/bin/`. Windows and Linux will require setting environment paths to wherever your system utilities (like `ffmpeg` or `realesrgan`) are installed.
 * **Resolve Dependency Constraints:** If you encounter dependency conflicts during installation, look closely at the package versions. Restricting modern packages to slightly older, stable releases often resolves issues where your hardware's maximum supported PyTorch version cannot satisfy newer libraries.
-* **SECURITY WARNING:** Older dependencies may have been depracted and you should monitor and pay close attention to security concerns working with older dependencies. check the "Security & Quality" tab in this repo for security and vulnerability alerts.
+* **Monitor Dependency Vulnerabilities:** To support older or non-standard hardware, you may need to pin specific, older versions of core libraries (such as PyTorch, Transformers, or Gradio). Doing so introduces a trade-off between hardware compatibility and security, as older dependencies often contain known vulnerabilities (such as untrusted data deserialization in Hugging Face Transformers [3] or path traversal vulnerabilities in Gradio [3]). 
+
+  To mitigate these security risks on your local machine:
+  * **Never Expose Ports Publicly:** Do not expose your local Gradio port (`XXXX`) directly to the open internet. Access your server remotely only via a private, encrypted overlay network like **Tailscale** (as detailed in this guide).
+  * **Keep Upgrades Balanced:** Regularly check the **Security** tab of this repository for Dependabot alerts [3]. If a library can be safely upgraded to a patched, secure version (such as `transformers>=4.48.0` [3] or `gradio>=6.7.0` [3]) without breaking your local hardware compatibility, you should do so immediately.
+  * **Trust Your Sources:** Be highly cautious when downloading and loading third-party models, configurations, or untrusted media files, as deserialization exploits often rely on compromised model config files [3].
+
 ---
   
 ## Prerequisites
