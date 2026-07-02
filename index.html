@@ -930,6 +930,16 @@
                                 <input type="text" id="genOllamaModel" value="qwen-3.5:2b" placeholder="ollama model name" class="setting-select" style="margin-top:0.5rem;">
                             </div>
 
+                            <div id="genSlowWarn" class="hidden" style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:0.75rem;padding:0.75rem;">
+                                <div style="display:flex;align-items:flex-start;gap:0.5rem;">
+                                    <span style="font-size:0.9rem;line-height:1;">⏳</span>
+                                    <div>
+                                        <div style="font-size:0.65rem;font-weight:800;color:#fbbf24;text-transform:uppercase;letter-spacing:0.1em;">Slow Mode — CPU Inference</div>
+                                        <div style="font-size:0.6rem;color:#999;margin-top:0.25rem;line-height:1.4;">SDXL + Reference Image + ControlNet runs on CPU. Expect 15-30+ minutes. Use SD 1.5 models for faster results with reference images.</div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <button id="genBtn" disabled class="action-btn action-btn-primary">Generate Image</button>
 
                             <div id="genProgress" class="hidden space-y-2">
@@ -1557,12 +1567,33 @@
         const genControlNetWrap = document.getElementById('genControlNetWrap');
         const genCfgWrap = document.getElementById('genCfgWrap');
 
+        // SD 1.5 model list (resolution ≤ 512) — defined early for updateSlowWarning
+        const SD15_MODELS = [
+            'stabilityai/sd-turbo',
+            'Lykon/dreamshaper-8',
+            'SG161222/Realistic_Vision_V6.0_NV1',
+            'nitrosocke/revAnimated_v122',
+        ];
+
         function updateControlNetVisibility() {
             const model = document.getElementById('genModel').value;
             if (genFile && model !== 'IP-Adapter XL') {
                 genControlNetWrap.classList.remove('hidden');
             } else {
                 genControlNetWrap.classList.add('hidden');
+            }
+            updateSlowWarning();
+        }
+
+        function updateSlowWarning() {
+            const model = document.getElementById('genModel').value;
+            const isSDXL = !SD15_MODELS.includes(model) && model !== 'IP-Adapter XL';
+            const hasRef = genFile !== null;
+            const slowWarn = document.getElementById('genSlowWarn');
+            if (isSDXL && hasRef) {
+                slowWarn.classList.remove('hidden');
+            } else {
+                slowWarn.classList.add('hidden');
             }
         }
 
@@ -1606,14 +1637,6 @@
         document.getElementById('genPrompt').oninput = function () {
             genBtn.disabled = !this.value.trim() || !currentUser;
         };
-
-        // SD 1.5 model list (resolution ≤ 512)
-        const SD15_MODELS = [
-            'stabilityai/sd-turbo',
-            'Lykon/dreamshaper-8',
-            'SG161222/Realistic_Vision_V6.0_NV1',
-            'nitrosocke/revAnimated_v122',
-        ];
 
         // Update controls when model changes
         document.getElementById('genModel').onchange = function () {
