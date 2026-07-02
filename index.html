@@ -953,6 +953,46 @@
                         </div>
                     </div>
 
+                    <!-- PANEL 5: AI Music -->
+                    <div class="tool-panel" id="panel-music">
+                        <div class="space-y-3">
+                            <select id="musicModel" class="model-selector">
+                                <option value="musicgen-small">MusicGen Small — 30s clips, ~30s generation</option>
+                            </select>
+
+                            <textarea id="musicPrompt" rows="3" class="prompt-area" placeholder="Describe the music you want... e.g. 'A chill lo-fi beat with soft piano and vinyl crackle'"></textarea>
+
+                            <div class="setting-card">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                                    <span class="setting-label" style="margin-bottom:0;">Duration</span>
+                                    <span id="musicDurationVal" class="range-value" style="margin-top:0;">30s</span>
+                                </div>
+                                <input type="range" id="musicDuration" min="10" max="120" value="30" class="range-modern">
+                            </div>
+
+                            <button id="musicBtn" disabled class="action-btn action-btn-primary">Generate Music</button>
+
+                            <div id="musicProgress" class="hidden space-y-2">
+                                <div class="flex justify-between text-[10px] font-bold" style="letter-spacing:0.1em;">
+                                    <span class="text-cyan-400" id="musicStatus">Generating...</span>
+                                </div>
+                                <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div id="musicBar" class="h-full status-gradient w-0 transition-all duration-500"></div>
+                                </div>
+                            </div>
+
+                            <div id="musicResults" class="hidden">
+                                <div class="setting-card" style="text-align:center;">
+                                    <audio id="musicAudioPlayer" controls class="w-full" style="border-radius:0.75rem;max-height:48px;"></audio>
+                                    <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+                                        <a id="musicDownloadWav" download class="action-btn action-btn-primary" style="flex:1;text-decoration:none;font-size:0.65rem;">Download WAV</a>
+                                        <a id="musicDownloadMp3" download class="action-btn action-btn-primary" style="flex:1;text-decoration:none;font-size:0.65rem;background:linear-gradient(135deg,#333,#555);box-shadow:none;">Download MP3</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -1136,6 +1176,10 @@
                 <span class="nav-icon">🎨</span>
                 <span class="nav-label">AI Gen</span>
             </div>
+            <div class="nav-item" data-tab="music" onclick="switchTab('music')">
+                <span class="nav-icon">🎵</span>
+                <span class="nav-label">AI Music</span>
+            </div>
         </div>
     </nav>
 
@@ -1271,6 +1315,7 @@
             const bgResults = document.getElementById('bgResults');
             const upResults = document.getElementById('upResults');
             const genResults = document.getElementById('genResults');
+            const musicResults = document.getElementById('musicResults');
 
             if (tabId === 'demucs' && demucsResults.classList.contains('hidden')) {
                 emptyState.classList.remove('hidden');
@@ -1279,6 +1324,8 @@
             } else if (tabId === 'upscale' && upResults.classList.contains('hidden')) {
                 emptyState.classList.remove('hidden');
             } else if (tabId === 'generate' && genResults.classList.contains('hidden')) {
+                emptyState.classList.remove('hidden');
+            } else if (tabId === 'music' && musicResults.classList.contains('hidden')) {
                 emptyState.classList.remove('hidden');
             } else {
                 emptyState.classList.add('hidden');
@@ -1727,6 +1774,89 @@
             document.getElementById('genResultImg').src = '';
             document.getElementById('genPrompt').value = '';
             genBtn.disabled = true;
+        });
+
+        // ---- TAB 5: AI MUSIC ----
+        const musicModel = document.getElementById('musicModel');
+        const musicPrompt = document.getElementById('musicPrompt');
+        const musicDuration = document.getElementById('musicDuration');
+        const musicDurationVal = document.getElementById('musicDurationVal');
+        const musicBtn = document.getElementById('musicBtn');
+        const musicProgress = document.getElementById('musicProgress');
+        const musicBar = document.getElementById('musicBar');
+        const musicStatus = document.getElementById('musicStatus');
+        const musicResults = document.getElementById('musicResults');
+        const musicAudioPlayer = document.getElementById('musicAudioPlayer');
+
+        const MUSIC_MAX_DURATIONS = {
+            'musicgen-small': 30,
+        };
+
+        musicModel.onchange = function () {
+            const maxDur = MUSIC_MAX_DURATIONS[this.value] || 30;
+            musicDuration.max = maxDur;
+            if (parseInt(musicDuration.value) > maxDur) {
+                musicDuration.value = maxDur;
+            }
+            musicDurationVal.textContent = musicDuration.value + 's';
+        };
+
+        musicDuration.oninput = function () {
+            musicDurationVal.textContent = this.value + 's';
+        };
+
+        musicPrompt.oninput = function () {
+            musicBtn.disabled = !this.value.trim() || !currentUser;
+        };
+
+        musicBtn.addEventListener('click', async () => {
+            const prompt = musicPrompt.value.trim();
+            if (!prompt || !currentUser) return;
+
+            musicProgress.classList.remove('hidden');
+            musicResults.classList.add('hidden');
+            musicBar.style.width = '10%';
+            musicStatus.textContent = 'Initializing...';
+            musicBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('prompt', prompt);
+            formData.append('model', musicModel.value);
+            formData.append('duration', musicDuration.value);
+
+            try {
+                musicBar.style.width = '40%';
+                musicStatus.textContent = 'Generating music...';
+                const res = await fetch(getBackendUrl() + 'api/music-generate', {
+                    method: 'POST',
+                    headers: { 'X-API-Key': API_KEY, 'X-User-ID': currentUser.uid },
+                    body: formData
+                });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.detail || 'Server error');
+                }
+                const data = await res.json();
+
+                musicBar.style.width = '100%';
+                musicStatus.textContent = 'Done!';
+
+                setTimeout(() => {
+                    musicProgress.classList.add('hidden');
+                    musicResults.classList.remove('hidden');
+                    const audioUrl = getBackendUrl() + data.url;
+                    musicAudioPlayer.src = audioUrl;
+                    document.getElementById('musicDownloadWav').href = audioUrl;
+                    const mp3Url = audioUrl.replace('.wav', '.mp3');
+                    document.getElementById('musicDownloadMp3').href = mp3Url;
+                    musicBtn.disabled = false;
+                }, 500);
+            } catch (err) {
+                musicStatus.textContent = 'ERROR: ' + err.message;
+                musicStatus.classList.add('text-red-500');
+                musicBtn.disabled = false;
+                console.error('[Music]', err);
+            }
         });
 
         // Stats Graph Loader
