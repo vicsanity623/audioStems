@@ -591,6 +591,40 @@
             height: 80px;
         }
 
+        /* Community Showcase — 2000s Tumblr Style */
+        #showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        }
+        #showcase-grid img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.2s;
+            aspect-ratio: auto;
+        }
+        #showcase-grid img:hover {
+            opacity: 0.85;
+        }
+        #showcase-grid a {
+            display: block;
+            line-height: 0;
+            overflow: hidden;
+        }
+        #showcase-grid a:nth-child(3n) {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+        #showcase-grid a:nth-child(5n) {
+            grid-column: span 1;
+            grid-row: span 2;
+        }
+        #showcase-grid a:nth-child(7n) {
+            grid-column: span 2;
+            grid-row: span 1;
+        }
+
         /* Mobile adjustments */
         @media (max-width: 768px) {
             .settings-grid-3 {
@@ -1092,6 +1126,15 @@
                     </button>
                 </div>
 
+                <!-- Community Showcase (AI Gen gallery) -->
+                <div id="community-showcase" class="hidden">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <h2 class="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400">Community Showcase</h2>
+                        <span id="showcase-count" class="text-[9px] text-gray-600 font-mono tracking-widest">0</span>
+                    </div>
+                    <div id="showcase-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-0 rounded-none overflow-hidden"></div>
+                </div>
+
                 <!-- Empty State -->
                 <div id="empty-state"
                     class="h-64 border border-white/5 rounded-[2.5rem] flex items-center justify-center text-gray-900 font-black uppercase tracking-tighter text-5xl select-none opacity-20 italic">
@@ -1347,6 +1390,7 @@
             const upResults = document.getElementById('upResults');
             const genResults = document.getElementById('genResults');
             const musicResults = document.getElementById('musicResults');
+            const showcase = document.getElementById('community-showcase');
 
             if (tabId === 'demucs' && demucsResults.classList.contains('hidden')) {
                 emptyState.classList.remove('hidden');
@@ -1356,12 +1400,37 @@
                 emptyState.classList.remove('hidden');
             } else if (tabId === 'generate' && genResults.classList.contains('hidden')) {
                 emptyState.classList.remove('hidden');
+                loadShowcaseGallery();
             } else if (tabId === 'music' && musicResults.classList.contains('hidden')) {
                 emptyState.classList.remove('hidden');
             } else {
                 emptyState.classList.add('hidden');
+                if (tabId !== 'generate') showcase.classList.add('hidden');
             }
         };
+
+        // Community Showcase Gallery
+        async function loadShowcaseGallery() {
+            const showcase = document.getElementById('community-showcase');
+            const grid = document.getElementById('showcase-grid');
+            const countEl = document.getElementById('showcase-count');
+            try {
+                const res = await fetch(`${getBackendUrl()}api/community/gallery`);
+                if (!res.ok) throw new Error('Gallery unavailable');
+                const data = await res.json();
+                if (!data.images || data.images.length === 0) {
+                    showcase.classList.add('hidden');
+                    return;
+                }
+                countEl.textContent = data.images.length;
+                grid.innerHTML = data.images.map(img =>
+                    `<a href="${getBackendUrl()}${img.url}" target="_blank"><img src="${getBackendUrl()}${img.url}" loading="lazy"></a>`
+                ).join('');
+                showcase.classList.remove('hidden');
+            } catch (e) {
+                showcase.classList.add('hidden');
+            }
+        }
 
         // ---- TAB 1: BG REMOVAL ----
         const bgDropZone = document.getElementById('bgDropZone');
@@ -1795,6 +1864,7 @@
                 setTimeout(() => {
                     genProgress.classList.add('hidden');
                     document.getElementById('genResults').classList.remove('hidden');
+                    document.getElementById('community-showcase').classList.add('hidden');
                     document.getElementById('empty-state').classList.add('hidden');
                     document.getElementById('genResultImg').src = getBackendUrl() + data.url + '?t=' + Date.now();
                     document.getElementById('genDownloadLink').href = getBackendUrl() + data.url;
@@ -1812,6 +1882,7 @@
             document.getElementById('genResultImg').src = '';
             document.getElementById('genPrompt').value = '';
             genBtn.disabled = true;
+            loadShowcaseGallery();
         });
 
         // ---- TAB 5: AI MUSIC ----
