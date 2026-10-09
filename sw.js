@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v3.0.0'; 
+const CACHE_VERSION = 'v3.0.1'; 
 const CACHE_NAME = `ai-media-server-${CACHE_VERSION}`;
 
 const FILES_TO_CACHE = [
